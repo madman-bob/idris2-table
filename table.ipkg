@@ -1,0 +1,7 @@
+package table
+
+sourcedir = "."
+
+modules =
+    Data.Table,
+    Data.Table.Schema

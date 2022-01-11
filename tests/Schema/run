@@ -1,0 +1,8 @@
+. ../testutils.sh
+
+basicTest ExampleSchema.idr << EOF
+    exampleSchema
+
+    names exampleSchema
+    types exampleSchema
+EOF

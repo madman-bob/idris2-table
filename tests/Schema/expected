@@ -1,0 +1,5 @@
+[<("name", String), ("age", Nat), ("favorite color", String)]
+
+[<"name", "age", "favorite color"]
+[<String, Nat, String]
+

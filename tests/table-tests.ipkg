@@ -1,0 +1,8 @@
+package table-tests
+
+sourcedir = "."
+
+depends = contrib, test
+
+main = TableTests
+executable = table-tests
