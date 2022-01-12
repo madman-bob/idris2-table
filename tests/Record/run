@@ -1,0 +1,9 @@
+. ../testutils.sh
+
+basicTest ExampleRecord.idr << EOF
+    exampleRecord
+
+    field "name" exampleRecord
+    field "age" exampleRecord
+    field "grade" exampleRecord
+EOF

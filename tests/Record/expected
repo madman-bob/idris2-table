@@ -1,0 +1,11 @@
+[<"Bob", 12, "blue"]
+
+"Bob"
+12
+Error: Can't find an implementation for HasField [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)] "grade" ?sa.
+
+(Interactive):1:5--1:32
+ 1 |     field "grade" exampleRecord
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+

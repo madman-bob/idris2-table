@@ -4,4 +4,5 @@ sourcedir = "."
 
 modules =
     Data.Table,
+    Data.Table.Record,
     Data.Table.Schema
