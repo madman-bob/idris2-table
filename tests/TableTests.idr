@@ -5,6 +5,6 @@ import Test.Golden
 main : IO ()
 main = runner [
     MkTestPool "Table" [] Nothing [
-        "Record", "Schema"
+        "Record", "Schema", "Table"
     ]
   ]
