@@ -1,0 +1,16 @@
+[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33]]
+[<[<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
+
+[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
+
+[<[<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
+[<[<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
+[<[<"Robinson", Just 34]]
+
+[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
+[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
+[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34]]
+
+[<"Rafferty (Dep. 31)", "Jones (Dep. 32)", "Heisenberg (Dep. 33)", "Robinson (Dep. 34)", "Smith (Dep. 34)", "Williams"]
+[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34]]
+

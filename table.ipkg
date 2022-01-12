@@ -6,4 +6,5 @@ modules =
     Data.Table,
     Data.Table.Data,
     Data.Table.Record,
+    Data.Table.Row,
     Data.Table.Schema

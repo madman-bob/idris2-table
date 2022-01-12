@@ -1,0 +1,21 @@
+. ../testutils.sh
+
+basicTest ExampleTables.idr << EOF
+    employees
+    moreEmployees
+
+    :let allEmployees : Table EmployeeSchema
+    :let allEmployees = employees ++ moreEmployees
+    allEmployees
+
+    mkTable $ the (List _) [robinson, smith, williams]
+    mkTable $ the (SnocList _) [<robinson, smith, williams]
+    mkTable $ the (Maybe _) (Just robinson)
+
+    employees ++ the (List _) [robinson, smith, williams]
+    employees ++ the (SnocList _) [<robinson, smith, williams]
+    employees ++ the (Maybe _) (Just robinson)
+
+    map displayName allEmployees
+    filter hasDepartment allEmployees
+EOF
