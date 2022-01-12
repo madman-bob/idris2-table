@@ -18,4 +18,9 @@ basicTest ExampleTables.idr << EOF
 
     map displayName allEmployees
     filter hasDepartment allEmployees
+
+    row employees 0
+    row employees 1
+    row employees 2
+    row employees 3
 EOF

@@ -14,3 +14,13 @@
 [<"Rafferty (Dep. 31)", "Jones (Dep. 32)", "Heisenberg (Dep. 33)", "Robinson (Dep. 34)", "Smith (Dep. 34)", "Williams"]
 [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34]]
 
+[<"Rafferty", Just 31]
+[<"Jones", Just 32]
+[<"Heisenberg", Just 33]
+Error: Can't find an implementation for So (with block in integerLessThanNat 3 False 3).
+
+(Interactive):1:19--1:20
+ 1 |     row employees 3
+                       ^
+
+
