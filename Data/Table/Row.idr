@@ -26,6 +26,11 @@ map : (Record schema -> a) -> Table schema -> SnocList a
 map f [<] = [<]
 map f (tbl :< rec) = map f tbl :< f rec
 
+export
+mapPreservesLength : HasRows tbl n => HasRows tbl (length (map f tbl))
+mapPreservesLength @{EmptyTable} = EmptyTable
+mapPreservesLength @{SnocTable _} = SnocTable mapPreservesLength
+
 public export
 filter : (Record schema -> Bool) -> Table schema -> Table schema
 filter f [<] = [<]

@@ -1,0 +1,21 @@
+. ../testutils.sh
+
+basicTest ExampleTable.idr << EOF
+    students
+
+    column "name" students
+    column "age" students
+    column "grade" students
+
+    :let studentsWithFinal : Table [<"name" :! String, "age" :! Nat, "favorite color" :! String, "final" :! Nat]
+    :let studentsWithFinal = addColumn "final" [<87, 85, 77] students
+    studentsWithFinal
+
+    column "name" studentsWithFinal
+    column "age" studentsWithFinal
+    column "final" studentsWithFinal
+
+    :let studentsWithGrade : Table [<"name" :! String, "age" :! Nat, "favorite color" :! String, "final" :! Nat, "grade" :! String]
+    :let studentsWithGrade = buildColumn "grade" (\[<_, _, _, final] => grade final) studentsWithFinal
+    studentsWithGrade
+EOF
