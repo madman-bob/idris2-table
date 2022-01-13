@@ -5,4 +5,8 @@ basicTest ExampleSchema.idr << EOF
 
     names exampleSchema
     types exampleSchema
+
+    drop "age" exampleSchema
+    drop "favorite color" exampleSchema
+    drop "grade" exampleSchema
 EOF

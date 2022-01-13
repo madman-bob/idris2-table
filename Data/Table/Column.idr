@@ -31,3 +31,10 @@ buildColumn : (0 name : String)
 buildColumn name f tbl =
     let (_ ** _) = length tbl in
     addColumn name (map f tbl) tbl {nRows = mapPreservesLength}
+
+public export
+dropColumn : (0 name : String)
+          -> HasField schema name type
+          => Table schema
+          -> Table (drop name schema)
+dropColumn name tbl = mkTable $ map (dropField name) tbl

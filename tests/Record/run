@@ -6,4 +6,8 @@ basicTest ExampleRecord.idr << EOF
     field "name" exampleRecord
     field "age" exampleRecord
     field "grade" exampleRecord
+
+    dropField "age" exampleRecord
+    dropField "favorite color" exampleRecord
+    dropField "grade" exampleRecord
 EOF

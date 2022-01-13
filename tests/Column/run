@@ -18,4 +18,8 @@ basicTest ExampleTable.idr << EOF
     :let studentsWithGrade : Table [<"name" :! String, "age" :! Nat, "favorite color" :! String, "final" :! Nat, "grade" :! String]
     :let studentsWithGrade = buildColumn "grade" (\[<_, _, _, final] => grade final) studentsWithFinal
     studentsWithGrade
+
+    dropColumn "age" students
+    dropColumn "favorite color" students
+    dropColumn "grade" students
 EOF

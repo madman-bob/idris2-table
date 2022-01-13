@@ -18,3 +18,11 @@ field : (0 name : String)
      -> type
 field name @{Here} (rec :< x) = x
 field name @{There pos} (rec :< x) = field name rec
+
+public export
+dropField : (0 name : String)
+         -> HasField schema name type
+         => Record schema
+         -> Record (drop name schema)
+dropField name @{Here} (rec :< x) = rec
+dropField name @{There pos} (rec :< x) = dropField name rec :< x
