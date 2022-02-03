@@ -1,0 +1,20 @@
+. ../../testutils.sh
+
+# As sampling is non-deterministic, we run a large number of iterations, and check that the counts are reasonable
+
+samples="$(echo ":exec main" | b2t2Test Samples.idr)"
+
+checkCount() {
+    name=$1
+    count=$(echo "$samples" | grep -c "$name" -)
+
+    if [ "$count" -ge 150 ] && [ "$count" -le 250 ]; then
+        echo "$name sampled reasonably"
+    else
+        echo "$name sampled $count times"
+    fi
+}
+
+checkCount "Bob"
+checkCount "Alice"
+checkCount "Eve"

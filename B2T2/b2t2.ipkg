@@ -2,10 +2,12 @@ package b2t2
 
 sourcedir = "."
 
-depends = table
+depends = contrib, table
 
 modules =
     B2T2,
     B2T2.ExamplePrograms,
     B2T2.ExamplePrograms.DotProduct,
+    B2T2.ExamplePrograms.SampleRows,
+    B2T2.ExamplePrograms.SampleRows.Probability,
     B2T2.ExampleTables
