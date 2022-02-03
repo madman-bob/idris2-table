@@ -1,0 +1,5 @@
+. ../../testutils.sh
+
+b2t2Test << EOF
+    dot "quiz1" "quiz2" gradebook
+EOF
