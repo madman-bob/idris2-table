@@ -1,0 +1,9 @@
+package b2t2
+
+sourcedir = "."
+
+depends = table
+
+modules =
+    B2T2,
+    B2T2.ExampleTables
