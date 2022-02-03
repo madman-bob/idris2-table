@@ -5,9 +5,9 @@ all: table
 install: table
 	idris2 --install table.ipkg
 
-table: build/ttc/Language/Table.ttc
+table: build/ttc/Data/Table.ttc
 
-build/ttc/Language/Table.ttc: table.ipkg Data/Table/* Data/Table/*/*
+build/ttc/Data/Table.ttc: table.ipkg Data/Table/* Data/Table/*/*
 	idris2 --build table.ipkg
 
 test:
