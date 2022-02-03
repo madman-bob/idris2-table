@@ -28,12 +28,12 @@ namespace HasRows
 
 public export
 rowFromEnd : (tbl : Table schema)
-           -> HasRows tbl n
-           => Fin n
-           -> Record schema
-rowFromEnd [<] @{EmptyTable} x = absurd x
+          -> {auto 0 hasRows : HasRows tbl n}
+          -> Fin n
+          -> Record schema
+rowFromEnd [<] {hasRows = EmptyTable} x = absurd x
 rowFromEnd (tbl :< rec) FZ = rec
-rowFromEnd (tbl :< rec) @{SnocTable _} (FS x) = rowFromEnd tbl x
+rowFromEnd (tbl :< rec) {hasRows = SnocTable _} (FS x) = rowFromEnd tbl x
 
 public export
 row : (tbl : Table schema)

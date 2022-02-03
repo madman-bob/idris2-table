@@ -8,5 +8,6 @@ modules =
     Data.Table.Data,
     Data.Table.Record,
     Data.Table.Row,
+    Data.Table.Row.Frame,
     Data.Table.Row.HasRows,
     Data.Table.Schema

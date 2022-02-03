@@ -1,0 +1,14 @@
+Element [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33]] (SnocTable (SnocTable (SnocTable EmptyTable)))
+Element [<[<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]] (SnocTable (SnocTable (SnocTable EmptyTable)))
+
+Element [<] EmptyTable
+Element [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34]] (SnocTable (SnocTable (SnocTable (SnocTable EmptyTable))))
+
+Element [<[<"Rafferty", Just 31], [<"Jones", Just 32]] (SnocTable (SnocTable EmptyTable))
+[<"Heisenberg", Just 33]
+
+Element [<[<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]] (SnocTable (SnocTable (SnocTable EmptyTable)))
+[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33]]
+
+[<"Heisenberg", Just 33]
+

@@ -3,6 +3,7 @@ module Data.Table.Row
 import public Data.SnocList
 
 import public Data.Table.Data
+import public Data.Table.Row.Frame
 import public Data.Table.Row.HasRows
 
 %default total
