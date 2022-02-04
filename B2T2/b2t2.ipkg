@@ -10,6 +10,8 @@ modules =
     B2T2.ExamplePrograms.DotProduct,
     B2T2.ExamplePrograms.PHacking,
     B2T2.ExamplePrograms.PHacking.FisherTest,
+    B2T2.ExamplePrograms.QuizScoreFilter,
+    B2T2.ExamplePrograms.QuizScoreSelect,
     B2T2.ExamplePrograms.SampleRows,
     B2T2.ExamplePrograms.SampleRows.Probability,
     B2T2.ExampleTables
