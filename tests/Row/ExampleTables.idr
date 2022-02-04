@@ -23,6 +23,9 @@ williams = [<"Williams", Nothing]
 moreEmployees : Table EmployeeSchema
 moreEmployees = [<robinson, smith, williams]
 
+sameDepartment : Record EmployeeSchema -> Record EmployeeSchema -> Bool
+sameDepartment [<_, x] [<_, y] = x == y
+
 displayName : Record EmployeeSchema -> String
 displayName [<lastName, Nothing] = lastName
 displayName [<lastName, Just departmentID] = "\{lastName} (Dep. \{show departmentID})"

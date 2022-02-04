@@ -16,8 +16,19 @@ basicTest ExampleTables.idr << EOF
     employees ++ the (SnocList _) [<robinson, smith, williams]
     employees ++ the (Maybe _) (Just robinson)
 
+    toSnocList allEmployees
+
+    elemBy sameDepartment [<"Unknown", Just 34] employees
+    elemBy sameDepartment [<"Unknown", Just 34] allEmployees
+    elem robinson employees
+    elem robinson allEmployees
+
     map displayName allEmployees
     foldr (\rec => \case "" => displayName rec; x => "\{displayName rec}, \{x}") (the String "") allEmployees
+
+    distinctBy sameDepartment $ allEmployees ++ allEmployees
+    distinct $ allEmployees ++ allEmployees
+
     filter hasDepartment allEmployees
 
     row employees 0

@@ -2,7 +2,7 @@
 
 "Bob"
 12
-Error: Can't find an implementation for HasField [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)] "grade" ?sa.
+Error: Can't find an implementation for HasField StudentSchema "grade" ?sa.
 
 (Interactive):1:5--1:32
  1 |     field "grade" exampleRecord
@@ -11,10 +11,13 @@ Error: Can't find an implementation for HasField [<("name" :! String), ("age" :!
 
 [<"Bob", "blue"]
 [<"Bob", 12]
-Error: Can't find an implementation for HasField [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)] "grade" ?sa.
+Error: Can't find an implementation for HasField StudentSchema "grade" ?sa.
 
 (Interactive):1:5--1:36
  1 |     dropField "grade" exampleRecord
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+
+True
+False
 

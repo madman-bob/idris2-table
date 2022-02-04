@@ -26,3 +26,11 @@ dropField : (0 name : String)
          -> Record (drop name schema)
 dropField name @{Here} (rec :< x) = rec
 dropField name @{There pos} (rec :< x) = dropField name rec :< x
+
+public export
+Eq (Record [<]) where
+    [<] == [<] = True
+
+public export
+Eq a => Eq (Record schema) => Eq (Record (schema :< (name, a))) where
+    (r :< x) == (s :< y) = x == y && delay (r == s)
