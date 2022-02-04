@@ -8,6 +8,7 @@ modules =
     B2T2,
     B2T2.ExamplePrograms,
     B2T2.ExamplePrograms.DotProduct,
+    B2T2.ExamplePrograms.GroupBy,
     B2T2.ExamplePrograms.PHacking,
     B2T2.ExamplePrograms.PHacking.FisherTest,
     B2T2.ExamplePrograms.QuizScoreFilter,
