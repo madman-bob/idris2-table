@@ -1,5 +1,6 @@
 module Data.Table.Row
 
+import Data.List
 import public Data.SnocList
 
 import public Data.Table.Data
@@ -57,6 +58,14 @@ distinctBy f tbl = foldl (\acc, rec => ifThenElse (elemBy f rec acc) acc (acc :<
 public export
 distinct : Eq (Record schema) => Table schema -> Table schema
 distinct = distinctBy (==)
+
+export
+sortBy : (Record schema -> Record schema -> Ordering) -> Table schema -> Table schema
+sortBy cmp tbl = mkTable $ List.sortBy cmp (cast $ toSnocList tbl)
+
+export
+sort : Ord (Record schema) => Table schema -> Table schema
+sort = sortBy compare
 
 public export
 filter : (Record schema -> Bool) -> Table schema -> Table schema

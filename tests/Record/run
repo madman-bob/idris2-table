@@ -13,4 +13,12 @@ basicTest ExampleRecord.idr << EOF
 
     exampleRecord == [<"Bob", 12, "blue"]
     exampleRecord == anotherRecord
+
+    compare anotherRecord exampleRecord
+    compare exampleRecord [<"Bob", 12, "blue"]
+    compare exampleRecord anotherRecord
+
+    compare @{byField "age"} anotherRecord exampleRecord
+    compare @{byField "age"} exampleRecord [<"Bob", 12, "blue"]
+    compare @{byField "age"} exampleRecord anotherRecord
 EOF

@@ -29,6 +29,9 @@ basicTest ExampleTables.idr << EOF
     distinctBy sameDepartment $ allEmployees ++ allEmployees
     distinct $ allEmployees ++ allEmployees
 
+    sort allEmployees
+    sort @{byField "Department ID"} allEmployees
+
     filter hasDepartment allEmployees
 
     row employees 0

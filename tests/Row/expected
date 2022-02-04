@@ -24,6 +24,9 @@ True
 [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Williams", Nothing]]
 [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
 
+[<[<"Heisenberg", Just 33], [<"Jones", Just 32], [<"Rafferty", Just 31], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
+[<[<"Williams", Nothing], [<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34]]
+
 [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34]]
 
 [<"Rafferty", Just 31]

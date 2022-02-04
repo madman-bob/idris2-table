@@ -34,3 +34,22 @@ Eq (Record [<]) where
 public export
 Eq a => Eq (Record schema) => Eq (Record (schema :< (name, a))) where
     (r :< x) == (s :< y) = x == y && delay (r == s)
+
+public export
+Ord (Record [<]) where
+    compare [<] [<] = EQ
+
+public export
+Ord a => Ord (Record schema) => Ord (Record (schema :< (name, a))) where
+    compare (r :< x) (s :< y) = compare (r, x) (s, y)
+
+public export
+byField : (0 name : String)
+       -> HasField schema name type
+       => Ord type
+       => Eq (Record schema)
+       => Ord (Record schema)
+byField name = ByField
+  where
+    [ByField] Ord (Record schema) where
+        compare = compare `on` field name
