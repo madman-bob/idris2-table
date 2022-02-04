@@ -52,3 +52,5 @@ grades getFinal = do
         else ("midterm" ** %search)
     column fld @{prf} gradebook
 ```
+
+See [here](B2T2/B2T2/ExamplePrograms) for sample implementations of the B2T2 example programs.
