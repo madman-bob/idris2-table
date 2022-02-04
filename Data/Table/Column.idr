@@ -2,6 +2,7 @@ module Data.Table.Column
 
 import public Data.SnocList
 
+import public Data.Table.Column.Homogeneous
 import public Data.Table.Data
 import public Data.Table.Row
 

@@ -1,6 +1,9 @@
 import Data.Table
 
-students : Table [<"name" :! String, "age" :! Nat, "favorite color" :! String]
+StudentSchema : Schema
+StudentSchema = [<"name" :! String, "age" :! Nat, "favorite color" :! String]
+
+students : Table StudentSchema
 students = [<
     [<"Bob",   12, "blue" ],
     [<"Alice", 17, "green"],

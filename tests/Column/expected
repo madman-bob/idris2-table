@@ -2,7 +2,7 @@
 
 [<"Bob", "Alice", "Eve"]
 [<12, 17, 13]
-Error: Can't find an implementation for HasField [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)] "grade" ?sa.
+Error: Can't find an implementation for HasField StudentSchema "grade" ?sa.
 
 (Interactive):1:5--1:28
  1 |     column "grade" students
@@ -19,10 +19,18 @@ Error: Can't find an implementation for HasField [<("name" :! String), ("age" :!
 
 [<[<"Bob", "blue"], [<"Alice", "green"], [<"Eve", "red"]]
 [<[<"Bob", 12], [<"Alice", 17], [<"Eve", 13]]
-Error: Can't find an implementation for HasField [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)] "grade" ?sa.
+Error: Can't find an implementation for HasField StudentSchema "grade" ?sa.
 
 (Interactive):1:5--1:32
  1 |     dropColumn "grade" students
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+[<MkDPair "name" (There Here), MkDPair "favorite color" Here]
+Error: Can't find an implementation for AllColumns [<("name", String), ("age", Nat), ("favorite color", String)] String.
+
+(Interactive):1:5--1:29
+ 1 |     allColumns StudentSchema
+         ^^^^^^^^^^^^^^^^^^^^^^^^
 
 

@@ -5,6 +5,7 @@ sourcedir = "."
 modules =
     Data.Table,
     Data.Table.Column,
+    Data.Table.Column.Homogeneous,
     Data.Table.Data,
     Data.Table.Record,
     Data.Table.Row,
