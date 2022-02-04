@@ -33,6 +33,11 @@ mapPreservesLength @{EmptyTable} = EmptyTable
 mapPreservesLength @{SnocTable _} = SnocTable mapPreservesLength
 
 public export
+foldr : (Record schema -> a -> a) -> a -> Table schema -> a
+foldr f x [<] = x
+foldr f x (tbl :< rec) = foldr f (f rec x) tbl
+
+public export
 filter : (Record schema -> Bool) -> Table schema -> Table schema
 filter f [<] = [<]
 filter f (rows :< rec) =

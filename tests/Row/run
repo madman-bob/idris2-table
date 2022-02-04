@@ -17,6 +17,7 @@ basicTest ExampleTables.idr << EOF
     employees ++ the (Maybe _) (Just robinson)
 
     map displayName allEmployees
+    foldr (\rec => \case "" => displayName rec; x => "\{displayName rec}, \{x}") (the String "") allEmployees
     filter hasDepartment allEmployees
 
     row employees 0
