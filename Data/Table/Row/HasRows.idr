@@ -43,3 +43,21 @@ row : (tbl : Table schema)
 row tbl x =
     let Val _ = length tbl in
     rowFromEnd tbl $ complement x
+
+public export
+dropRows : (tbl : Table schema)
+        -> HasRows tbl n
+        => Fin (S n)
+        -> Table schema
+dropRows [<] @{EmptyTable} FZ = [<]
+dropRows tbl@(_ :< _) @{SnocTable _} FZ = tbl
+dropRows (tbl :< _) @{SnocTable _} (FS k) = dropRows tbl k
+
+public export
+init : (tbl : Table schema)
+    -> HasRows tbl n
+    => Fin (S n)
+    -> Table schema
+init tbl k =
+    let Val _ = length tbl in
+    dropRows tbl $ complement k

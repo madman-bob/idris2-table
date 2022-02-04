@@ -25,3 +25,25 @@ Error: Can't find an implementation for So (with block in integerLessThanNat 3 F
                        ^
 
 
+[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33]]
+[<[<"Rafferty", Just 31], [<"Jones", Just 32]]
+[<[<"Rafferty", Just 31]]
+[<]
+Error: Can't find an implementation for So (with block in integerLessThanNat 4 False 4).
+
+(Interactive):1:24--1:25
+ 1 |     dropRows employees 4
+                            ^
+
+
+[<]
+[<[<"Rafferty", Just 31]]
+[<[<"Rafferty", Just 31], [<"Jones", Just 32]]
+[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33]]
+Error: Can't find an implementation for So (with block in integerLessThanNat 4 False 4).
+
+(Interactive):1:20--1:21
+ 1 |     init employees 4
+                        ^
+
+

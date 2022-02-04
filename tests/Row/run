@@ -24,4 +24,16 @@ basicTest ExampleTables.idr << EOF
     row employees 1
     row employees 2
     row employees 3
+
+    dropRows employees 0
+    dropRows employees 1
+    dropRows employees 2
+    dropRows employees 3
+    dropRows employees 4
+
+    init employees 0
+    init employees 1
+    init employees 2
+    init employees 3
+    init employees 4
 EOF
