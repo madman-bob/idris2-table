@@ -1,0 +1,7 @@
+. ../../testutils.sh
+
+b2t2Test << EOF
+    :exec pHackingHomogeneous
+
+    :exec pHackingHomogeneous
+EOF
