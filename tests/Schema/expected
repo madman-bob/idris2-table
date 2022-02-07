@@ -5,10 +5,10 @@
 
 [<("name", String), ("favorite color", String)]
 [<("name", String), ("age", Nat)]
-Error: Can't find an implementation for HasField [<("name", String), ("age", Nat), ("favorite color", String)] "grade" ?sa.
+Error: Can't find an implementation for Field exampleSchema "grade" ?sa.
 
-(Interactive):1:5--1:31
- 1 |     drop "grade" exampleSchema
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+(Interactive):1:24--1:31
+ 1 |     drop exampleSchema "grade"
+                            ^^^^^^^
 
 

@@ -6,11 +6,9 @@ import public Data.Table
 
 public export
 dot : Num a
-   => (0 c1 : String)
-   -> HasField schema c1 a
-   => (0 c2 : String)
-   -> HasField schema c2 a
-   => (tbl : Table schema)
+   => Field schema c1 a
+   -> Field schema c2 a
+   -> Table schema
    -> a
-dot c1 c2 [<] = 0
-dot c1 c2 (tbl :< rec) = dot c1 c2 tbl + field c1 rec * field c2 rec
+dot f1 f2 [<] = 0
+dot f1 f2 (tbl :< rec) = dot f1 f2 tbl + value f1 rec * value f2 rec

@@ -8,33 +8,29 @@ import B2T2.ExampleTables
 %default total
 
 public export
-fisherTest : (0 c1 : String)
-          -> HasField schema c1 Bool
-          => (0 c2 : String)
-          -> HasField schema c2 Bool
-          => Table schema
+fisherTest : Field schema c1 Bool
+          -> Field schema c2 Bool
+          -> Table schema
           -> Double
-fisherTest c1 c2 tbl = pValue $ contingencySquare c1 c2 tbl
+fisherTest f1 f2 tbl = pValue $ contingencySquare f1 f2 tbl
   where
-    contingencySquare : (0 c1 : String)
-                     -> HasField schema c1 Bool
-                     => (0 c2 : String)
-                     -> HasField schema c2 Bool
-                     => Table schema
+    contingencySquare : Field schema c1 Bool
+                     -> Field schema c2 Bool
+                     -> Table schema
                      -> ContingencySquare
-    contingencySquare c1 c2 tbl = concat $ map (\rec => contingency (field c1 rec) (field c2 rec)) tbl
+    contingencySquare f1 f2 tbl = concat $ map (\rec => contingency (value f1 rec) (value f2 rec)) tbl
 
 export
 pHacking : {schema : Schema}
         -> AllColumns schema Bool
-        => (baseCol : String)
-        -> HasField schema baseCol Bool
-        => Table schema
+        => {baseCol : String}
+        -> Field schema baseCol Bool
+        -> Table schema
         -> IO ()
-pHacking baseCol tbl = do
-    for_ (allColumns schema) $ \(name ** _) => if name == baseCol
+pHacking baseFld tbl = do
+    for_ (allColumns schema) $ \(name ** fld) => if name == baseCol
         then pure ()
-        else if fisherTest baseCol name tbl < 0.05
+        else if fisherTest baseFld fld tbl < 0.05
             then putStrLn "We found a link between \{name} jelly beans and acne (p < 0.05)"
             else putStrLn "We found no link between \{name} jelly beans and acne (p > 0.05)"
 

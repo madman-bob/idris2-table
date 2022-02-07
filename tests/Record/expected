@@ -2,20 +2,20 @@
 
 "Bob"
 12
-Error: Can't find an implementation for HasField StudentSchema "grade" ?sa.
+Error: Can't find an implementation for Field StudentSchema "grade" ?sa.
 
-(Interactive):1:5--1:32
- 1 |     field "grade" exampleRecord
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(Interactive):1:11--1:18
+ 1 |     value "grade" exampleRecord
+               ^^^^^^^
 
 
 [<"Bob", "blue"]
 [<"Bob", 12]
-Error: Can't find an implementation for HasField StudentSchema "grade" ?sa.
+Error: Can't find an implementation for Field StudentSchema "grade" ?sa.
 
-(Interactive):1:5--1:36
+(Interactive):1:15--1:22
  1 |     dropField "grade" exampleRecord
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   ^^^^^^^
 
 
 True

@@ -14,7 +14,7 @@ data AllColumns : (schema : Schema) -> (type : Type) -> Type where [search schem
 public export
 allColumns : (schema : Schema)
           -> AllColumns schema type
-          => SnocList (name : String ** HasField schema name type)
+          => SnocList (name : String ** Field schema name type)
 allColumns [<] = [<]
 allColumns (schema :< (name, type)) @{S _} =
-    (map (\(n ** p) => (n ** There p)) $ allColumns schema) :< (name ** Here)
+    (map (\(n ** f) => (n ** There f)) $ allColumns schema) :< (name ** Here)

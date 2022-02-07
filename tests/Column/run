@@ -23,6 +23,6 @@ basicTest ExampleTable.idr << EOF
     dropColumn "favorite color" students
     dropColumn "grade" students
 
-    allColumns (drop "age" StudentSchema)
+    allColumns (drop StudentSchema "age")
     allColumns StudentSchema
 EOF

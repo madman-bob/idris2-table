@@ -26,14 +26,21 @@ types [<] = [<]
 types (schema :< (name, type)) = types schema :< type
 
 public export
-data HasField : (schema : Schema) -> (name : String) -> Type -> Type where [search schema name]
-    Here : HasField (schema :< (name, type)) name type
-    There : (pos : HasField schema name type) -> HasField (schema :< (n, t)) name type
+data Field : (schema : Schema) -> (name : String) -> Type -> Type where [search schema name]
+    Here : Field (schema :< (name, type)) name type
+    There : (fld : Field schema name type) -> Field (schema :< (n, t)) name type
+
+%name Field fld
 
 public export
-drop : (0 name : String)
-    -> (schema : Schema)
-    -> HasField schema name type
-    => Schema
-drop name (schema :< (name, type)) @{Here} = schema
-drop name (schema :< (n, t)) @{There pos} = drop name schema :< (n, t)
+fromString : (name : String)
+          -> {auto fld : Field schema name type}
+          -> Field schema name type
+fromString name = fld
+
+public export
+drop : (schema : Schema)
+    -> Field schema name type
+    -> Schema
+drop (schema :< (name, type)) Here = schema
+drop (schema :< (n, t)) (There fld) = drop schema fld :< (n, t)

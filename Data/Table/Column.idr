@@ -9,11 +9,10 @@ import public Data.Table.Row
 %default total
 
 public export
-column : (0 name : String)
-      -> HasField schema name type
-      => Table schema
+column : Field schema name type
+      -> Table schema
       -> SnocList type
-column name tbl = map (field name) tbl
+column fld tbl = map (value fld) tbl
 
 public export
 addColumn : (0 name : String)
@@ -34,8 +33,7 @@ buildColumn name f tbl =
     addColumn name (map f tbl) tbl {nRows = mapPreservesLength}
 
 public export
-dropColumn : (0 name : String)
-          -> HasField schema name type
-          => Table schema
-          -> Table (drop name schema)
-dropColumn name tbl = mkTable $ map (dropField name) tbl
+dropColumn : (fld : Field schema name type)
+          -> Table schema
+          -> Table (drop schema fld)
+dropColumn fld tbl = mkTable $ map (dropField fld) tbl

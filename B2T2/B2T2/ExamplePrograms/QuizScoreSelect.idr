@@ -9,7 +9,7 @@ import B2T2.ExampleTables
 public export
 data HasQuizzes : (schema : Schema) -> (n : Nat) -> (a : Type) -> Type where [search schema n]
     Lin : HasQuizzes schema 0 a
-    (:<) : HasQuizzes schema n a -> HasField schema ("quiz" ++ cast (S n)) a -> HasQuizzes schema (S n) a
+    (:<) : HasQuizzes schema n a -> Field schema ("quiz" ++ cast (S n)) a -> HasQuizzes schema (S n) a
 
 public export
 quizTotal : (0 n : Nat)
@@ -18,7 +18,7 @@ quizTotal : (0 n : Nat)
          => Record schema
          -> a
 quizTotal 0 @{[<]} rec = 0
-quizTotal (S n) @{_ :< hasField} rec = quizTotal n rec + field _ @{hasField} rec
+quizTotal (S n) @{_ :< fld} rec = quizTotal n rec + value fld rec
 
 public export
 quizAverage : (n : Nat)

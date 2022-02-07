@@ -2,11 +2,11 @@
 
 [<"Bob", "Alice", "Eve"]
 [<12, 17, 13]
-Error: Can't find an implementation for HasField StudentSchema "grade" ?sa.
+Error: Can't find an implementation for Field StudentSchema "grade" ?sa.
 
-(Interactive):1:5--1:28
+(Interactive):1:12--1:19
  1 |     column "grade" students
-         ^^^^^^^^^^^^^^^^^^^^^^^
+                ^^^^^^^
 
 
 [<[<"Bob", 12, "blue", 87], [<"Alice", 17, "green", 85], [<"Eve", 13, "red", 77]]
@@ -19,11 +19,11 @@ Error: Can't find an implementation for HasField StudentSchema "grade" ?sa.
 
 [<[<"Bob", "blue"], [<"Alice", "green"], [<"Eve", "red"]]
 [<[<"Bob", 12], [<"Alice", 17], [<"Eve", 13]]
-Error: Can't find an implementation for HasField StudentSchema "grade" ?sa.
+Error: Can't find an implementation for Field StudentSchema "grade" ?sa.
 
-(Interactive):1:5--1:32
+(Interactive):1:16--1:23
  1 |     dropColumn "grade" students
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    ^^^^^^^
 
 
 [<MkDPair "name" (There Here), MkDPair "favorite color" Here]

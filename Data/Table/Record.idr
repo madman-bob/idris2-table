@@ -12,20 +12,18 @@ data Record : Schema -> Type where
 %name Record rec
 
 public export
-field : (0 name : String)
-     -> HasField schema name type
-     => Record schema
+value : Field schema name type
+     -> Record schema
      -> type
-field name @{Here} (rec :< x) = x
-field name @{There pos} (rec :< x) = field name rec
+value Here (rec :< x) = x
+value (There fld) (rec :< x) = value fld rec
 
 public export
-dropField : (0 name : String)
-         -> HasField schema name type
-         => Record schema
-         -> Record (drop name schema)
-dropField name @{Here} (rec :< x) = rec
-dropField name @{There pos} (rec :< x) = dropField name rec :< x
+dropField : (fld : Field schema name type)
+         -> Record schema
+         -> Record (drop schema fld)
+dropField Here (rec :< x) = rec
+dropField (There fld) (rec :< x) = dropField fld rec :< x
 
 public export
 Eq (Record [<]) where
@@ -44,12 +42,11 @@ Ord a => Ord (Record schema) => Ord (Record (schema :< (name, a))) where
     compare (r :< x) (s :< y) = compare (r, x) (s, y)
 
 public export
-byField : (0 name : String)
-       -> HasField schema name type
-       => Ord type
+byField : Field schema name type
+       -> Ord type
        => Eq (Record schema)
        => Ord (Record schema)
-byField name = ByField
+byField fld = ByField
   where
     [ByField] Ord (Record schema) where
-        compare = compare `on` field name
+        compare = compare `on` value fld
