@@ -9,4 +9,8 @@ basicTest ExampleSchema.idr << EOF
     drop exampleSchema "age"
     drop exampleSchema "favorite color"
     drop exampleSchema "grade"
+
+    drop exampleSchema 1
+    drop exampleSchema 2
+    drop exampleSchema 3
 EOF

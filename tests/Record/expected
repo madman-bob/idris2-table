@@ -9,6 +9,15 @@ Error: Can't find an implementation for Field StudentSchema "grade" ?sa.
                ^^^^^^^
 
 
+"Bob"
+12
+Error: Can't find an implementation for HasIndex StudentSchema (There (There (There (There ?sa)))) 3.
+
+(Interactive):1:11--1:12
+ 1 |     value 3 exampleRecord
+               ^
+
+
 [<"Bob", "blue"]
 [<"Bob", 12]
 Error: Can't find an implementation for Field StudentSchema "grade" ?sa.

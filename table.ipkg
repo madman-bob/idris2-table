@@ -11,4 +11,6 @@ modules =
     Data.Table.Row,
     Data.Table.Row.Frame,
     Data.Table.Row.HasRows,
-    Data.Table.Schema
+    Data.Table.Schema,
+    Data.Table.Schema.Data,
+    Data.Table.Schema.Index
