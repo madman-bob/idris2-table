@@ -1,4 +1,4 @@
-.PHONY: all table b2t2 test retest clean
+.PHONY: all install table b2t2 test retest clean
 
 all: table
 
