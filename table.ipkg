@@ -2,6 +2,8 @@ package table
 
 sourcedir = "."
 
+depends = contrib
+
 modules =
     Data.Table,
     Data.Table.Column,
@@ -9,6 +11,8 @@ modules =
     Data.Table.Data,
     Data.Table.Record,
     Data.Table.Row,
+    Data.Table.Row.Aggregate,
+    Data.Table.Row.Constructor,
     Data.Table.Row.Frame,
     Data.Table.Row.HasRows,
     Data.Table.Schema,

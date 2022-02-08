@@ -4,15 +4,12 @@ import Data.List
 import public Data.SnocList
 
 import public Data.Table.Data
+import public Data.Table.Row.Aggregate
+import public Data.Table.Row.Constructor
 import public Data.Table.Row.Frame
 import public Data.Table.Row.HasRows
 
 %default total
-
-public export
-(++) : Table schema -> Table schema -> Table schema
-t ++ [<] = t
-t ++ (rows :< rec) = (t ++ rows) :< rec
 
 export
 ByProof : forall table.
@@ -33,15 +30,6 @@ vcatHasRows table1 (table2 :< rec) {hasRows2 = SnocTable hasRows}
   = ByProof
     (SnocTable (vcatHasRows table1 table2))
     (plusSuccRightSucc _ _)
-
-namespace FromFoldable
-    public export
-    mkTable : Foldable f => f (Record schema) -> Table schema
-    mkTable = foldl (:<) [<]
-
-    public export
-    (++) : Foldable f => Table schema -> f (Record schema) -> Table schema
-    (++) = foldl (:<)
 
 public export
 toSnocList : Table schema -> SnocList (Record schema)

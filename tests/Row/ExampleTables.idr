@@ -33,3 +33,12 @@ displayName [<lastName, Just departmentID] = "\{lastName} (Dep. \{show departmen
 hasDepartment : Record EmployeeSchema -> Bool
 hasDepartment [<lastName, Nothing] = False
 hasDepartment [<lastName, Just departmentID] = True
+
+colorWarmth : String -> String
+colorWarmth color = ifThenElse (color == "red") "warm" "cool"
+
+average : List Nat -> Double
+average xs = (cast $ sum xs) / (cast $ length xs)
+
+mFloor : Nat -> Nat -> Nat
+mFloor n k = minus k $ mod k n
