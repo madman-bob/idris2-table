@@ -51,3 +51,19 @@ basicTest ExampleTables.idr << EOF
     init employees 3
     init employees 4
 EOF
+
+b2t2Test ExampleTables.idr << EOF
+    SortedMap.toList $ map average $ groupBy (colorWarmth . value "favorite color") (length . value "name") students
+
+    SortedMap.toList $ groupBy (mFloor 5 . value "age") (value "name") students
+    SortedMap.toList $ groupBy (mFloor 5 . value "final") (value "name") gradebook
+    SortedMap.toList $ group "favorite color" students
+    SortedMap.toList $ group "age" gradebook
+    SortedMap.toList $ groupKeepKey "favorite color" students
+    SortedMap.toList $ groupKeepKey "age" gradebook
+
+    SortedMap.toList $ countBy (mFloor 5 . value "age") students
+    SortedMap.toList $ countBy (mFloor 5 . value "final") gradebook
+    SortedMap.toList $ count "favorite color" students
+    SortedMap.toList $ count "age" gradebook
+EOF
