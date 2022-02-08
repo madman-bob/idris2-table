@@ -14,6 +14,26 @@ public export
 t ++ [<] = t
 t ++ (rows :< rec) = (t ++ rows) :< rec
 
+export
+ByProof : forall table.
+     (hasRows : table `HasRows` n)
+  -> (prf : n = m) -> (table `HasRows` m)
+ByProof {table} hasRows prf = replace {p = \k => table `HasRows` k} prf hasRows
+
+public export 0
+vcatHasRows :
+     (table1 : Table schema)
+  -> (hasRows1 : table1 `HasRows` n1)
+  => (table2 : Table schema)
+  -> (hasRows2 : table2 `HasRows` n2)
+  => table1 ++ table2 `HasRows` (n1 + n2)
+vcatHasRows table1 [<] {hasRows2 = EmptyTable}
+  = hasRows1 `ByProof` (sym $ plusZeroRightNeutral n1)
+vcatHasRows table1 (table2 :< rec) {hasRows2 = SnocTable hasRows}
+  = ByProof
+    (SnocTable (vcatHasRows table1 table2))
+    (plusSuccRightSucc _ _)
+
 namespace FromFoldable
     public export
     mkTable : Foldable f => f (Record schema) -> Table schema
@@ -75,3 +95,21 @@ filter f (rows :< rec) =
     case f rec of
         False => rest
         True => rest :< rec
+
+infixl 9 |*|
+
+public export
+(|*|) : Record schema1 -> Table schema2 -> Table (schema1 |+| schema2)
+rec1 |*| [<] = [<]
+rec1 |*| (table :< rec2) = (rec1 |*| table) :< (rec1 |+| rec2)
+
+public export
+0
+crossJoinHasRows :
+     (rec : Record schema1)
+  -> (table : Table schema2)
+  -> (hasRows : table `HasRows` n)
+  => rec |*| table `HasRows` n
+crossJoinHasRows _        [<]   {hasRows = EmptyTable} = EmptyTable
+crossJoinHasRows rec (tbl :< _) {hasRows = SnocTable hasRows}
+  = SnocTable (crossJoinHasRows rec tbl)
