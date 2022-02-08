@@ -31,3 +31,10 @@ data Field : (schema : Schema) -> (name : String) -> Type -> Type where [search 
     There : (fld : Field schema name type) -> Field (schema :< (n, t)) name type
 
 %name Field fld
+
+infixl 7 |+|
+
+public export
+(|+|) : Schema -> Schema -> Schema
+schema1 |+| [<] = schema1
+schema1 |+| (schema2 :< hdr) = (schema1 |+| schema2) :< hdr

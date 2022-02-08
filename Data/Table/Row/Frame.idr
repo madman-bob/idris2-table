@@ -53,3 +53,13 @@ frameHasRows : (frm : Frame schema n)
             -> {auto 0 ford : tbl = table frm}
             -> HasRows tbl n
 frameHasRows {ford = Refl} (Element tbl hasRows) = hasRows
+
+public export
+(|+|) : Frame schema1 n -> Frame schema2 n -> Frame (schema1 |+| schema2) n
+frame1 |+| frame2 =
+  -- hint we want to use these
+  let 0 nrows1 = frame1.snd
+      0 nrows2 = frame2.snd in
+  frame1.fst |+| frame2.fst
+    `Element`
+  hConcatHasRows frame1.fst frame2.fst
