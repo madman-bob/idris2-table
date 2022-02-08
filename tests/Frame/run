@@ -13,5 +13,8 @@ basicTest ExampleTables.idr << EOF
     frame $ the (Table EmployeeSchema) [<robinson, smith, williams]
     table employees
 
+    employees |+| [<sales, finance, production]
+    Frame.(|+|) employees [<sales, finance]
+
     rowFromEnd employees 0
 EOF

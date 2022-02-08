@@ -33,6 +33,8 @@ Error: Can't find an implementation for Field StudentSchema "grade" ?sa.
                    ^^^^^^^
 
 
+[<"Bob", 12, "blue", 8, 9]
+
 True
 False
 

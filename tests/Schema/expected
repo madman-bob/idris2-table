@@ -3,6 +3,8 @@
 [<"name", "age", "favorite color"]
 [<String, Nat, String]
 
+[<("name" :! String), ("age" :! Nat), ("favorite color" :! String), ("quiz1" :! Nat), ("quiz2" :! Nat)]
+
 [<("name" :! String), ("isTeen" :! Bool), ("favorite color" :! String)]
 [<("name" :! String), ("age" :! Int), ("favorite color" :! String)]
 

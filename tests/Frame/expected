@@ -10,5 +10,17 @@ Element [<[<"Rafferty", Just 31], [<"Jones", Just 32]] (SnocTable (SnocTable Emp
 Element [<[<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]] (SnocTable (SnocTable (SnocTable EmptyTable)))
 [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33]]
 
+Element [<[<"Rafferty", Just 31, 31, "Sales", "Harriet"], [<"Jones", Just 32, 32, "Finance", "George"], [<"Heisenberg", Just 33, 33, "Production", "Charles"]] (SnocTable (SnocTable (SnocTable EmptyTable)))
+Error: When unifying:
+    Subset (Table DepartmentSchema) (\{arg:0} => HasRows arg 0)
+and:
+    Subset (Table DepartmentSchema) (\{arg:0} => HasRows arg 1)
+Mismatch between: 0 and 1.
+
+(Interactive):1:27--1:29
+ 1 |     Frame.(|+|) employees [<sales, finance]
+                               ^^
+
+
 [<"Heisenberg", Just 33]
 

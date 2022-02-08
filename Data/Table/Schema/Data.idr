@@ -37,3 +37,8 @@ data Field : (schema : Schema) -> (name : String) -> Type -> Type where [search 
     There : (fld : Field schema name type) -> Field (schema :< fs) name type
 
 %name Field fld
+
+public export
+(++) : Schema -> Schema -> Schema
+schema1 ++ [<] = schema1
+schema1 ++ (schema2 :< fs) = (schema1 ++ schema2) :< fs

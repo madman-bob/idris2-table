@@ -50,6 +50,11 @@ dropField Here (rec :< x) = rec
 dropField (There fld) (rec :< x) = dropField fld rec :< x
 
 public export
+(++) : Record schema1 -> Record schema2 -> Record (schema1 ++ schema2)
+rec1 ++ [<] = rec1
+rec1 ++ (rec2 :< x) = (rec1 ++ rec2) :< x
+
+public export
 Eq (Record [<]) where
     [<] == [<] = True
 

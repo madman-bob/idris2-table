@@ -11,6 +11,14 @@
 [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
 [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34]]
 
+[<[<"Rafferty", Just 31, 31, "Sales", "Harriet"], [<"Jones", Just 32, 32, "Finance", "George"], [<"Heisenberg", Just 33, 33, "Production", "Charles"]]
+Error: Can't find an implementation for HasRows [<sales, finance] 3.
+
+(Interactive):1:5--1:36
+ 1 |     employees |+| [<sales, finance]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
 [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
 
 False

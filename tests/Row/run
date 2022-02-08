@@ -16,6 +16,9 @@ basicTest ExampleTables.idr << EOF
     employees ++ the (SnocList _) [<robinson, smith, williams]
     employees ++ the (Maybe _) (Just robinson)
 
+    employees |+| [<sales, finance, production]
+    employees |+| [<sales, finance]
+
     toSnocList allEmployees
 
     elemBy sameDepartment [<"Unknown", Just 34] employees

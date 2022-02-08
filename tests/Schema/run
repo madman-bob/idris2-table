@@ -6,6 +6,8 @@ basicTest ExampleSchema.idr << EOF
     names exampleSchema
     types exampleSchema
 
+    exampleSchema ++ additionalColumns
+
     replace exampleSchema "age" ("isTeen" :! Bool)
     update exampleSchema "age" Int
 

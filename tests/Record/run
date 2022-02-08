@@ -28,6 +28,8 @@ basicTest ExampleRecord.idr << EOF
     dropField "favorite color" exampleRecord
     dropField "grade" exampleRecord
 
+    the (Record $ StudentSchema ++ ResultsSchema) $ exampleRecord ++ [<8, 9]
+
     exampleRecord == [<"Bob", 12, "blue"]
     exampleRecord == anotherRecord
 

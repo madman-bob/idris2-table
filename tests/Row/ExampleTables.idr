@@ -4,6 +4,10 @@ import Data.Table
 EmployeeSchema : Schema
 EmployeeSchema = [<"Last Name" :! String, "Department ID" :! Maybe Nat]
 
+0
+DepartmentSchema : Schema
+DepartmentSchema = [<"Department ID" :! Nat, "Department Name" :! String, "Manager" :! String]
+
 employees : Table EmployeeSchema
 employees = [<
     [<"Rafferty",   Just 31],
@@ -22,6 +26,15 @@ williams = [<"Williams", Nothing]
 
 moreEmployees : Table EmployeeSchema
 moreEmployees = [<robinson, smith, williams]
+
+sales : Record DepartmentSchema
+sales = [<31, "Sales", "Harriet"]
+
+finance : Record DepartmentSchema
+finance = [<32, "Finance", "George"]
+
+production : Record DepartmentSchema
+production = [<33, "Production", "Charles"]
 
 sameDepartment : Record EmployeeSchema -> Record EmployeeSchema -> Bool
 sameDepartment [<_, x] [<_, y] = x == y
