@@ -1,4 +1,4 @@
-.PHONY: install b2t2 clean
+.PHONY: b2t2 clean
 
 install: b2t2
 	idris2 --install b2t2.ipkg
