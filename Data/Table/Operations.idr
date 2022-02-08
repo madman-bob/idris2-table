@@ -25,6 +25,13 @@ crossJoinHasRows (table1 :< rec) table2 {hasRows1 = SnocTable hasRows1}
         0 u2 = crossJoinHasRows rec    table2
     in vcatHasRows (rec |*| table2) (table1 |*| table2)
 
+namespace Record
+  public export
+  (|*|) : Record schema1 -> Frame schema2 n -> Frame (schema1 |+| schema2) n
+  rec |*| frame = (rec |*| frame.fst) `Element`
+    (let 0 u = frame.snd in
+    (crossJoinHasRows rec frame.fst))
+
 namespace Frame
   public export
   (|*|) : Frame schema1 n1 -> Frame schema2 n2
