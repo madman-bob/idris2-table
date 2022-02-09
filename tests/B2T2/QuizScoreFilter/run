@@ -1,5 +1,5 @@
 . ../../testutils.sh
 
 b2t2Test << EOF
-    QuizScoreFilter.gradebookWithAverage
+    show QuizScoreFilter.gradebookWithAverage
 EOF

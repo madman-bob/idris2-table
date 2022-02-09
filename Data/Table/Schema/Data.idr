@@ -27,6 +27,11 @@ types [<] = [<]
 types (schema :< (name :! type)) = types schema :< type
 
 public export
+length : Schema -> Nat
+length [<] = 0
+length (schema :< _) = S (length schema)
+
+public export
 data Field : (schema : Schema) -> (name : String) -> Type -> Type where [search schema name]
     Here : Field (schema :< (name :! type)) name type
     There : (fld : Field schema name type) -> Field (schema :< fs) name type
