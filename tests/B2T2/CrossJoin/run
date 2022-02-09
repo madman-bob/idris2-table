@@ -1,0 +1,9 @@
+. ../../testutils.sh
+
+b2t2Test << EOF
+    :let petiteJelly : Table [< ("get acne" :! Bool), ("red" :! Bool), ("black" :! Bool)]
+    :let petiteJelly = [<[<True, False, False], [<True, False, True]]
+    petiteJelly
+    students |*| petiteJelly
+    (the (Table [<]) [<]) |*| petiteJelly
+EOF

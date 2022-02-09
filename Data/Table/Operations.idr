@@ -9,7 +9,7 @@ import public Data.Table.Schema
 public export
 (|*|) : Table schema1 -> Table schema2 -> Table (schema1 |+| schema2)
 [<] |*| table2 = [<]
-(table1 :< rec) |*| table2 = (rec |*| table2) ++ (table1 |*| table2)
+(table1 :< rec) |*| table2 = (table1 |*| table2) ++ (rec |*| table2)
 
 public export
 0
@@ -21,9 +21,10 @@ crossJoinHasRows :
   => (table1 |*| table2) `HasRows` n1 * n2
 crossJoinHasRows [<] table2 {hasRows1 = EmptyTable} = EmptyTable
 crossJoinHasRows (table1 :< rec) table2 {hasRows1 = SnocTable hasRows1}
-  = let 0 u1 = crossJoinHasRows table1 table2
-        0 u2 = crossJoinHasRows rec    table2
-    in vcatHasRows (rec |*| table2) (table1 |*| table2)
+  = let u1 = crossJoinHasRows table1 table2
+        u2 = crossJoinHasRows rec    table2
+    in (vcatHasRows (table1 |*| table2) (rec |*| table2))
+    `ByProof` (plusCommutative _ _)
 
 namespace Record
   public export
