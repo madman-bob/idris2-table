@@ -11,3 +11,7 @@ data Table : Schema -> Type where
     (:<) : Table schema -> Record schema -> Table schema
 
 %name Table tbl
+
+public export
+(.schema) : {schema : Schema} -> Table schema -> Schema
+(_.schema) {schema} = schema
