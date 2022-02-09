@@ -1,6 +1,6 @@
 .PHONY: all install table b2t2 test retest clean
 
-all: table
+all: table b2t2
 
 install: table
 	idris2 --install table.ipkg
@@ -21,5 +21,6 @@ retest:
 	make -C tests retest
 
 clean:
+	make -C tests clean
 	make -C B2T2 clean
 	$(RM) -r build

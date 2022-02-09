@@ -1,6 +1,8 @@
 /build
+/B2T2/depends
 /B2T2/build
 
 /tests/build
+/tests/**/depends
 /tests/**/output
 /tests/failures
