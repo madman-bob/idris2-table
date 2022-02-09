@@ -1,0 +1,6 @@
+. ../../testutils.sh
+
+b2t2Test << EOF
+    students |+| (dropColumn "name" (dropColumn "age" gradebook))
+    dropColumn "name" (dropColumn "age" students) |+| gradebook
+EOF
