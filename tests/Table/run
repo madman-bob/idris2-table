@@ -1,5 +1,5 @@
 . ../testutils.sh
 
 basicTest ExampleTable.idr << EOF
-    students
+    show students
 EOF

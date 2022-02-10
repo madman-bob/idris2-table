@@ -1,15 +1,68 @@
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33]]
-[<[<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
+"
+| Last Name    | Department ID |
+| ------------ | ------------- |
+| "Rafferty"   | Just 31       |
+| "Jones"      | Just 32       |
+| "Heisenberg" | Just 33       |"
+"
+| Last Name  | Department ID |
+| ---------- | ------------- |
+| "Robinson" | Just 34       |
+| "Smith"    | Just 34       |
+| "Williams" | Nothing       |"
 
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
+"
+| Last Name    | Department ID |
+| ------------ | ------------- |
+| "Rafferty"   | Just 31       |
+| "Jones"      | Just 32       |
+| "Heisenberg" | Just 33       |
+| "Robinson"   | Just 34       |
+| "Smith"      | Just 34       |
+| "Williams"   | Nothing       |"
 
-[<[<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
-[<[<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
-[<[<"Robinson", Just 34]]
+"
+| Last Name  | Department ID |
+| ---------- | ------------- |
+| "Robinson" | Just 34       |
+| "Smith"    | Just 34       |
+| "Williams" | Nothing       |"
+"
+| Last Name  | Department ID |
+| ---------- | ------------- |
+| "Robinson" | Just 34       |
+| "Smith"    | Just 34       |
+| "Williams" | Nothing       |"
+"
+| Last Name  | Department ID |
+| ---------- | ------------- |
+| "Robinson" | Just 34       |"
 
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34]]
+"
+| Last Name    | Department ID |
+| ------------ | ------------- |
+| "Rafferty"   | Just 31       |
+| "Jones"      | Just 32       |
+| "Heisenberg" | Just 33       |
+| "Robinson"   | Just 34       |
+| "Smith"      | Just 34       |
+| "Williams"   | Nothing       |"
+"
+| Last Name    | Department ID |
+| ------------ | ------------- |
+| "Rafferty"   | Just 31       |
+| "Jones"      | Just 32       |
+| "Heisenberg" | Just 33       |
+| "Robinson"   | Just 34       |
+| "Smith"      | Just 34       |
+| "Williams"   | Nothing       |"
+"
+| Last Name    | Department ID |
+| ------------ | ------------- |
+| "Rafferty"   | Just 31       |
+| "Jones"      | Just 32       |
+| "Heisenberg" | Just 33       |
+| "Robinson"   | Just 34       |"
 
 [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
 
@@ -21,13 +74,51 @@ True
 [<"Rafferty (Dep. 31)", "Jones (Dep. 32)", "Heisenberg (Dep. 33)", "Robinson (Dep. 34)", "Smith (Dep. 34)", "Williams"]
 "Rafferty (Dep. 31), Jones (Dep. 32), Heisenberg (Dep. 33), Robinson (Dep. 34), Smith (Dep. 34), Williams"
 
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Williams", Nothing]]
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
+"
+| Last Name    | Department ID |
+| ------------ | ------------- |
+| "Rafferty"   | Just 31       |
+| "Jones"      | Just 32       |
+| "Heisenberg" | Just 33       |
+| "Robinson"   | Just 34       |
+| "Williams"   | Nothing       |"
+"
+| Last Name    | Department ID |
+| ------------ | ------------- |
+| "Rafferty"   | Just 31       |
+| "Jones"      | Just 32       |
+| "Heisenberg" | Just 33       |
+| "Robinson"   | Just 34       |
+| "Smith"      | Just 34       |
+| "Williams"   | Nothing       |"
 
-[<[<"Heisenberg", Just 33], [<"Jones", Just 32], [<"Rafferty", Just 31], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
-[<[<"Williams", Nothing], [<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34]]
+"
+| Last Name    | Department ID |
+| ------------ | ------------- |
+| "Heisenberg" | Just 33       |
+| "Jones"      | Just 32       |
+| "Rafferty"   | Just 31       |
+| "Robinson"   | Just 34       |
+| "Smith"      | Just 34       |
+| "Williams"   | Nothing       |"
+"
+| Last Name    | Department ID |
+| ------------ | ------------- |
+| "Williams"   | Nothing       |
+| "Rafferty"   | Just 31       |
+| "Jones"      | Just 32       |
+| "Heisenberg" | Just 33       |
+| "Robinson"   | Just 34       |
+| "Smith"      | Just 34       |"
 
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34]]
+"
+| Last Name    | Department ID |
+| ------------ | ------------- |
+| "Rafferty"   | Just 31       |
+| "Jones"      | Just 32       |
+| "Heisenberg" | Just 33       |
+| "Robinson"   | Just 34       |
+| "Smith"      | Just 34       |"
 
 [<"Rafferty", Just 31]
 [<"Jones", Just 32]
@@ -39,26 +130,54 @@ Error: Can't find an implementation for So (with block in integerLessThanNat 3 F
                        ^
 
 
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33]]
-[<[<"Rafferty", Just 31], [<"Jones", Just 32]]
-[<[<"Rafferty", Just 31]]
-[<]
+"
+| Last Name    | Department ID |
+| ------------ | ------------- |
+| "Rafferty"   | Just 31       |
+| "Jones"      | Just 32       |
+| "Heisenberg" | Just 33       |"
+"
+| Last Name  | Department ID |
+| ---------- | ------------- |
+| "Rafferty" | Just 31       |
+| "Jones"    | Just 32       |"
+"
+| Last Name  | Department ID |
+| ---------- | ------------- |
+| "Rafferty" | Just 31       |"
+"
+| Last Name | Department ID |
+| --------- | ------------- |"
 Error: Can't find an implementation for So (with block in integerLessThanNat 4 False 4).
 
-(Interactive):1:24--1:25
- 1 |     dropRows employees 4
-                            ^
+(Interactive):1:31--1:32
+ 1 |     show $ dropRows employees 4
+                                   ^
 
 
-[<]
-[<[<"Rafferty", Just 31]]
-[<[<"Rafferty", Just 31], [<"Jones", Just 32]]
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33]]
+"
+| Last Name | Department ID |
+| --------- | ------------- |"
+"
+| Last Name  | Department ID |
+| ---------- | ------------- |
+| "Rafferty" | Just 31       |"
+"
+| Last Name  | Department ID |
+| ---------- | ------------- |
+| "Rafferty" | Just 31       |
+| "Jones"    | Just 32       |"
+"
+| Last Name    | Department ID |
+| ------------ | ------------- |
+| "Rafferty"   | Just 31       |
+| "Jones"      | Just 32       |
+| "Heisenberg" | Just 33       |"
 Error: Can't find an implementation for So (with block in integerLessThanNat 4 False 4).
 
-(Interactive):1:20--1:21
- 1 |     init employees 4
-                        ^
+(Interactive):1:27--1:28
+ 1 |     show $ init employees 4
+                               ^
 
 
 [("cool", 4.0), ("warm", 3.0)]

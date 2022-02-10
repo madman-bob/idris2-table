@@ -1,20 +1,20 @@
 . ../testutils.sh
 
 basicTest ExampleTables.idr << EOF
-    employees
-    moreEmployees
+    show employees
+    show moreEmployees
 
     :let allEmployees : Table EmployeeSchema
     :let allEmployees = employees ++ moreEmployees
-    allEmployees
+    show allEmployees
 
-    mkTable $ the (List _) [robinson, smith, williams]
-    mkTable $ the (SnocList _) [<robinson, smith, williams]
-    mkTable $ the (Maybe _) (Just robinson)
+    show $ mkTable $ the (List _) [robinson, smith, williams]
+    show $ mkTable $ the (SnocList _) [<robinson, smith, williams]
+    show $ mkTable $ the (Maybe _) (Just robinson)
 
-    employees ++ the (List _) [robinson, smith, williams]
-    employees ++ the (SnocList _) [<robinson, smith, williams]
-    employees ++ the (Maybe _) (Just robinson)
+    show $ employees ++ the (List _) [robinson, smith, williams]
+    show $ employees ++ the (SnocList _) [<robinson, smith, williams]
+    show $ employees ++ the (Maybe _) (Just robinson)
 
     toSnocList allEmployees
 
@@ -26,30 +26,30 @@ basicTest ExampleTables.idr << EOF
     map displayName allEmployees
     foldr (\rec => \case "" => displayName rec; x => "\{displayName rec}, \{x}") (the String "") allEmployees
 
-    distinctBy sameDepartment $ allEmployees ++ allEmployees
-    distinct $ allEmployees ++ allEmployees
+    show $ distinctBy sameDepartment $ allEmployees ++ allEmployees
+    show $ distinct $ allEmployees ++ allEmployees
 
-    sort allEmployees
-    sort @{byField "Department ID"} allEmployees
+    show $ sort allEmployees
+    show $ sort @{byField "Department ID"} allEmployees
 
-    filter hasDepartment allEmployees
+    show $ filter hasDepartment allEmployees
 
     row employees 0
     row employees 1
     row employees 2
     row employees 3
 
-    dropRows employees 0
-    dropRows employees 1
-    dropRows employees 2
-    dropRows employees 3
-    dropRows employees 4
+    show $ dropRows employees 0
+    show $ dropRows employees 1
+    show $ dropRows employees 2
+    show $ dropRows employees 3
+    show $ dropRows employees 4
 
-    init employees 0
-    init employees 1
-    init employees 2
-    init employees 3
-    init employees 4
+    show $ init employees 0
+    show $ init employees 1
+    show $ init employees 2
+    show $ init employees 3
+    show $ init employees 4
 EOF
 
 b2t2Test ExampleTables.idr << EOF

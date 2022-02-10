@@ -1,6 +1,5 @@
 import Data.Table
 
-0
 EmployeeSchema : Schema
 EmployeeSchema = [<"Last Name" :! String, "Department ID" :! Maybe Nat]
 

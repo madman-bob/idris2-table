@@ -1,17 +1,17 @@
 . ../testutils.sh
 
 basicTest ExampleTables.idr << EOF
-    employees
-    moreEmployees
+    showFrame employees
+    showFrame moreEmployees
 
-    the (Frame EmployeeSchema _) [<]
-    employees :< robinson
+    showFrame {schema = EmployeeSchema} [<]
+    showFrame $ employees :< robinson
 
-    init employees
+    showFrame $ init employees
     last employees
 
-    frame $ the (Table EmployeeSchema) [<robinson, smith, williams]
-    table employees
+    showFrame $ frame $ the (Table EmployeeSchema) [<robinson, smith, williams]
+    showTable $ table employees
 
     rowFromEnd employees 0
 EOF

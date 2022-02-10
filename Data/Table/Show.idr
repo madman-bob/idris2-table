@@ -6,6 +6,7 @@ import Data.Table.Record
 import Data.Table.Data
 import Data.Table.Row
 import Data.SnocList
+import Data.Table.Row.Frame
 
 import Data.Vect
 import Data.Nat
@@ -75,9 +76,9 @@ printVect widths alignment entries =
 export
 showTable : {schema : Schema} ->
   ShowSchema schema =>
-  (alignment : Vect (length schema) Alignment)
+  {default (replicate (length schema) L) alignment : Vect (length schema) Alignment}
   -> Table schema -> String
-showTable alignment table =
+showTable {alignment} table =
   let header = nameVect schema
       rows   = map showRecord table
       maxWidths = foldr (\xs,acc => zipWith max (map length xs) acc)
@@ -87,9 +88,27 @@ showTable alignment table =
             :: (ruler $ cast maxWidths)
             :: ((the _ $ map (printVect maxWidths alignment) rows) <>> [])
 
+||| If we don't have access to the schema, we can still show the body
+||| of the table.
+export
+showTableBody :
+  (allShow : ShowSchema schema) =>
+  {default (replicate (length allShow) L) alignment : Vect (length allShow) Alignment}
+  -> Table schema -> String
+-- Reconstruct the number of columns from the show instance :D
+showTableBody {alignment} table =
+  let rows   = replace {p = \n => SnocList (Vect n String)}
+                       (sym $ lengthAllLengthSchema allShow)
+                       (map showRecord table)
+      maxWidths = foldr (\xs,acc => zipWith max (map String.length xs) acc)
+                    (replicate _ 1) rows
+  in unlines $ "" -- Empty first line makes printing alignment a little nicer
+            :: (ruler $ cast maxWidths)
+            :: ((the _ $ map (printVect maxWidths alignment) rows) <>> [])
+
 export
 {schema : Schema} -> ShowSchema schema => Show (Table schema) where
-  show = showTable (replicate (length schema) L)
+  show = showTable
 
 students : Table [<"name" :! String, "age" :! Nat, "favorite color" :! String]
 students = [<
@@ -97,3 +116,19 @@ students = [<
     [<"Alice", 17, "green"],
     [<"Eve",   13, "red"  ]
   ]
+
+export
+showFrame : {schema : Schema} ->
+  ShowSchema schema =>
+  {default (replicate (length schema) L) alignment : Vect (length schema) Alignment}
+  -> Frame schema n -> String
+showFrame {alignment} frame = showTable {alignment} frame.fst
+
+||| If we don't have access to the schema, we can still show the body
+||| of the table.
+export
+showFrameBody :
+  (allShow : ShowSchema schema) =>
+  {default (replicate (length allShow) L) alignment : Vect (length allShow) Alignment}
+  -> Frame schema n -> String
+showFrameBody {alignment} frame = showTableBody {alignment} frame.fst

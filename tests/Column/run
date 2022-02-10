@@ -1,7 +1,7 @@
 . ../testutils.sh
 
 basicTest ExampleTable.idr << EOF
-    students
+    show students
 
     column "name" students
     column "age" students
@@ -9,7 +9,7 @@ basicTest ExampleTable.idr << EOF
 
     :let studentsWithFinal : Table [<"name" :! String, "age" :! Nat, "favorite color" :! String, "final" :! Nat]
     :let studentsWithFinal = addColumn "final" [<87, 85, 77] students
-    studentsWithFinal
+    show studentsWithFinal
 
     column "name" studentsWithFinal
     column "age" studentsWithFinal
@@ -17,11 +17,11 @@ basicTest ExampleTable.idr << EOF
 
     :let studentsWithGrade : Table [<"name" :! String, "age" :! Nat, "favorite color" :! String, "final" :! Nat, "grade" :! String]
     :let studentsWithGrade = buildColumn "grade" (\[<_, _, _, final] => grade final) studentsWithFinal
-    studentsWithGrade
+    show studentsWithGrade
 
-    dropColumn "age" students
-    dropColumn "favorite color" students
-    dropColumn "grade" students
+    show $ dropColumn "age" students
+    show $ dropColumn "favorite color" students
+    show $ dropColumn "grade" students
 
     allColumns (drop StudentSchema "age")
     allColumns StudentSchema
