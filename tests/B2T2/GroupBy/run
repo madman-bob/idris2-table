@@ -1,7 +1,7 @@
 . ../../testutils.sh
 
 b2t2Test << EOF
-    groupedEmployeesRetentive
+    show groupedEmployeesRetentive
 
-    groupedEmployeesSubtractive
+    show groupedEmployeesSubtractive
 EOF
