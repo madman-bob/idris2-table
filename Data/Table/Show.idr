@@ -111,9 +111,9 @@ valign algn height xs =
   in replace {p = \k => Vect k String} correct
      result
 
-
 ||| Input a vector of `n` strings, possibly containing new-lines
-||| Output: One or more lines,
+||| Output: One or more lines, reflowing each cell in the vector
+|||   according to its newlines
 |||
 ||| Example:
 |||
