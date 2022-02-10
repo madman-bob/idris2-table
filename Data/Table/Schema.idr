@@ -15,5 +15,5 @@ public export
 drop : (schema : Schema)
     -> Field schema name type
     -> Schema
-drop (schema :< (name, type)) Here = schema
-drop (schema :< (n, t)) (There fld) = drop schema fld :< (n, t)
+drop (schema :< (name :! type)) Here = schema
+drop (schema :< fs) (There fld) = drop schema fld :< fs

@@ -15,7 +15,7 @@ data GradebookColumn : String -> Type -> Type -> Type where
 public export
 data GradebookSchema : (schema : Schema) -> (a : Type) -> Type where [search schema]
     Lin : GradebookSchema [<] a
-    (:<) : GradebookSchema schema a -> GradebookColumn name type a -> GradebookSchema (schema :< (name, type)) a
+    (:<) : GradebookSchema schema a -> GradebookColumn name type a -> GradebookSchema (schema :< (name :! type)) a
 
 public export
 quizCount : (0 schema : Schema)

@@ -2,32 +2,33 @@ module Data.Table.Schema.Data
 
 %default total
 
-public export
-data Schema : Type where
-    Lin : Schema
-    (:<) : Schema -> (String, Type) -> Schema
-
-%name Schema schema
-
 infix 10 :!
 
 public export
-(:!) : String -> Type -> (String, Type)
-(:!) = (,)
+data FieldSchema = (:!) String Type
+
+%name FieldSchema fs
+
+public export
+data Schema : Type where
+    Lin : Schema
+    (:<) : Schema -> FieldSchema -> Schema
+
+%name Schema schema
 
 public export
 names : Schema -> SnocList String
 names [<] = [<]
-names (schema :< (name, type)) = names schema :< name
+names (schema :< (name :! type)) = names schema :< name
 
 public export
 types : Schema -> SnocList Type
 types [<] = [<]
-types (schema :< (name, type)) = types schema :< type
+types (schema :< (name :! type)) = types schema :< type
 
 public export
 data Field : (schema : Schema) -> (name : String) -> Type -> Type where [search schema name]
-    Here : Field (schema :< (name, type)) name type
-    There : (fld : Field schema name type) -> Field (schema :< (n, t)) name type
+    Here : Field (schema :< (name :! type)) name type
+    There : (fld : Field schema name type) -> Field (schema :< fs) name type
 
 %name Field fld

@@ -7,7 +7,7 @@ import public Data.Table.Schema
 public export
 data Record : Schema -> Type where
     Lin : Record [<]
-    (:<) : Record schema -> type -> Record (schema :< (name, type))
+    (:<) : Record schema -> type -> Record (schema :< (name :! type))
 
 %name Record rec
 
@@ -30,7 +30,7 @@ Eq (Record [<]) where
     [<] == [<] = True
 
 public export
-Eq a => Eq (Record schema) => Eq (Record (schema :< (name, a))) where
+Eq a => Eq (Record schema) => Eq (Record (schema :< (name :! a))) where
     (r :< x) == (s :< y) = x == y && delay (r == s)
 
 public export
@@ -38,7 +38,7 @@ Ord (Record [<]) where
     compare [<] [<] = EQ
 
 public export
-Ord a => Ord (Record schema) => Ord (Record (schema :< (name, a))) where
+Ord a => Ord (Record schema) => Ord (Record (schema :< (name :! a))) where
     compare (r :< x) (s :< y) = compare (r, x) (s, y)
 
 public export
