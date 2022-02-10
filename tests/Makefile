@@ -15,10 +15,10 @@ retest: build/exec/table-tests $(DEPENDS)
 build/exec/table-tests: table-tests.ipkg TableTests.idr
 	idris2 --build table-tests.ipkg
 
-%/depends: %/run
-	mkdir "$@"
-	ln -s "$(CURDIR)/../build/ttc" "$@/table-0"
-	ln -s "$(CURDIR)/../B2T2/build/ttc" "$@/b2t2-0"
+%/depends:
+	@mkdir "$@"
+	@ln -s "$(CURDIR)/../build/ttc" "$@/table-0"
+	@ln -s "$(CURDIR)/../B2T2/build/ttc" "$@/b2t2-0"
 
 clean:
 	$(RM) failures
