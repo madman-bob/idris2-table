@@ -85,11 +85,12 @@ filter f (rows :< rec) =
         True => rest :< rec
 
 infixl 9 |*|
+infixl 7 |+|
 
 public export
-(|*|) : Record schema1 -> Table schema2 -> Table (schema1 |+| schema2)
+(|*|) : Record schema1 -> Table schema2 -> Table (schema1 ++ schema2)
 rec1 |*| [<] = [<]
-rec1 |*| (table :< rec2) = (rec1 |*| table) :< (rec1 |+| rec2)
+rec1 |*| (table :< rec2) = (rec1 |*| table) :< (rec1 ++ rec2)
 
 public export
 0

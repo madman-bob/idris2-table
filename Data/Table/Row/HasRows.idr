@@ -68,14 +68,14 @@ public export
   -> (0 nrows1 : table1 `HasRows` n)
   => (table2 : Table schema2)
   -> (0 nrows2 : table2 `HasRows` n)
-  => Table (schema1 |+| schema2)
+  => Table (schema1 ++ schema2)
 (      [<]      |+|       [<]     )
                         {nrows1 = EmptyTable      , nrows2 = EmptyTable      }
                                    = [<]
 
 ((tbl1 :< rec1) |+| (tbl2 :< rec2))
                         {nrows1 = SnocTable nrows1, nrows2 = SnocTable nrows2}
-                                   = (tbl1 |+| tbl2) :< (rec1 |+| rec2)
+                                   = (tbl1 |+| tbl2) :< (rec1 ++ rec2)
 
 (      [<]      |+| (_    :< _)) {nrows1 = EmptyTable, nrows2 = _} impossible
 ((_    :< _)    |+| [<]        ) {nrows1 = _, nrows2 = EmptyTable} impossible

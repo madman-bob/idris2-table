@@ -55,7 +55,7 @@ frameHasRows : (frm : Frame schema n)
 frameHasRows {ford = Refl} (Element tbl hasRows) = hasRows
 
 public export
-(|+|) : Frame schema1 n -> Frame schema2 n -> Frame (schema1 |+| schema2) n
+(|+|) : Frame schema1 n -> Frame schema2 n -> Frame (schema1 ++ schema2) n
 frame1 |+| frame2 =
   -- hint we want to use these
   let 0 nrows1 = frame1.snd

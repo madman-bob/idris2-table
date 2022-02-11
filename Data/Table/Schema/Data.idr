@@ -32,9 +32,7 @@ data Field : (schema : Schema) -> (name : String) -> Type -> Type where [search 
 
 %name Field fld
 
-infixl 7 |+|
-
 public export
-(|+|) : Schema -> Schema -> Schema
-schema1 |+| [<] = schema1
-schema1 |+| (schema2 :< hdr) = (schema1 |+| schema2) :< hdr
+(++) : Schema -> Schema -> Schema
+schema1 ++ [<] = schema1
+schema1 ++ (schema2 :< hdr) = (schema1 ++ schema2) :< hdr

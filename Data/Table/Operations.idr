@@ -7,7 +7,7 @@ import public Data.Table.Row
 import public Data.Table.Schema
 
 public export
-(|*|) : Table schema1 -> Table schema2 -> Table (schema1 |+| schema2)
+(|*|) : Table schema1 -> Table schema2 -> Table (schema1 ++ schema2)
 [<] |*| table2 = [<]
 (table1 :< rec) |*| table2 = (table1 |*| table2) ++ (rec |*| table2)
 
@@ -28,7 +28,7 @@ crossJoinHasRows (table1 :< rec) table2 {hasRows1 = SnocTable hasRows1}
 
 namespace Record
   public export
-  (|*|) : Record schema1 -> Frame schema2 n -> Frame (schema1 |+| schema2) n
+  (|*|) : Record schema1 -> Frame schema2 n -> Frame (schema1 ++ schema2) n
   rec |*| frame = (rec |*| frame.fst) `Element`
     (let 0 u = frame.snd in
     (crossJoinHasRows rec frame.fst))
@@ -36,7 +36,7 @@ namespace Record
 namespace Frame
   public export
   (|*|) : Frame schema1 n1 -> Frame schema2 n2
-    -> Frame (schema1 |+| schema2) (n1*n2)
+    -> Frame (schema1 ++ schema2) (n1*n2)
   frame1 |*| frame2 =
     let 0 hasRows1 = frame1.snd
         0 hasRows2 = frame2.snd

@@ -52,6 +52,6 @@ byField fld = ByField
         compare = compare `on` value fld
 
 public export
-(|+|) : Record schema1 -> Record schema2 -> Record (schema1 |+| schema2)
-rec1 |+| [<] = rec1
-rec1 |+| (rec2 :< fld) = (rec1 |+| rec2) :< fld
+(++) : Record schema1 -> Record schema2 -> Record (schema1 ++ schema2)
+rec1 ++ [<] = rec1
+rec1 ++ (rec2 :< fld) = (rec1 ++ rec2) :< fld
