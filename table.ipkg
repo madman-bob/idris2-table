@@ -9,6 +9,7 @@ modules =
     Data.Table.Column,
     Data.Table.Column.Homogeneous,
     Data.Table.Data,
+    Data.Table.Monad,
     Data.Table.Record,
     Data.Table.Row,
     Data.Table.Row.Aggregate,

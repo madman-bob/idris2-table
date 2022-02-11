@@ -92,9 +92,9 @@ rec1 |*| [<] = [<]
 rec1 |*| (table :< rec2) = (rec1 |*| table) :< (rec1 ++ rec2)
 
 public export
-0
 crossJoinHasRows :
-     (rec : Record schema1)
+     {n : Nat}
+  -> (rec : Record schema1)
   -> (table : Table schema2)
   -> (hasRows : table `HasRows` n)
   => rec |*| table `HasRows` n
