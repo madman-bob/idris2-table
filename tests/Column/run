@@ -15,6 +15,14 @@ basicTest ExampleTable.idr << EOF
     column "age" studentsWithFinal
     column "final" studentsWithFinal
 
+    :let studentsReplaceGrade : Table [<"name" :! String, "age" :! Nat, "favorite color" :! String, "grade" :! String]
+    :let studentsReplaceGrade = replaceColumn "final" "grade" grade studentsWithFinal
+    studentsReplaceGrade
+
+    :let studentsCastAge : Table [<"name" :! String, "age" :! Int, "favorite color" :! String]
+    :let studentsCastAge = updateColumn "age" cast students
+    studentsCastAge
+
     :let studentsWithGrade : Table [<"name" :! String, "age" :! Nat, "favorite color" :! String, "final" :! Nat, "grade" :! String]
     :let studentsWithGrade = buildColumn "grade" (\[<_, _, _, final] => grade final) studentsWithFinal
     studentsWithGrade

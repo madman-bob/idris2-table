@@ -18,6 +18,12 @@ Error: Can't find an implementation for HasIndex StudentSchema (There (There (Th
                ^
 
 
+[<"Bob", False, "blue"]
+
+[<"Bob", 13, "blue"]
+
+[<"Bob", 12, "blue"]
+
 [<"Bob", "blue"]
 [<"Bob", 12]
 Error: Can't find an implementation for Field StudentSchema "grade" ?sa.

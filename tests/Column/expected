@@ -15,6 +15,10 @@ Error: Can't find an implementation for Field StudentSchema "grade" ?sa.
 [<12, 17, 13]
 [<87, 85, 77]
 
+[<[<"Bob", 12, "blue", "A"], [<"Alice", 17, "green", "A"], [<"Eve", 13, "red", "B"]]
+
+[<[<"Bob", 12, "blue"], [<"Alice", 17, "green"], [<"Eve", 13, "red"]]
+
 [<[<"Bob", 12, "blue", 87, "A"], [<"Alice", 17, "green", 85, "A"], [<"Eve", 13, "red", 77, "B"]]
 
 [<[<"Bob", "blue"], [<"Alice", "green"], [<"Eve", "red"]]

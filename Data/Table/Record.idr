@@ -19,6 +19,30 @@ value Here (rec :< x) = x
 value (There fld) (rec :< x) = value fld rec
 
 public export
+replaceField : (fld : Field schema name type)
+            -> (0 newName : String)
+            -> newType
+            -> Record schema
+            -> Record (replace schema fld (newName :! newType))
+replaceField Here newName x (rec :< _) = rec :< x
+replaceField (There fld) newName x (rec :< y) = replaceField fld newName x rec :< y
+
+public export
+setField : (fld : Field schema name type)
+        -> newType
+        -> Record schema
+        -> Record (update schema fld newType)
+setField Here x (rec :< _) = rec :< x
+setField (There fld) x (rec :< y) = setField fld x rec :< y
+
+public export
+updateField : (fld : Field schema name type)
+           -> (type -> newType)
+           -> Record schema
+           -> Record (update schema fld newType)
+updateField fld f rec = setField fld (f $ value fld rec) rec
+
+public export
 dropField : (fld : Field schema name type)
          -> Record schema
          -> Record (drop schema fld)

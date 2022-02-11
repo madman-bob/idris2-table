@@ -11,6 +11,19 @@ basicTest ExampleRecord.idr << EOF
     value 1 exampleRecord
     value 3 exampleRecord
 
+    :let exampleReplaceAge : Record [<"name" :! String, "isTeen" :! Bool, "favorite color" :! String]
+    :let exampleReplaceAge = replaceField "age" "isTeen" False exampleRecord
+    exampleReplaceAge
+
+    -- Note modified "age" type
+    :let exampleSetAge : Record [<"name" :! String, "age" :! Int, "favorite color" :! String]
+    :let exampleSetAge = setField "age" 13 exampleRecord
+    exampleSetAge
+
+    :let exampleCastAge : Record [<"name" :! String, "age" :! Int, "favorite color" :! String]
+    :let exampleCastAge = updateField "age" cast exampleRecord
+    exampleCastAge
+
     dropField "age" exampleRecord
     dropField "favorite color" exampleRecord
     dropField "grade" exampleRecord
