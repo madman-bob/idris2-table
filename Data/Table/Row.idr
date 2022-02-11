@@ -85,7 +85,6 @@ filter f (rows :< rec) =
         True => rest :< rec
 
 infixl 9 |*|
-infixl 7 |+|
 
 public export
 (|*|) : Record schema1 -> Table schema2 -> Table (schema1 ++ schema2)

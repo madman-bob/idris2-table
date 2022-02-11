@@ -17,5 +17,4 @@ modules =
     Data.Table.Row.HasRows,
     Data.Table.Schema,
     Data.Table.Schema.Data,
-    Data.Table.Schema.Index,
-    Data.Table.Operations
+    Data.Table.Schema.Index

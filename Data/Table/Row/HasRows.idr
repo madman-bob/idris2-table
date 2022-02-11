@@ -62,6 +62,8 @@ init tbl k =
     let Val _ = length tbl in
     dropRows tbl $ complement k
 
+infixl 7 |+|
+
 public export
 (|+|) :
      (table1 : Table schema1)
