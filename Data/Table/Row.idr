@@ -12,10 +12,10 @@ import public Data.Table.Row.HasRows
 %default total
 
 export
-ByProof : forall table.
+HasRowsProof : forall table.
      (hasRows : table `HasRows` n)
   -> (prf : n = m) -> (table `HasRows` m)
-ByProof {table} hasRows prf = replace {p = \k => table `HasRows` k} prf hasRows
+HasRowsProof {table} hasRows prf = replace {p = \k => table `HasRows` k} prf hasRows
 
 public export 0
 vcatHasRows :
@@ -25,10 +25,10 @@ vcatHasRows :
   -> (hasRows2 : table2 `HasRows` n2)
   => table1 ++ table2 `HasRows` (n1 + n2)
 vcatHasRows table1 [<] {hasRows2 = EmptyTable}
-  = hasRows1 `ByProof` (sym $ plusZeroRightNeutral n1)
+  = hasRows1 `HasRowsProof` (sym $ plusZeroRightNeutral n1)
 vcatHasRows table1 (table2 :< rec) {hasRows2 = SnocTable hasRows}
-  = ByProof
-    (SnocTable (vcatHasRows table1 table2))
+  = (SnocTable (vcatHasRows table1 table2))
+    `HasRowsProof`
     (plusSuccRightSucc _ _)
 
 public export
