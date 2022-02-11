@@ -82,15 +82,15 @@ public export
 
 public export
 0
-hConcatHasRows :
+zipHasRows :
      (table1 : Table schema1)
   -> (0 nrows1 : table1 `HasRows` n)
   => (table2 : Table schema2)
   -> (0 nrows2 : table2 `HasRows` n)
   => (table1 |+| table2) {nrows1, nrows2} `HasRows` n
-hConcatHasRows [<] [<] {nrows1 = EmptyTable, nrows2 = EmptyTable} = EmptyTable
-hConcatHasRows (tbl1 :< rec1) (tbl2 :< rec2)
+zipHasRows [<] [<] {nrows1 = EmptyTable, nrows2 = EmptyTable} = EmptyTable
+zipHasRows (tbl1 :< rec1) (tbl2 :< rec2)
   {nrows1 = SnocTable nrows1, nrows2 = SnocTable nrows2}
-  = SnocTable $ hConcatHasRows tbl1 tbl2 {nrows1, nrows2}
-hConcatHasRows [<] (_ :< _) {nrows1 = EmptyTable, nrows2 = _} impossible
-hConcatHasRows (_ :< _) [<] {nrows1 = _, nrows2 = EmptyTable} impossible
+  = SnocTable $ zipHasRows tbl1 tbl2 {nrows1, nrows2}
+zipHasRows [<] (_ :< _) {nrows1 = EmptyTable, nrows2 = _} impossible
+zipHasRows (_ :< _) [<] {nrows1 = _, nrows2 = EmptyTable} impossible

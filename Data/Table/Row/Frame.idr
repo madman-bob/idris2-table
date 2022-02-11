@@ -62,4 +62,4 @@ frame1 |+| frame2 =
       0 nrows2 = frame2.snd in
   frame1.fst |+| frame2.fst
     `Element`
-  hConcatHasRows frame1.fst frame2.fst
+  zipHasRows frame1.fst frame2.fst
