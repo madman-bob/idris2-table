@@ -17,7 +17,7 @@ import Syntax.PreorderReasoning
 ||| A schema whose rows are all instances of Show
 public export
 ShowSchema : Schema -> Type
-ShowSchema schema = All (\col => Show (snd col)) schema
+ShowSchema schema = All (\col => Show (col.Sort)) schema
 
 -- Would be natural to use a SnocVect, but stdlib doesn't have it yet
 showRecordAux : (acc : Vect k String) ->
@@ -35,7 +35,7 @@ nameVectAux : (acc : Vect k String) -> (schema : Schema) -> Vect (length schema 
 nameVectAux acc [<] = acc
 nameVectAux acc (schema :< x) =
   replace {p = \n => Vect n String} (sym $ plusSuccRightSucc _ _)
-  $ nameVectAux (fst x :: acc) schema
+  $ nameVectAux (x.Name :: acc) schema
 
 nameVect : (schema : Schema) -> Vect (length schema) String
 nameVect schema = rewrite sym $ plusZeroRightNeutral (length schema) in

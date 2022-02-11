@@ -24,6 +24,23 @@ addColumn name [<] [<] {nRows = EmptyTable} = [<]
 addColumn name (col :< x) (tbl :< rec) {nRows = SnocTable _} = addColumn name col tbl :< (rec :< x)
 
 public export
+replaceColumn : (fld : Field schema name type)
+             -> (0 newName : String)
+             -> (type -> newType)
+             -> Table schema
+             -> Table (replace schema fld (newName :! newType))
+replaceColumn fld newName f [<] = [<]
+replaceColumn fld newName f (tbl :< rec) = replaceColumn fld newName f tbl :< replaceField fld newName (f $ value fld rec) rec
+
+public export
+updateColumn : (fld : Field schema name type)
+            -> (type -> newType)
+            -> Table schema
+            -> Table (update schema fld newType)
+updateColumn fld f [<] = [<]
+updateColumn fld f (tbl :< rec) = updateColumn fld f tbl :< updateField fld f rec
+
+public export
 buildColumn : (0 name : String)
            -> (Record schema -> type)
            -> Table schema

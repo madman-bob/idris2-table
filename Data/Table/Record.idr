@@ -7,7 +7,7 @@ import public Data.Table.Schema
 public export
 data Record : Schema -> Type where
     Lin : Record [<]
-    (:<) : Record schema -> type -> Record (schema :< (name, type))
+    (:<) : Record schema -> type -> Record (schema :< (name :! type))
 
 %name Record rec
 
@@ -17,6 +17,30 @@ value : Field schema name type
      -> type
 value Here (rec :< x) = x
 value (There fld) (rec :< x) = value fld rec
+
+public export
+replaceField : (fld : Field schema name type)
+            -> (0 newName : String)
+            -> newType
+            -> Record schema
+            -> Record (replace schema fld (newName :! newType))
+replaceField Here newName x (rec :< _) = rec :< x
+replaceField (There fld) newName x (rec :< y) = replaceField fld newName x rec :< y
+
+public export
+setField : (fld : Field schema name type)
+        -> newType
+        -> Record schema
+        -> Record (update schema fld newType)
+setField Here x (rec :< _) = rec :< x
+setField (There fld) x (rec :< y) = setField fld x rec :< y
+
+public export
+updateField : (fld : Field schema name type)
+           -> (type -> newType)
+           -> Record schema
+           -> Record (update schema fld newType)
+updateField fld f rec = setField fld (f $ value fld rec) rec
 
 public export
 dropField : (fld : Field schema name type)
@@ -30,7 +54,7 @@ Eq (Record [<]) where
     [<] == [<] = True
 
 public export
-Eq a => Eq (Record schema) => Eq (Record (schema :< (name, a))) where
+Eq a => Eq (Record schema) => Eq (Record (schema :< (name :! a))) where
     (r :< x) == (s :< y) = x == y && delay (r == s)
 
 public export
@@ -38,7 +62,7 @@ Ord (Record [<]) where
     compare [<] [<] = EQ
 
 public export
-Ord a => Ord (Record schema) => Ord (Record (schema :< (name, a))) where
+Ord a => Ord (Record schema) => Ord (Record (schema :< (name :! a))) where
     compare (r :< x) (s :< y) = compare (r, x) (s, y)
 
 public export

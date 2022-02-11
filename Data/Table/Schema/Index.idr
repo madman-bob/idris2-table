@@ -7,7 +7,7 @@ import public Data.Table.Schema.Data
 public export
 data HasLength : (schema : Schema) -> (n : Nat) -> Type where [search schema]
     EmptySchema : HasLength [<] 0
-    SnocSchema : HasLength schema n -> HasLength (schema :< (name, type)) (S n)
+    SnocSchema : HasLength schema n -> HasLength (schema :< fs) (S n)
 
 %name HasLength lth
 
@@ -16,8 +16,8 @@ data HasIndex : (schema : Schema)
              -> (fld : Field schema name type)
              -> (i : Nat)
              -> Type where [search schema i]
-    LastIndex : HasLength (schema :< (name, type)) (S i) -> HasIndex (schema :< (name, type)) Here i
-    PrevIndex : HasIndex schema fld i -> HasIndex (schema :< (n, t)) (There fld) i
+    LastIndex : HasLength (schema :< (name :! type)) (S i) -> HasIndex (schema :< (name :! type)) Here i
+    PrevIndex : HasIndex schema fld i -> HasIndex (schema :< fs) (There fld) i
 
 %name HasIndex idx
 

@@ -1,10 +1,13 @@
-[<("name", String), ("age", Nat), ("favorite color", String)]
+[<("name" :! String), ("age" :! Nat), ("favorite color" :! String)]
 
 [<"name", "age", "favorite color"]
 [<String, Nat, String]
 
-[<("name", String), ("favorite color", String)]
-[<("name", String), ("age", Nat)]
+[<("name" :! String), ("isTeen" :! Bool), ("favorite color" :! String)]
+[<("name" :! String), ("age" :! Int), ("favorite color" :! String)]
+
+[<("name" :! String), ("favorite color" :! String)]
+[<("name" :! String), ("age" :! Nat)]
 Error: Can't find an implementation for Field exampleSchema "grade" ?sa.
 
 (Interactive):1:24--1:31
@@ -12,8 +15,8 @@ Error: Can't find an implementation for Field exampleSchema "grade" ?sa.
                             ^^^^^^^
 
 
-[<("name", String), ("favorite color", String)]
-[<("name", String), ("age", Nat)]
+[<("name" :! String), ("favorite color" :! String)]
+[<("name" :! String), ("age" :! Nat)]
 Error: Can't find an implementation for HasIndex exampleSchema (There (There (There (There ?sa)))) 3.
 
 (Interactive):1:24--1:25
