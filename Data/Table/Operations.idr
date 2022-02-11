@@ -23,7 +23,7 @@ crossJoinHasRows [<] _ {hasRows1 = EmptyTable} = EmptyTable
 crossJoinHasRows (table1 :< rec) table2 {hasRows1 = SnocTable hasRows1}
   = let u1 = crossJoinHasRows table1 table2
         u2 = crossJoinHasRows rec    table2
-    in (vcatHasRows (table1 |*| table2) (rec |*| table2))
+    in (concatHasRows (table1 |*| table2) (rec |*| table2))
     `HasRowsProof` (plusCommutative _ _)
 
 namespace Record

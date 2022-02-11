@@ -17,17 +17,17 @@ HasRowsProof : forall table.
   -> (prf : n = m) -> (table `HasRows` m)
 HasRowsProof {table} hasRows prf = replace {p = \k => table `HasRows` k} prf hasRows
 
-public export 0
-vcatHasRows :
-     (table1 : Table schema)
+public export
+concatHasRows : {n1, n2 : _}
+  -> (table1 : Table schema)
   -> (hasRows1 : table1 `HasRows` n1)
   => (table2 : Table schema)
   -> (hasRows2 : table2 `HasRows` n2)
   => table1 ++ table2 `HasRows` (n1 + n2)
-vcatHasRows table1 [<] {hasRows2 = EmptyTable}
+concatHasRows table1 [<] {hasRows2 = EmptyTable}
   = hasRows1 `HasRowsProof` (sym $ plusZeroRightNeutral n1)
-vcatHasRows table1 (table2 :< rec) {hasRows2 = SnocTable hasRows}
-  = (SnocTable (vcatHasRows table1 table2))
+concatHasRows table1 (table2 :< rec) {hasRows2 = SnocTable hasRows}
+  = (SnocTable (concatHasRows table1 table2))
     `HasRowsProof`
     (plusSuccRightSucc _ _)
 
