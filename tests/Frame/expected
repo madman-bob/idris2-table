@@ -22,5 +22,7 @@ Mismatch between: 0 and 1.
                                ^^
 
 
+Element [<[<"Rafferty", Just 31, 31, "Sales", "Harriet"], [<"Rafferty", Just 31, 32, "Finance", "George"], [<"Jones", Just 32, 31, "Sales", "Harriet"], [<"Jones", Just 32, 32, "Finance", "George"], [<"Heisenberg", Just 33, 31, "Sales", "Harriet"], [<"Heisenberg", Just 33, 32, "Finance", "George"]] (SnocTable (SnocTable (SnocTable (SnocTable (SnocTable (SnocTable EmptyTable))))))
+
 [<"Heisenberg", Just 33]
 

@@ -2,11 +2,7 @@ module Data.Table.Row.Constructor
 
 import public Data.Table.Data
 import public Data.Table.Row.HasRows
-
-public export
-(++) : Table schema -> Table schema -> Table schema
-t ++ [<] = t
-t ++ (rows :< rec) = (t ++ rows) :< rec
+import Data.Table.Row.Interface
 
 namespace FromFoldable
     public export
@@ -38,3 +34,24 @@ zipHasRows : (0 tbl1 : Table schema1)
 zipHasRows [<] [<] {nrows1 = EmptyTable} {nrows2 = EmptyTable} = EmptyTable
 zipHasRows (tbl1 :< rec1) (tbl2 :< rec2) {nrows1 = SnocTable _} {nrows2 = SnocTable _} =
     SnocTable $ zipHasRows tbl1 tbl2
+
+infixl 9 |*|
+
+public export
+(|*|) : Table schema1 -> Table schema2 -> Table (schema1 ++ schema2)
+tbl1 |*| tbl2 = do
+    rec1 <- tbl1
+    rec2 <- tbl2
+    pure $ rec1 ++ rec2
+
+public export
+crossJoinHasRows : (0 tbl1 : Table schema1)
+                -> (hasRows1 : HasRows tbl1 n1)
+                => (0 tbl2 : Table schema2)
+                -> (hasRows2 : HasRows tbl2 n2)
+                => HasRows (tbl1 |*| tbl2) (n1 * n2)
+crossJoinHasRows tbl1 tbl2 = do
+    _ <- tbl1
+    replace {p = HasRows _} (multOneRightNeutral _) $ do
+    _ <- tbl2
+    pureHasRows

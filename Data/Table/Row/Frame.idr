@@ -60,3 +60,11 @@ public export
 frm1 |+| frm2 =
     let 0 hasRows = zipHasRows (table frm1) (table frm2) in
     frame $ table frm1 |+| table frm2
+
+public export
+(|*|) : Frame schema1 n1
+     -> Frame schema2 n2
+     -> Frame (schema1 ++ schema2) (n1 * n2)
+frm1 |*| frm2 =
+    let 0 hasRows = crossJoinHasRows (table frm1) (table frm2) in
+    frame $ table frm1 |*| table frm2

@@ -19,6 +19,8 @@ basicTest ExampleTables.idr << EOF
     employees |+| [<sales, finance, production]
     employees |+| [<sales, finance]
 
+    employees |*| [<sales, finance]
+
     toSnocList allEmployees
 
     elemBy sameDepartment [<"Unknown", Just 34] employees
