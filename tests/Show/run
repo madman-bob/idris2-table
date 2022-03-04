@@ -1,0 +1,18 @@
+. ../testutils.sh
+
+basicTest ExampleTables.idr << EOF
+    show exampleTable
+    show exampleFrame
+
+    showTable exampleTable
+    showFrame exampleFrame
+
+    showTable {halignment = [L, R, L, C, R]} {valignment = [C, T, T, C, B]} exampleTable
+    showFrame {halignment = [L, R, L, C, R]} {valignment = [C, T, T, C, B]} exampleFrame
+
+    showTableBody exampleTable
+    showFrameBody exampleFrame
+
+    showTableBody {halignment = [L, R, L, C, R]} {valignment = [C, T, T, C, B]} exampleTable
+    showFrameBody {halignment = [L, R, L, C, R]} {valignment = [C, T, T, C, B]} exampleFrame
+EOF

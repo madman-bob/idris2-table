@@ -1,4 +1,50 @@
-[<[<Nothing, [<[<"Williams", Nothing]]], [<Just 31, [<[<"Rafferty", Just 31]]], [<Just 32, [<[<"Jones", Just 32]]], [<Just 33, [<[<"Heisenberg", Just 33]]], [<Just 34, [<[<"Robinson", Just 34], [<"Smith", Just 34]]]]
+"
+| key     | groups                           |
+| ------- | -------------------------------- |
+| Nothing |                                  |
+|         | | Last Name  | Department ID |   |
+|         | | ---------- | ------------- |   |
+|         | | "Williams" | Nothing       |   |
+| Just 31 |                                  |
+|         | | Last Name  | Department ID |   |
+|         | | ---------- | ------------- |   |
+|         | | "Rafferty" | Just 31       |   |
+| Just 32 |                                  |
+|         | | Last Name | Department ID |    |
+|         | | --------- | ------------- |    |
+|         | | "Jones"   | Just 32       |    |
+| Just 33 |                                  |
+|         | | Last Name    | Department ID | |
+|         | | ------------ | ------------- | |
+|         | | "Heisenberg" | Just 33       | |
+| Just 34 |                                  |
+|         | | Last Name  | Department ID |   |
+|         | | ---------- | ------------- |   |
+|         | | "Robinson" | Just 34       |   |
+|         | | "Smith"    | Just 34       |   |"
 
-[<[<Nothing, [<[<"Williams"]]], [<Just 31, [<[<"Rafferty"]]], [<Just 32, [<[<"Jones"]]], [<Just 33, [<[<"Heisenberg"]]], [<Just 34, [<[<"Robinson"], [<"Smith"]]]]
+"
+| key     | groups           |
+| ------- | ---------------- |
+| Nothing |                  |
+|         | | Last Name  |   |
+|         | | ---------- |   |
+|         | | "Williams" |   |
+| Just 31 |                  |
+|         | | Last Name  |   |
+|         | | ---------- |   |
+|         | | "Rafferty" |   |
+| Just 32 |                  |
+|         | | Last Name |    |
+|         | | --------- |    |
+|         | | "Jones"   |    |
+| Just 33 |                  |
+|         | | Last Name    | |
+|         | | ------------ | |
+|         | | "Heisenberg" | |
+| Just 34 |                  |
+|         | | Last Name  |   |
+|         | | ---------- |   |
+|         | | "Robinson" |   |
+|         | | "Smith"    |   |"
 
