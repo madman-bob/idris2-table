@@ -19,7 +19,6 @@ basicTest ExampleTables.idr << EOF
     employees |+| [<sales, finance, production]
     employees |+| [<sales, finance]
 
-    robinson |*| the (Table _) [<sales, finance]
     employees |*| [<sales, finance]
 
     toSnocList allEmployees

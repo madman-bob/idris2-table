@@ -61,15 +61,6 @@ frm1 |+| frm2 =
     let 0 hasRows = zipHasRows (table frm1) (table frm2) in
     frame $ table frm1 |+| table frm2
 
-namespace Record
-    public export
-    (|*|) : Record schema1
-         -> Frame schema2 n
-         -> Frame (schema1 ++ schema2) n
-    rec |*| frm =
-        let 0 hasRows = crossJoinHasRows rec (table frm) in
-        frame (rec |*| table frm)
-
 public export
 (|*|) : Frame schema1 n1
      -> Frame schema2 n2

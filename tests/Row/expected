@@ -19,7 +19,6 @@ Error: Can't find an implementation for HasRows [<sales, finance] 3.
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-[<[<"Robinson", Just 34, 31, "Sales", "Harriet"], [<"Robinson", Just 34, 32, "Finance", "George"]]
 [<[<"Rafferty", Just 31, 31, "Sales", "Harriet"], [<"Rafferty", Just 31, 32, "Finance", "George"], [<"Jones", Just 32, 31, "Sales", "Harriet"], [<"Jones", Just 32, 32, "Finance", "George"], [<"Heisenberg", Just 33, 31, "Sales", "Harriet"], [<"Heisenberg", Just 33, 32, "Finance", "George"]]
 
 [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]

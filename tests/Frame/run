@@ -16,7 +16,6 @@ basicTest ExampleTables.idr << EOF
     employees |+| [<sales, finance, production]
     Frame.(|+|) employees [<sales, finance]
 
-    robinson |*| the (Frame _ _) [<sales, finance]
     employees |*| [<sales, finance]
 
     rowFromEnd employees 0
