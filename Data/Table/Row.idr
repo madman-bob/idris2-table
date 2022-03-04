@@ -30,9 +30,8 @@ sort = sortBy compare
 
 public export
 filter : (Record schema -> Bool) -> Table schema -> Table schema
-filter f [<] = [<]
-filter f (rows :< rec) =
-    let rest = filter f rows in
+filter f tbl = do
+    rec <- tbl
     case f rec of
-        False => rest
-        True => rest :< rec
+        False => [<]
+        True => pure rec
