@@ -38,6 +38,7 @@ basicTest ExampleTables.idr << EOF
     sort @{byField "Department ID"} allEmployees
 
     filter hasDepartment allEmployees
+    dropNa "Department ID" allEmployees
 
     row employees 0
     row employees 1

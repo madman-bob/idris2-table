@@ -35,3 +35,13 @@ filter f tbl = do
     case f rec of
         False => [<]
         True => pure rec
+
+public export
+dropNa : (fld : Field schema name (Maybe type))
+      -> Table schema
+      -> Table (update schema fld type)
+dropNa fld tbl = do
+    rec <- tbl
+    case value fld rec of
+        Nothing => [<]
+        Just x => pure $ setField fld x rec

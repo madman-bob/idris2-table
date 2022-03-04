@@ -38,6 +38,7 @@ True
 [<[<"Williams", Nothing], [<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34]]
 
 [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34]]
+[<[<"Rafferty", 31], [<"Jones", 32], [<"Heisenberg", 33], [<"Robinson", 34], [<"Smith", 34]]
 
 [<"Rafferty", Just 31]
 [<"Jones", Just 32]
