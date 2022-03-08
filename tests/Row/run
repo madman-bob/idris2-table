@@ -34,6 +34,12 @@ basicTest ExampleTables.idr << EOF
     distinctBy sameDepartment $ allEmployees ++ allEmployees
     distinct $ allEmployees ++ allEmployees
 
+    finToNat <$> findIndexBy ((== Just 32) . value "Department ID") allEmployees
+    finToNat <$> findIndexBy ((== Just 35) . value "Department ID") allEmployees
+
+    finToNat <$> findIndex robinson allEmployees
+    finToNat <$> findIndex robinson employees
+
     sort allEmployees
     sort @{byField "Department ID"} allEmployees
 

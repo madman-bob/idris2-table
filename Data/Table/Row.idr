@@ -20,6 +20,34 @@ public export
 distinct : Eq (Record schema) => Table schema -> Table schema
 distinct = distinctBy (==)
 
+public export
+findIndexFromEndBy : (Record schema -> Bool)
+                  -> (tbl : Table schema)
+                  -> {auto 0 hasRows : HasRows tbl n}
+                  -> Maybe (Fin n)
+findIndexFromEndBy f [<] = Nothing
+findIndexFromEndBy f (tbl :< rec) {hasRows = SnocTable _} =
+    if f rec
+        then Just FZ
+        else FS <$> findIndexFromEndBy f tbl
+
+public export
+findIndexBy : (Record schema -> Bool)
+           -> (tbl : Table schema)
+           -> HasRows tbl n
+           => Maybe (Fin n)
+findIndexBy f tbl =
+    let Val _ = length tbl in
+    complement <$> findIndexFromEndBy f tbl
+
+public export
+findIndex : Eq (Record schema)
+         => Record schema
+         -> (tbl : Table schema)
+         -> HasRows tbl n
+         => Maybe (Fin n)
+findIndex rec = findIndexBy (== rec)
+
 export
 sortBy : (Record schema -> Record schema -> Ordering) -> Table schema -> Table schema
 sortBy cmp tbl = mkTable $ List.sortBy cmp (cast $ toSnocList tbl)
