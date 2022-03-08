@@ -37,15 +37,27 @@ Monoid (Table schema) where
 
 -- "Functor"
 
-public export
-map : (Record schema -> a) -> Table schema -> SnocList a
-map f [<] = [<]
-map f (tbl :< rec) = map f tbl :< f rec
+namespace SnocList
+    public export
+    map : (Record schema -> a) -> Table schema -> SnocList a
+    map f [<] = [<]
+    map f (tbl :< rec) = map f tbl :< f rec
 
-public export
-mapPreservesLength : HasRows tbl n => HasRows tbl (length (map f tbl))
-mapPreservesLength @{EmptyTable} = EmptyTable
-mapPreservesLength @{SnocTable _} = SnocTable mapPreservesLength
+    public export
+    mapPreservesLength : HasRows tbl n => HasRows tbl (length (map f tbl))
+    mapPreservesLength @{EmptyTable} = EmptyTable
+    mapPreservesLength @{SnocTable _} = SnocTable mapPreservesLength
+
+namespace Table
+    public export
+    map : (Record schema1 -> Record schema2) -> Table schema1 -> Table schema2
+    map f [<] = [<]
+    map f (tbl :< rec) = map f tbl :< f rec
+
+    public export
+    mapPreservesLength : HasRows tbl n => HasRows (map f tbl) n
+    mapPreservesLength @{EmptyTable} = EmptyTable
+    mapPreservesLength @{SnocTable _} = SnocTable Table.mapPreservesLength
 
 -- "Foldable"
 

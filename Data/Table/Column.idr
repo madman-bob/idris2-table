@@ -47,7 +47,7 @@ buildColumn : (0 name : String)
            -> Table (schema :< name :! type)
 buildColumn name f tbl =
     let (_ ** _) = length tbl in
-    addColumn name (map f tbl) tbl {nRows = mapPreservesLength}
+    addColumn name (map f tbl) tbl {nRows = SnocList.mapPreservesLength}
 
 public export
 dropColumn : (fld : Field schema name type)
