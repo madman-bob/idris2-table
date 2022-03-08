@@ -36,9 +36,18 @@ data Field : (schema : Schema) -> (name : String) -> Type -> Type where [search 
     Here : Field (schema :< (name :! type)) name type
     There : (fld : Field schema name type) -> Field (schema :< fs) name type
 
+public export
+weaken : Field schema name type -> Field (schema :< col) name type
+weaken fld = There fld
+
 %name Field fld
 
 public export
 (++) : Schema -> Schema -> Schema
 schema1 ++ [<] = schema1
 schema1 ++ (schema2 :< fs) = (schema1 ++ schema2) :< fs
+
+public export
+(.field) : {schema : Schema} -> Field schema name type -> FieldSchema
+(Here).field {schema = _ :< fld@(_ :! _)} = fld
+(There fld).field = fld.field

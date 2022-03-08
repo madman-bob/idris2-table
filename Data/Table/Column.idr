@@ -6,6 +6,8 @@ import public Data.Table.Column.Homogeneous
 import public Data.Table.Data
 import public Data.Table.Row
 
+import public Decidable.Equality
+
 %default total
 
 public export
@@ -54,3 +56,13 @@ dropColumn : (fld : Field schema name type)
           -> Table schema
           -> Table (drop schema fld)
 dropColumn fld tbl = mkTable $ map (dropField fld) tbl
+
+public export
+isElem : (name : String) -> (schema : Schema)
+  -> Maybe (Exists (\type => Field schema name type))
+name `isElem` [<] = Nothing
+name `isElem` (schema :< fs@(_ :! _)) = case decEq name fs.Name of
+  Yes Refl   => Just (Evidence _ Here)
+  No  contra => do
+    pos <- name `isElem` schema
+    Just (Evidence _ $ There pos.snd)

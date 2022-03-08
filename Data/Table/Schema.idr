@@ -33,3 +33,27 @@ drop : (schema : Schema)
     -> Schema
 drop (schema :< (name :! type)) Here = schema
 drop (schema :< fs) (There fld) = drop schema fld :< fs
+
+infixl 6 |-|, |!|
+
+public export
+(|-|) : Foldable f => (schema : Schema) -> f String -> Schema
+[<]    |-| names = [<]
+(schema :< fld) |-| names = if fld.Name `elem` names
+  then (schema |-| names)
+  else (schema |-| names) :< fld
+
+public export
+(|!|) : Foldable f => (schema : Schema) -> f String -> Schema
+[<]    |!| names = [<]
+(schema :< fld) |!| names = if fld.Name `elem` names
+  then (schema |!| names) :< fld
+  else (schema |!| names)
+
+public export
+data IsSnoc : Schema -> Type where
+  ItIsSnoc : IsSnoc (schedma :< col)
+
+public export
+(.tail) : (schema : Schema) -> {auto 0 isSnoc : IsSnoc schema} -> FieldSchema
+(_ :< col).tail {isSnoc = ItIsSnoc} = col
