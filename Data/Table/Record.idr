@@ -55,20 +55,20 @@ rec1 ++ [<] = rec1
 rec1 ++ (rec2 :< x) = (rec1 ++ rec2) :< x
 
 public export
-Eq (Record [<]) where
-    [<] == [<] = True
+AllTypes Eq schema => Eq (Record schema) where
+    ([<] == [<]) @{[<]} = True
+    ((r :< x) == (s :< y)) @{_ :< TheTypeHas _} = x == y && delay (r == s)
+
+%hint
+public export
+allTypesOrdEq : AllTypes Ord schema => AllTypes Eq schema
+allTypesOrdEq @{[<]} = [<]
+allTypesOrdEq @{_ :< TheTypeHas _} = %search :< %search
 
 public export
-Eq a => Eq (Record schema) => Eq (Record (schema :< (name :! a))) where
-    (r :< x) == (s :< y) = x == y && delay (r == s)
-
-public export
-Ord (Record [<]) where
+AllTypes Ord schema => Ord (Record schema) where
     compare [<] [<] = EQ
-
-public export
-Ord a => Ord (Record schema) => Ord (Record (schema :< (name :! a))) where
-    compare (r :< x) (s :< y) = compare (r, x) (s, y)
+    compare @{_ :< TheTypeHas _} (r :< x) (s :< y) = compare (r, x) (s, y)
 
 public export
 byField : Field schema name type

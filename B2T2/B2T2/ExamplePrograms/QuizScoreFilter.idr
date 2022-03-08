@@ -8,14 +8,13 @@ import B2T2.ExampleTables
 %default total
 
 public export
-data GradebookColumn : String -> Type -> Type -> Type where
-    QuizCol : So (isPrefixOf "quiz" name) -> GradebookColumn name a a
-    NoQuizCol : So (not $ isPrefixOf "quiz" name) -> GradebookColumn name type a
+data GradebookColumn : (fs : FieldSchema) -> Type -> Type where [search fs]
+    QuizCol : So (isPrefixOf "quiz" name) -> GradebookColumn (name :! a) a
+    NoQuizCol : So (not $ isPrefixOf "quiz" name) -> GradebookColumn (name :! type) a
 
 public export
-data GradebookSchema : (schema : Schema) -> (a : Type) -> Type where [search schema]
-    Lin : GradebookSchema [<] a
-    (:<) : GradebookSchema schema a -> GradebookColumn name type a -> GradebookSchema (schema :< (name :! type)) a
+GradebookSchema : Schema -> Type -> Type
+GradebookSchema schema a = All (`GradebookColumn` a) schema
 
 public export
 quizCount : (0 schema : Schema)
