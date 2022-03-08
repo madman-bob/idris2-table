@@ -51,14 +51,119 @@ public export
  _ | True  = (rec |-| names)
  _ | False = (rec |-| names) :< fld
 
+data FieldNamed : Schema -> String -> Type where
+  Here : FieldNamed (schema :< (name :! type)) name
+  There : FieldNamed schema name -> FieldNamed (schema :< fld) name
+
+infix 4 !!
+
+(!!) : (schema : Schema) -> schema `FieldNamed` name -> Type
+-- silly: re-ordering these clauses produces the correct case tree
+(schema :< fld) !! (There pos) = schema !! pos
+(schema :< (name :! type)) !! Here = type
+
+cast : (pos : schema `FieldNamed` name) -> Field schema name (schema !! pos)
+cast Here = Here
+cast (There pos) = There $ cast pos
+namespace Thin
+  public export
+  data Thin : (src, tgt : Schema) -> Type where
+    Lin : Thin [<] schema
+    K{-eep-} : Thin src tgt -> Thin (src :< fld) (tgt :< fld)
+    T{-hin-} : Thin src tgt -> Thin src (tgt :< fld)
+
+namespace Mask
+  -- Can help thinking about thinnings as bit-masks
+  public export
+  data Bit = K | T
+
+  public export
+  data Mask : Schema -> Type where
+    Lin : Mask [<]
+    (:<) : Mask schema -> Bit -> Mask (schema :< fld)
+
+  public export
+  (.in) : {schema : Schema} -> Mask schema -> Schema
+  [<].in = [<]
+  (mask :< K).in {schema = schema :< fld} = mask.in :< fld
+  (mask :< T).in = mask.in
+
+  public export
+  (.out) : {schema : Schema} -> Mask schema -> Schema
+  [<].out = [<]
+  (mask :< T).out {schema = schema :< fld} = mask.out :< fld
+  (mask :< K).out = mask.out
+
+  public export
+  Fwd : (mask : Mask schema) -> Thin mask.in schema
+  Fwd [<] = [<]
+  Fwd (mask :< K) = K (Fwd mask)
+  Fwd (mask :< T) = T (Fwd mask)
+
+  public export
+  Bwd : {schema : Schema} -> Thin src schema -> Mask schema
+  Bwd [<] {schema = [<]} = [<]
+  Bwd [<] {schema = (schema :< fs)} = Bwd [<] :< T
+  Bwd (K x) = Bwd x :< K
+  Bwd (T x) = Bwd x :< T
+
+  public export
+  (.flip) : Mask schema -> Mask schema
+  [<].flip = [<]
+  (mask :< K).flip = mask.flip :< T
+  (mask :< T).flip = mask.flip :< K
+
+  export
+  flipInOut : (mask : Mask schema) -> mask.flip.in = mask.out
+  flipInOut [<] = Refl
+  flipInOut (mask :< K) = flipInOut mask
+  flipInOut ((mask :< T) {fld}) = cong (:< fld) $ flipInOut mask
+
+
+namespace Thin
+  public export
+  (|!|) : (schema : Schema) -> Thin src schema -> Schema
+  schema |!| thin = (Bwd thin).out
+
+  public export
+  (.complement) : {schema : Schema} -> (thin : Thin src schema)
+    -> Thin (schema |!| thin) schema
+  thin.complement = replace {p = flip Thin schema}
+                    (flipInOut _)
+                    $ Fwd (Bwd thin).flip
+
+namespace Projection
+  public export
+  FieldTyped : Schema -> Type -> Type
+  FieldTyped schema type = Exists (\name => Field schema name type)
+
+  public export
+  Ren : (src, tgt : Schema) -> Type
+  Ren src tgt = All (\fld => tgt `FieldTyped` fld.Sort) src
+
+  public export
+  (.project) : (rec : Record schema) -> FieldTyped schema type -> type
+  rec.project pos = ?iAmHere
+
 public export total
 jointSchemaType : (schema1, schema2 : Schema) -> String -> Type
 jointSchemaType schema1 schema2 fld =
- Exists $ \type => (Field schema1 fld type, Field schema2 fld type, Eq type)
+ (pos : schema1 `FieldNamed` fld ** (Field schema2 fld (schema1 !! pos), Eq (schema1 !! pos)))
+
+-- For now, since Data.List's intersect is export non-public
+
+public export
+intersectByPublic : (a -> a -> Bool) -> List a -> List a -> List a
+intersectByPublic eq xs ys = [x | x <- xs, any (eq x) ys]
+
+public export
+intersectPublic : Eq a => List a -> List a -> List a
+intersectPublic = intersectByPublic (==)
+
 
 public export
 jointNames : (schema1, schema2 : Schema) -> List String
-jointNames schema1 schema2 = (names schema1 <>> []) `intersect` (names schema2 <>> [])
+jointNames schema1 schema2 = (names schema1 <>> []) `intersectPublic` (names schema2 <>> [])
 
 mkSchema : List (String, Type) -> Schema
 
@@ -66,16 +171,23 @@ mkSchema : List (String, Type) -> Schema
   -> Record (mkSchema $ map Exists.fst proj)
 
 public export
-join : {schema1,schema2 : Schema} -- -> (rec1 : Record schema1) -> (rec2 : Record schema2)
+join : {schema1,schema2 : Schema} -> (rec1 : Record schema1) -> (rec2 : Record schema2)
   -> {auto 0 ford1 : u === (jointSchemaType schema1 schema2)}
   -> {auto 0 ford2 : v === (jointNames schema1 schema2)}
   -> {auto joint : All u v}
   -> Table (schema1 ++ (schema2 |-| names schema1))
-join {joint} = ?h910
+join rec1 rec2 {joint} = ?h910
 
-schema1, schema2 : Schema
-schema1 = [< "a" :! Nat, "b" :! Bool]
-schema2 = [< "a" :! Nat, "c" :! Bool]
+S1, S2 : Schema
+S1 = [< "a" :! Nat, "b" :! Bool]
+S2 = [< "a" :! Nat, "b" :! Bool]
+
+T1 : Record S1
+T2 : Record S2
+
+H : ?
+H = join T1 T2
+
 {-
 join rec1 rec2 {joint} =
   if all (\case
