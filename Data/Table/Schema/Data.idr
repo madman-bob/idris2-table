@@ -10,6 +10,14 @@ data FieldSchema = (:!) String Type
 %name FieldSchema fs
 
 public export
+(.Name) : FieldSchema -> String
+(name :! _).Name = name
+
+public export
+(.Sort) : FieldSchema -> Type
+(_ :! sort).Sort = sort
+
+public export
 data Schema : Type where
     Lin : Schema
     (:<) : Schema -> FieldSchema -> Schema
