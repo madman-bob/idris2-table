@@ -5,7 +5,10 @@ module Data.Table.Schema.Data
 infix 10 :!
 
 public export
-data FieldSchema = (:!) String Type
+record FieldSchema where
+  constructor (:!)
+  fieldName : String
+  fieldType : Type
 
 %name FieldSchema fs
 

@@ -13,8 +13,8 @@ AllColumns schema type = AllTypes (=== type) schema
 
 public export
 allColumns : (schema : Schema)
-          -> AllColumns schema type
+          -> (0 _ : AllColumns schema type)
           => SnocList (name : String ** Field schema name type)
 allColumns [<] = [<]
-allColumns (schema :< (name :! type)) @{_ :< TheTypeHas Refl} =
-    (map (\(n ** f) => (n ** There f)) $ allColumns schema) :< (name ** Here)
+allColumns (schema :< (name :! type)) @{_ :< prf} =
+    (map (\(n ** f) => (n ** There f)) $ allColumns schema) :< (name ** here prf)

@@ -23,6 +23,10 @@ namespace AllTypes
     data TypeHas : (p : Type -> Type) -> FieldSchema -> Type where
         TheTypeHas : p type -> TypeHas p (name :! type)
 
+    export
+    here : (0 _ : TypeHas (=== ty) v) -> Field (schema :< v) (v .fieldName) ty
+    here (TheTypeHas eq) = rewrite eq in Here
+
     public export
     AllTypes : (p : Type -> Type) -> Schema -> Type
     AllTypes p schema = All (TypeHas p) schema
