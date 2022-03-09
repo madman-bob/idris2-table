@@ -37,6 +37,8 @@ basicTest ExampleTables.idr << EOF
     distinctBy sameDepartment $ allEmployees ++ allEmployees
     distinct $ allEmployees ++ allEmployees
 
+    mapFst finToNat <$> enum allEmployees
+
     finToNat <$> findIndexBy ((== Just 32) . value "Department ID") allEmployees
     finToNat <$> findIndexBy ((== Just 35) . value "Department ID") allEmployees
 
