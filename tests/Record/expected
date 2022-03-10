@@ -2,7 +2,7 @@
 
 "Bob"
 12
-Error: Can't find an implementation for Field StudentSchema "grade" ?sa.
+Error: Can't find an implementation for Field StudentSchema "grade" ?type.
 
 (Interactive):1:11--1:18
  1 |     value "grade" exampleRecord
@@ -26,7 +26,7 @@ Error: Can't find an implementation for HasIndex StudentSchema (There (There (Th
 
 [<"Bob", "blue"]
 [<"Bob", 12]
-Error: Can't find an implementation for Field StudentSchema "grade" ?sa.
+Error: Can't find an implementation for Field StudentSchema "grade" ?type.
 
 (Interactive):1:15--1:22
  1 |     dropField "grade" exampleRecord
