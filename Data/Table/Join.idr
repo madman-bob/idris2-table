@@ -51,20 +51,15 @@ public export
  _ | True  = (rec |-| names)
  _ | False = (rec |-| names) :< fld
 
-data FieldNamed : Schema -> String -> Type where
-  Here : FieldNamed (schema :< (name :! type)) name
-  There : FieldNamed schema name -> FieldNamed (schema :< fld) name
+public export
+FieldNamed : Schema -> String -> Type
+FieldNamed schema name = Exists (\type => Field schema name type)
 
 infix 4 !!
 
 (!!) : (schema : Schema) -> schema `FieldNamed` name -> Type
--- silly: re-ordering these clauses produces the correct case tree
-(schema :< fld) !! (There pos) = schema !! pos
-(schema :< (name :! type)) !! Here = type
+schema !! pos = pos.snd.field.Sort
 
-cast : (pos : schema `FieldNamed` name) -> Field schema name (schema !! pos)
-cast Here = Here
-cast (There pos) = There $ cast pos
 namespace Thin
   public export
   data Thin : (src, tgt : Schema) -> Type where
@@ -138,12 +133,43 @@ namespace Projection
   FieldTyped schema type = Exists (\name => Field schema name type)
 
   public export
+  (.project) : (rec : Record schema) -> FieldTyped schema type -> type
+  rec.project pos = value pos.snd rec
+
+
+namespace Renaming
+  public export
   Ren : (src, tgt : Schema) -> Type
   Ren src tgt = All (\fld => tgt `FieldTyped` fld.Sort) src
 
+  infixl 7 :<.
+
+  ||| Smart constructor for records that uses eta on the field
   public export
-  (.project) : (rec : Record schema) -> FieldTyped schema type -> type
-  rec.project pos = ?iAmHere
+  (:<.) : Record schema -> fld.Sort -> Record (schema :< fld)
+  (rec :<. x) {fld = _ :! _} = rec `Record.(:<)` x
+
+  public export
+  (.project) : (rec : Record src) -> Ren tgt src -> Record tgt
+  rec.project [<] = [<]
+  rec.project (ren :< pos) = (rec.project ren) :<. (rec.project pos)
+
+-- Probably too specialised
+record ProjectionJoin (src1, src2, tgt1, tgt2 : Schema) where
+  constructor MkJoin
+  0 filterSchema : Schema
+  eqSchema : Eq (Record filterSchema)
+  filter1 : Ren filterSchema src1
+  filter2 : Ren filterSchema src2
+  projection1 : Ren tgt1 src1
+  projection2 : Ren tgt2 src2
+
+joinGen : ProjectionJoin src1 src2 tgt1 tgt2 -> Record src1 -> Record src2 -> Table (tgt1 ++ tgt2)
+joinGen joinData rec1 rec2 =
+  if (rec1.project (joinData.filter1) == rec2.project (joinData.filter2)) @{joinData.eqSchema}
+  then [< rec1.project joinData.projection1 ++
+          rec2.project joinData.projection2]
+  else [<]
 
 public export total
 jointSchemaType : (schema1, schema2 : Schema) -> String -> Type
@@ -165,6 +191,31 @@ public export
 jointNames : (schema1, schema2 : Schema) -> List String
 jointNames schema1 schema2 = (names schema1 <>> []) `intersectPublic` (names schema2 <>> [])
 
+fromAllSchema : Schema.Quantifiers.All.All (\name => Type) ns -> Schema
+fromAll : (prf : All (\name => schema1 `FieldNamed` name) ns) -> 
+  Ren (fromAllSchema $ map {p = (\name => schema1 `FieldNamed` name), q = const Type} Exists.fst ?pprf) schema1
+
+public export
+generateJoinData : All (jointSchemaType schema1 schema2) (jointNames schema1 schema2)
+  -> ProjectionJoin schema1 schema2 schema1 (schema2 |-| names schema1)
+generateJoinData datum =
+ let u = mapProperty (\x => x.fst) datum
+     v : All (\y => Exists (\type => Field schema2 y type)) ?
+       = mapProperty (\y => Evidence _ $ fst $ snd y) datum
+     q = ?h1 --fromAll u
+     r = ?h2 --fromAll v
+ in MkJoin
+   { eqSchema = ?
+   , filter1 = ?h91 --q
+   , filter2 = ?h90
+   , filterSchema = ?
+   , projection1 = ?h10
+   , projection2 = ?generateJoinData_rhs
+   }
+
+
+
+
 mkSchema : List (String, Type) -> Schema
 
 (.project) : Record schema -> (proj : List (Exists $ \(fld,type) => Field schema fld type))
@@ -180,14 +231,14 @@ join rec1 rec2 {joint} = ?h910
 
 S1, S2 : Schema
 S1 = [< "a" :! Nat, "b" :! Bool]
-S2 = [< "a" :! Nat, "b" :! Bool]
+S2 = [< "a" :! Bool, "a" :! Nat, "b" :! Bool]
 
 T1 : Record S1
 T2 : Record S2
-
+{-
 H : ?
 H = join T1 T2
-
+-}
 {-
 join rec1 rec2 {joint} =
   if all (\case
