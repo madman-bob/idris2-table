@@ -9,9 +9,13 @@ import public Data.Table.Schema
 import public Data.Table.Schema.Quantifiers
 
 import public Data.List
+import Data.SnocList.Operations
+import public Data.SnocList.Quantifiers
 import public Data.List.Quantifiers
 
 import Syntax.WithProof
+
+%default total
 
 public export
 Reason : (0 prf : post === pre) -> Frame s post -> Frame s pre
@@ -172,44 +176,67 @@ joinGen joinData rec1 rec2 =
   else [<]
 
 public export total
-jointSchemaType : (schema1, schema2 : Schema) -> String -> Type
+0 jointSchemaType : (schema1, schema2 : Schema) -> String -> Type
 jointSchemaType schema1 schema2 fld =
- (pos : schema1 `FieldNamed` fld ** (Field schema2 fld (schema1 !! pos), Eq (schema1 !! pos)))
+ (pos : schema1 `FieldNamed` fld ** (Field schema2 fld (pos.fst), Eq (schema1 !! pos)))
 
 -- For now, since Data.List's intersect is export non-public
 
 public export
-intersectByPublic : (a -> a -> Bool) -> List a -> List a -> List a
-intersectByPublic eq xs ys = [x | x <- xs, any (eq x) ys]
+jointNames : (schema1, schema2 : Schema) -> SnocList String
+jointNames schema1 schema2 = (names schema1) `intersect` (names schema2)
+
+recallAux : {schema : Schema} -> (0 type : Type) ->
+  (fld : Field schema name type) -> type === (schema !! (Evidence type fld))
+recallAux type Here = Refl
+recallAux type (There fld)
+  {schema = _ :< _ :! _}
+  = recallAux type fld
+
+recall : {schema : Schema} -> (fld : schema `FieldNamed` n) -> fld.fst = schema !! fld
+recall fld = recallAux fld.fst fld.snd
+
+total
+fromAllSchema : {ns : SnocList String} -> {schema1 : Schema} ->
+  All (jointSchemaType schema1 schema2) ns -> Schema
+fromAllSchema [<] = [<]
+fromAllSchema (joints :< joint) =
+  fromAllSchema joints :<
+  (last ns) :! (schema1 !! joint.fst)
+
+
+replace2 : {p : a -> b -> Type} -> x = x' -> y = y' -> p x y -> p x' y'
+
+Projection1 : {0 ns : SnocList String} -> {schema1 : Schema} ->
+  (prf : All (jointSchemaType schema1 schema2) ns) ->
+  Ren (fromAllSchema {schema1,schema2} prf) schema1
+Projection1 [<] = [<]
+Projection1 ((joints :< joint@(pos@(Evidence d e) ** (j2, j3))) {x = name})
+  =
+  Projection1 joints :<
+  (rewrite sym $ recall pos in
+  Evidence name pos.snd)
+
+Projection2 : {ns : SnocList String} -> {schema1 : Schema} ->
+  (prf : All (jointSchemaType schema1 schema2) ns) ->
+  Ren (fromAllSchema {schema1,schema2} prf) schema2
+Projection2 [<] = [<]
+Projection2 ((joints :< joint@(pos@(Evidence d e) ** (fld, j3))) {x = name})
+  = Projection2 joints :<
+    rewrite sym $ recall pos in
+    (Evidence name fld)
 
 public export
-intersectPublic : Eq a => List a -> List a -> List a
-intersectPublic = intersectByPublic (==)
-
-
-public export
-jointNames : (schema1, schema2 : Schema) -> List String
-jointNames schema1 schema2 = (names schema1 <>> []) `intersectPublic` (names schema2 <>> [])
-
-fromAllSchema : Schema.Quantifiers.All.All (\name => Type) ns -> Schema
-fromAll : (prf : All (\name => schema1 `FieldNamed` name) ns) -> 
-  Ren (fromAllSchema $ map {p = (\name => schema1 `FieldNamed` name), q = const Type} Exists.fst ?pprf) schema1
-
-public export
-generateJoinData : All (jointSchemaType schema1 schema2) (jointNames schema1 schema2)
-  -> ProjectionJoin schema1 schema2 schema1 (schema2 |-| names schema1)
+generateJoinData : {schema1,schema2 : Schema} ->
+  All (jointSchemaType schema1 schema2) (jointNames schema1 schema2) ->
+  ProjectionJoin schema1 schema2 schema1 (schema2 |-| names schema1)
 generateJoinData datum =
- let u = mapProperty (\x => x.fst) datum
-     v : All (\y => Exists (\type => Field schema2 y type)) ?
-       = mapProperty (\y => Evidence _ $ fst $ snd y) datum
-     q = ?h1 --fromAll u
-     r = ?h2 --fromAll v
- in MkJoin
+ MkJoin
    { eqSchema = ?
-   , filter1 = ?h91 --q
-   , filter2 = ?h90
-   , filterSchema = ?
-   , projection1 = ?h10
+   , filter1 = Projection1 datum
+   , filter2 = Projection2 datum
+   , filterSchema = _
+   , projection1 = ?h100
    , projection2 = ?generateJoinData_rhs
    }
 
@@ -227,18 +254,20 @@ join : {schema1,schema2 : Schema} -> (rec1 : Record schema1) -> (rec2 : Record s
   -> {auto 0 ford2 : v === (jointNames schema1 schema2)}
   -> {auto joint : All u v}
   -> Table (schema1 ++ (schema2 |-| names schema1))
-join rec1 rec2 {joint} = ?h910
+--join rec1 rec2 {joint} = ?h910
 
 S1, S2 : Schema
 S1 = [< "a" :! Nat, "b" :! Bool]
-S2 = [< "a" :! Bool, "a" :! Nat, "b" :! Bool]
+S2 = [< "a" :! Nat, "b" :! Bool]
 
 T1 : Record S1
 T2 : Record S2
-{-
+
 H : ?
-H = join T1 T2
--}
+H = join T1 T2 {joint = [< (Evidence _ %search ** (%search, %search))
+                        ,  (Evidence _ %search ** (%search, %search))
+                        ]}
+
 {-
 join rec1 rec2 {joint} =
   if all (\case
