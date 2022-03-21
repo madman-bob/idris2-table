@@ -178,7 +178,7 @@ joinGen joinData rec1 rec2 =
 public export total
 0 jointSchemaType : (schema1, schema2 : Schema) -> String -> Type
 jointSchemaType schema1 schema2 fld =
- (pos : schema1 `FieldNamed` fld ** (Field schema2 fld (pos.fst), Eq (schema1 !! pos)))
+ (pos : schema1 `FieldNamed` fld ** (Field schema2 fld (schema1 !! pos), Eq (schema1 !! pos)))
 
 -- For now, since Data.List's intersect is export non-public
 
@@ -223,8 +223,8 @@ Projection2 : {ns : SnocList String} -> {schema1 : Schema} ->
 Projection2 [<] = [<]
 Projection2 ((joints :< joint@(pos@(Evidence d e) ** (fld, j3))) {x = name})
   = Projection2 joints :<
-    rewrite sym $ recall pos in
-    (Evidence name fld)
+    --rewrite sym $ recall pos in
+    (Evidence _ fld)
 
 public export
 generateJoinData : {schema1,schema2 : Schema} ->
@@ -263,10 +263,17 @@ S2 = [< "a" :! Nat, "b" :! Bool]
 T1 : Record S1
 T2 : Record S2
 
+||| Hint so that `auto`-search can find appropriate `Exists`
+||| instances. Don't export more generically as may cause unexpected
+||| behaviour with other `Exists` instances.
+%hint
+public export
+evidenceFieldNamed : (fld : Field schema name type) ->
+  (schema `FieldNamed` name)
+evidenceFieldNamed {type} fld = Evidence type fld
+
 H : ?
-H = join T1 T2 {joint = [< (Evidence _ %search ** (%search, %search))
-                        ,  (Evidence _ %search ** (%search, %search))
-                        ]}
+H = join T1 T2
 
 {-
 join rec1 rec2 {joint} =
