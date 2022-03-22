@@ -16,5 +16,4 @@ modules =
     B2T2.ExamplePrograms.SampleRows,
     B2T2.ExamplePrograms.SampleRows.Probability,
     B2T2.ExampleTables,
-    B2T2.ExampleAPI,
     B2T2.TableAPI
