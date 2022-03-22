@@ -14,6 +14,10 @@ basicTest ExampleRecord.idr << EOF
     selectFields [<"name", "favorite color"] exampleRecord
     selectFields [<0, 1] exampleRecord
 
+    :let exampleRenamed : Record [<"name" :! String, "years" :! Nat, "favourite color" :! String]
+    :let exampleRenamed = renameFields [<"age" ~> "years", "favorite color" ~> "favourite color"] exampleRecord
+    exampleRenamed
+
     :let exampleReplaceAge : Record [<"name" :! String, "isTeen" :! Bool, "favorite color" :! String]
     :let exampleReplaceAge = replaceField "age" "isTeen" False exampleRecord
     exampleReplaceAge

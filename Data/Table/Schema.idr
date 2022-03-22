@@ -21,6 +21,26 @@ replace : (schema : Schema)
 replace (schema :< (name :! type)) Here newFS = schema :< newFS
 replace (schema :< fs) (There fld) newFS = replace schema fld newFS :< fs
 
+namespace RenameMany
+    infix 10 ~>
+
+    public export
+    data RenameFieldSchema : FieldSchema -> Type where
+        (~>) : (oldName : String) -> (newName : String) -> RenameFieldSchema (oldName :! type)
+
+    public export
+    RenameSchema : Schema -> Type
+    RenameSchema schema = Many RenameFieldSchema schema
+
+    public export
+    rename : (schema : Schema)
+          -> RenameSchema schema
+          -> Schema
+    rename schema [<] = schema
+    rename o@(schema :< fs) ((renames :< rs) @{i}) with ()
+      rename o@(schema :< (oldName :! type)) ((renames :< (oldName ~> newName)) @{WholeSchema}) | _ = rename schema renames :< (newName :! type)
+      rename o@(schema :< fs) ((renames :< rs) @{InitialSchema _}) | _ = rename schema (renames :< rs) :< fs
+
 public export
 update : (schema : Schema)
       -> Field schema name type

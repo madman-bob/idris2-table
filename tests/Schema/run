@@ -9,6 +9,9 @@ basicTest ExampleSchema.idr << EOF
     exampleSchema ++ additionalColumns
 
     replace exampleSchema "age" ("isTeen" :! Bool)
+
+    rename exampleSchema [<"age" ~> "years", "favorite color" ~> "favourite color"]
+
     update exampleSchema "age" Int
     update exampleSchema [<"age" :! Int, "favorite color" :! Maybe String]
 

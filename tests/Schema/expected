@@ -6,6 +6,9 @@
 [<("name" :! String), ("age" :! Nat), ("favorite color" :! String), ("quiz1" :! Nat), ("quiz2" :! Nat)]
 
 [<("name" :! String), ("isTeen" :! Bool), ("favorite color" :! String)]
+
+[<("name" :! String), ("years" :! Nat), ("favourite color" :! String)]
+
 [<("name" :! String), ("age" :! Int), ("favorite color" :! String)]
 [<("name" :! String), ("age" :! Int), ("favorite color" :! Maybe String)]
 

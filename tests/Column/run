@@ -10,6 +10,10 @@ basicTest ExampleTable.idr << EOF
     selectColumns [<"name"] students
     selectColumns [<"name", "age"] students
 
+    :let renamedColumns : Table [<"name" :! String, "years" :! Nat, "favourite color" :! String]
+    :let renamedColumns = renameColumns [<"age" ~> "years", "favorite color" ~> "favourite color"] students
+    renamedColumns
+
     :let studentsWithFinal : Table [<"name" :! String, "age" :! Nat, "favorite color" :! String, "final" :! Nat]
     :let studentsWithFinal = addColumn "final" [<87, 85, 77] students
     studentsWithFinal

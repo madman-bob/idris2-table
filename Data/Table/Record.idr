@@ -27,6 +27,14 @@ selectFields (ss :< WholeSchema) (rec :< x) = selectFields ss rec :< x
 selectFields (ss :< InitialSchema i) (rec :< x) = selectFields (ss :< i) rec
 
 public export
+renameFields : (rs : RenameSchema schema)
+            -> Record schema
+            -> Record (rename schema rs)
+renameFields [<] rec = rec
+renameFields ((renames :< (_ ~> _)) @{WholeSchema}) (rec :< x) = renameFields renames rec :< x
+renameFields ((renames :< (oldName ~> newName)) @{InitialSchema _}) (rec :< x) = renameFields (renames :< (oldName ~> newName)) rec :< x
+
+public export
 replaceField : (fld : Field schema name type)
             -> (0 newName : String)
             -> newType
