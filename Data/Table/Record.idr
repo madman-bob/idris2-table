@@ -19,6 +19,14 @@ value Here (rec :< x) = x
 value (There fld) (rec :< x) = value fld rec
 
 public export
+selectFields : Subschema subschema schema
+            -> Record schema
+            -> Record subschema
+selectFields [<] rec = [<]
+selectFields (ss :< WholeSchema) (rec :< x) = selectFields ss rec :< x
+selectFields (ss :< InitialSchema i) (rec :< x) = selectFields (ss :< i) rec
+
+public export
 replaceField : (fld : Field schema name type)
             -> (0 newName : String)
             -> newType
@@ -48,6 +56,14 @@ dropField : (fld : Field schema name type)
          -> Record (drop schema fld)
 dropField Here (rec :< x) = rec
 dropField (There fld) (rec :< x) = dropField fld rec :< x
+
+public export
+dropFields : (ss : Subschema subschema schema)
+          -> Record schema
+          -> Record (complement schema ss)
+dropFields [<] rec = rec
+dropFields (ss :< WholeSchema) (rec :< x) = dropFields ss rec
+dropFields (ss :< InitialSchema i) (rec :< x) = dropFields (ss :< i) rec :< x
 
 public export
 (++) : Record schema1 -> Record schema2 -> Record (schema1 ++ schema2)

@@ -15,6 +15,12 @@ column : Field schema name type
 column fld tbl = map (value fld) tbl
 
 public export
+selectColumns : Subschema subschema schema
+             -> Table schema
+             -> Table subschema
+selectColumns ss = map (selectFields ss)
+
+public export
 addColumn : (0 name : String)
          -> (col : SnocList type)
          -> (tbl : Table schema)
@@ -54,3 +60,9 @@ dropColumn : (fld : Field schema name type)
           -> Table schema
           -> Table (drop schema fld)
 dropColumn fld tbl = mkTable $ map (dropField fld) tbl
+
+public export
+dropColumns : (ss : Subschema subschema schema)
+           -> Table schema
+           -> Table (complement schema ss)
+dropColumns ss = map (dropFields ss)

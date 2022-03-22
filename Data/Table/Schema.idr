@@ -2,6 +2,7 @@ module Data.Table.Schema
 
 import public Data.Table.Schema.Data
 import public Data.Table.Schema.Index
+import public Data.Table.Schema.Subschema
 import public Data.Table.Schema.Quantifiers
 
 %default total

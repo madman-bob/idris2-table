@@ -20,4 +20,5 @@ modules =
     Data.Table.Schema.Data,
     Data.Table.Schema.Index,
     Data.Table.Schema.Quantifiers,
+    Data.Table.Schema.Subschema,
     Data.Table.Show

@@ -11,6 +11,12 @@ basicTest ExampleSchema.idr << EOF
     replace exampleSchema "age" ("isTeen" :! Bool)
     update exampleSchema "age" Int
 
+    complement exampleSchema [<"age"]
+    complement exampleSchema [<"name", "favorite color"]
+    complement exampleSchema [<1]
+    complement exampleSchema [<0, 2]
+    complement exampleSchema [<"age", 2]
+
     drop exampleSchema "age"
     drop exampleSchema "favorite color"
     drop exampleSchema "grade"

@@ -18,6 +18,9 @@ Error: Can't find an implementation for HasIndex StudentSchema (There (There (Th
                ^
 
 
+[<"Bob", "blue"]
+[<"Bob", 12]
+
 [<"Bob", False, "blue"]
 
 [<"Bob", 13, "blue"]
@@ -32,6 +35,9 @@ Error: Can't find an implementation for Field StudentSchema "grade" ?type.
  1 |     dropField "grade" exampleRecord
                    ^^^^^^^
 
+
+[<"Bob"]
+[<"Bob"]
 
 [<"Bob", 12, "blue", 8, 9]
 

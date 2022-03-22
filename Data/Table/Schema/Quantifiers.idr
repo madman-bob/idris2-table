@@ -1,6 +1,7 @@
 module Data.Table.Schema.Quantifiers
 
 import public Data.Table.Schema.Data
+import public Data.Table.Schema.Index
 
 namespace All
     public export
@@ -26,3 +27,36 @@ namespace AllTypes
     public export
     AllTypes : (p : Type -> Type) -> Schema -> Type
     AllTypes p schema = All (TypeHas p) schema
+
+namespace Initial
+    public export
+    data Initial : (xs : Schema)
+                -> (init : Schema)
+                -> Type where [uniqueSearch, search xs]
+        WholeSchema : Initial xs xs
+        InitialSchema : Initial xs init -> Initial (xs :< x) init
+
+    %name Initial i, j
+
+    public export
+    fromString : (name : String)
+              -> Initial schema (init :< (name :! type))
+              => Initial schema (init :< (name :! type))
+    fromString name @{i} = i
+
+    public export
+    data Take : (xs : Schema)
+             -> (init : Schema)
+             -> (n : Nat)
+             -> Type where [uniqueSearch, search xs]
+        TakeAll : HasLength xs n -> Take xs xs n
+        SkipLast : Take xs init n -> Take (xs :< x) init n
+
+    %name Take tk
+
+    public export
+    fromInteger : (index : Integer)
+               -> Take schema init (S $ cast index)
+               => Initial schema init
+    fromInteger index @{TakeAll _} = WholeSchema
+    fromInteger index @{SkipLast tk} = InitialSchema $ fromInteger index @{tk}

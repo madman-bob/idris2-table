@@ -7,6 +7,9 @@ basicTest ExampleTable.idr << EOF
     column "age" students
     column "grade" students
 
+    selectColumns [<"name"] students
+    selectColumns [<"name", "age"] students
+
     :let studentsWithFinal : Table [<"name" :! String, "age" :! Nat, "favorite color" :! String, "final" :! Nat]
     :let studentsWithFinal = addColumn "final" [<87, 85, 77] students
     studentsWithFinal
@@ -30,6 +33,9 @@ basicTest ExampleTable.idr << EOF
     dropColumn "age" students
     dropColumn "favorite color" students
     dropColumn "grade" students
+
+    dropColumns [<"age"] students
+    dropColumns [<"age", "favorite color"] students
 
     allColumns (drop StudentSchema "age")
     allColumns StudentSchema
