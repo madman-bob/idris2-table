@@ -8,89 +8,165 @@ import B2T2.ExampleTables
 %default total
 
 public export
+||| Create an empty table
+|||
+||| emptyTable :: t.Table
+|||   
+||| requires:
+|||   
+||| ensures:
+|||   - schema(t) is equal to []
+|||   - nrows(t) is equal to 0
 emptyTable : Table [<]
 emptyTable = [<]
--- ensures:
---    schema(t) is equal to []
---    nrows(t) is equal to 0
 
 public export
+||| Consumes a Table and a sequence of Row to add, and procudes a new Table with the rows from the
+||| original table followed by the given Rows.
+||| 
+||| addRows :: t1:Table * rs:Seq<Row> -> t2:Table
+|||
+||| requires:
+|||   - for all r in rs, schema(r) is equal to schema(t1) [Enforced by: Type]
+|||
+||| ensures:
+|||   - schema(t2) is equal to schema(t1)
+|||   - nrows(t2) is equal to nrows(t1) + length(rs)
 addRows :  (t1: Table schema)
         -> (rs: List (Record schema))
         -> Table schema
--- requires:
---    for all r in rs, schema(r) is equal to schema(t1)
 addRows t1 [] = t1
 addRows t1 (r :: rs) = addRows (t1 :< r) rs
--- ensures:
---    schema(t2) is equal to schema(t1)
---    nrows(t2) is equal to nrows(t1) + length(rs)
+
+addRowsExample1: Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)]
+addRowsExample1 = addRows students [ [<"Colton", 19, "blue"] ]
+
+addRowsExample2: Table [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2" :! Nat), ("midterm" :! Nat), ("quiz3" :! Nat), ("quiz4" :! Nat), ("final" :! Nat)]
+addRowsExample2 = addRows gradebook []
 
 public export
+||| Consumes a column name and a Seq of values and produces a new Table with the columns of the input
+||| Table followed by a column with the given name and values. Note that the length of vs must equal
+||| the length of the Table.
+|||
+||| addColumn :: t1:Table * c:ColName * vs:Seq<Value> -> t2:Table
+|||
+||| requires:
+|||   - c is not in header(t1)   [Enforced by: User]
+|||   - length(vs) is equal to nrows(t1)  [Enforced by: Type]
+|||
+||| ensures:
+|||   - header(t2) is equal to concat(header(t1), [c])
+|||   - for all c' in header(t1), schema(t2)[c'] is equal to schema(t1)[c']
+|||   - schema(t2)[c] is the sort of elements of vs
+|||   - nrows(t2) is equal to nrows(t1)
 addColumn :  (t1: Table schema)
           -> (0 c: String)
-          -> (vs: SnocList type) -- TODO: -> (vs: List type)
+          -> (vs: SnocList type)
           -> {auto 0 nRows : HasRows t1 (length vs)}
           -> Table (schema :< c :! type)
--- requires:
---    TODO: c is not in header(t1)
---    length(vs) is equal to nrows(t1)
 addColumn t1 c vs = with Data.Table.Column.addColumn (addColumn c vs t1)
--- ensures:
---    header(t2) is equal to concat(header(t1), [c])
---    for all c' in header(t1), schema(t2)[c'] is equal to schema(t1)[c']
---    schema(t2)[c] is the sort of elements of vs
---    nrows(t2) is equal to nrows(t1)
+
+
+addColumnExample1: Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String), ("hair-color" :! String)]
+addColumnExample1 = addColumn students "hair-color" [<"brown", "red", "blonde"]
+
+addColumnExample2: Table [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2" :! Nat), ("midterm" :! Nat), ("quiz3" :! Nat), ("quiz4" :! Nat), ("final" :! Nat), ("presentation" :! Integer)]
+addColumnExample2 = addColumn gradebook "presentation" [<9, 9, 6]
 
 public export
+||| Consumes an existing Table and produces a new Table containing an additional column with the
+||| given ColName, using f to compute the values for that column, once for each row.
+|||
+||| buildColumn :: t1:Table * c:ColName * f:(r:Row -> v:Value) -> t2:Table
+|||
+||| requires:
+|||   - c is not in header(t1)  [Enforced by: User]
+|||
+||| ensures:
+|||   - schema(r) is equal to schema(t1)
+|||   - header(t2) is equal to concat(header(t1), [c])
+|||   - for all c' in header(t1), schema(t2)[c'] is equal to schema(t1)[c']
+|||   - schema(t2)[c] is the sort of elements of vs
+|||   - nrows(t2) is equal to nrows(t1)
 buildColumn :  (t1: Table schema)
             -> (0 c: String)
             -> (f: (Record schema -> type))
             -> Table (schema :< c :! type)
--- requires:
---    TODO: c is not in header(t1)
 buildColumn t1 c f = with Data.Table.Column.buildColumn (buildColumn c f t1)
--- ensures:
---    schema(r) is equal to schema(t1)
---    header(t2) is equal to concat(header(t1), [c])
---    for all c' in header(t1), schema(t2)[c'] is equal to schema(t1)[c']
---    schema(t2)[c] is the sort of elements of vs
---    nrows(t2) is equal to nrows(t1)
+
+buildColumnExample1: Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String), ("is-teenager" :! Bool)]
+buildColumnExample1 = buildColumn students "is-teenager" isTeenagerBuilder where
+  isTeenagerBuilder : Record [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)] -> Bool
+  isTeenagerBuilder r = (12 < value "age" r) && (value "age" r < 20)
+  -- isTeenagerBuilder r = (12 < (value "age" r)) and ((value "age" r) < 20) -- this throws a very hard to understand error ...
+
+buildColumnExample2: Table [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2" :! Nat), ("midterm" :! Nat), ("quiz3" :! Nat), ("quiz4" :! Nat), ("final" :! Nat), (?c :! Bool)]
+buildColumnExample2 = buildColumn gradebook "did-well-in-final" didWellInFinal where
+  didWellInFinal : Record [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2" :! Nat), ("midterm" :! Nat), ("quiz3" :! Nat), ("quiz4" :! Nat), ("final" :! Nat)] -> Bool
+  didWellInFinal r = 85 <= value "final" r
 
 public export
+||| Combines two tables vertically. The output table starts with rows from the first input table,
+||| followed by the rows from the second input table.
+|||
+||| vcat :: t1:Table * t2:Table -> t3:Table
+|||
+||| requires:
+|||   - schema(t1) is equal to schema(t2) [Enforced by: Type]
+|||
+||| ensures:
+|||   - schema(t3) is equal to schema(t1)
+|||   - nrows(t3) is equal to nrows(t1) + nrows(t2)
 vcat : (t1: Table schema)
     -> (t2: Table schema)
     -> Table schema
--- requires:
---    schema(t1) is equal to schema(t2)
 vcat t1 t2 = t1 ++ t2
--- ensures:
---    schema(t3) is equal to schema(t1)
---    nrows(t3) is equal to nrows(t1) + nrows(t2)
+
+-- vcatExample1: ?t
+-- vcatExample1 = vcat students (update students \r => ???)
 
 public export
-hcat : (t1: Table schema1)
+||| Combines two tables horizontally. The output table starts with columns from the first input,
+||| followed by the columns from the second input.
+|||
+||| hcat :: t1:Table * t2:Table -> t3:Table
+|||
+||| requires:
+|||   - concat(header(t1), header(t2)) has no duplicates  [Enforced by: User]
+|||   - nrows(t1) is equal to nrows(t2) [Enforced by: Type]
+|||
+||| ensures:
+|||   - schema(t3) is equal to concat(schema(t1), schema(t2))
+|||   - nrows(t3) is equal to nrows(t1)
+hcat : {n: Nat}
+     -> (t1: Table schema1)
+     -> {auto 0 t1HasRows : HasRows t1 n}
      -> (t2: Table schema2)
-     -> Table (schema3) -- TODO: schema1 ++ schema2
--- requires:
---    TODO: concat(header(t1), header(t2)) has no duplicates
---    TODO: nrows(t1) is equal to nrows(t2)
-hcat t1 t2 = ?hcat_t3
--- ensures:
---    schema(t3) is equal to concat(schema(t1), schema(t2))
---    nrows(t3) is equal to nrows(t1)
+     -> {auto 0 t2HasRows : HasRows t2 n}
+     -> Table (schema1 ++ schema2)
+hcat {n = 0} [<] [<] = [<]
+hcat {n = (S k)} {t1HasRows} (t1 :< rec1) {t2HasRows} (t2 :< rec2) =
+  (hcat {n=k} {t1HasRows=dropRow t1HasRows} t1 {t2HasRows=dropRow t2HasRows} t2) :< (rec1 ++ rec2) where
+    dropRow: HasRows (t :< _) (S m) -> HasRows t m
+    dropRow (SnocTable hasRows) = hasRows
+
+-- hcatExample1: ?t
 
 public export
+||| Returns a sequence of one or more rows as a table.
+|||
+||| requires:
+|||   - length(rs) is positive  [Enforced by: Type]
+|||   - for all r in rs, schema(r) is equal to schema(rs[0]) [Enforced by: Type]
+|||
+||| ensures:
+|||   - schema(t) is equal to schema(rs[0])
+|||   - nrows(t) is equal to length(rs)
 values : (rs: SnocList (Record schema))
       -> Table schema
--- requires:
---    length(rs) is positive
---    for all r in rs, schema(r) is equal to schema(rs[0])
 values [<] = [<]
 values (rs :< r) = values rs :< r
--- ensures:
---    schema(t) is equal to schema(rs[0])
---    nrows(t) is equal to length(rs)
 
 public export
 crossJoin :  (t1: Table schema1)
@@ -122,23 +198,57 @@ leftJoin t1 t2 cs = ?leftJoin_t3
 --    nrows(t3) is equal to nrows(t1)
 
 public export
+||| Returns a Number representing the number of rows in the Table.
+|||
+||| nrows :: t:Table -> n:Number
+|||
+||| ensures:
+|||   n is equal to nrows(t)
 nrows : (t: Table schema) -> Nat
 nrows [<] = Z
 nrows (tbl :< rec) = S $ nrows tbl
--- ensures:
---    n is equal to nrows(t)
+
+nrowsExample1: Nat
+nrowsExample1 = nrows emptyTable
+
+nrowsExample2: Nat
+nrowsExample2 = nrows studentsMissing
 
 public export
-ncols : (t: Table schema) -> Nat
-ncols t = ?ncols_n
--- ensures:
---    n is equal to ncols(t)
+||| Returns a Number representing the number of columns in the Table.
+|||
+||| ncols :: t:Table -> n:Number
+|||
+||| ensures:
+|||    n is equal to ncols(t)
+ncols : {schema: Schema}
+      -> (t: Table schema)
+      -> Nat
+ncols t = length schema
+
+ncolsExample1: Nat
+ncolsExample1 = ncols students
+
+ncolsExample2: Nat
+ncolsExample2 = ncols studentsMissing
 
 public export
-header : (t: Table schema) -> SnocList String
-header t = ?header_cs -- with Data.Table.Schema.Data.names (names schema)
--- ensures:
---    cs is equal to header(t)
+||| Returns a Seq representing the column names in the Table
+|||
+||| header :: t:Table -> cs:Seq<ColName>
+|||
+||| ensures:
+|||    cs is equal to header(t)
+header : {schema: Schema}
+      -> (t: Table schema)
+      -> SnocList String
+header t = names schema
+
+headerExample1: SnocList String
+headerExample1 = header students
+
+headerExample2: SnocList String
+headerExample2 = header gradebook
 
 public export
 getRow : (t: Table schema)

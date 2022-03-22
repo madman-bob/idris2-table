@@ -12,6 +12,11 @@ data Record : Schema -> Type where
 %name Record rec
 
 public export
+(++) : Record schema1 -> Record schema2 -> Record (schema1 ++ schema2)
+r ++ [<] = r
+r ++ (rec :< x) = (r ++ rec) :< x
+
+public export
 value : Field schema name type
      -> Record schema
      -> type
