@@ -50,6 +50,29 @@ updateField : (fld : Field schema name type)
            -> Record (update schema fld newType)
 updateField fld f rec = setField fld (f $ value fld rec) rec
 
+namespace Update
+    infix 10 ::=
+
+    public export
+    data UpdateField : UpdateFieldSchema fs -> Type where
+        (::=) : (0 name : String) -> type -> UpdateField (name :! type)
+
+    public export
+    data Update : UpdateSchema schema -> Type where
+        Lin : Update [<]
+        (:<) : Update {schema = init} us
+            -> UpdateField {fs} ufs
+            -> (initPrf : Initial schema (init :< fs))
+            => Update ((us :< ufs) @{initPrf})
+
+    public export
+    updateFields : Update {schema} us
+                -> Record schema
+                -> Record (update schema us)
+    updateFields [<] rec = rec
+    updateFields ((updates :< (_ ::= x)) @{WholeSchema}) (rec :< _) = updateFields updates rec :< x
+    updateFields ((updates :< uf@(_ ::= _)) @{InitialSchema _}) (rec :< y) = updateFields (updates :< uf) rec :< y
+
 public export
 dropField : (fld : Field schema name type)
          -> Record schema

@@ -10,6 +10,7 @@ basicTest ExampleSchema.idr << EOF
 
     replace exampleSchema "age" ("isTeen" :! Bool)
     update exampleSchema "age" Int
+    update exampleSchema [<"age" :! Int, "favorite color" :! Maybe String]
 
     complement exampleSchema [<"age"]
     complement exampleSchema [<"name", "favorite color"]

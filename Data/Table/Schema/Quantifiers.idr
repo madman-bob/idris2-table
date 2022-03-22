@@ -60,3 +60,14 @@ namespace Initial
                => Initial schema init
     fromInteger index @{TakeAll _} = WholeSchema
     fromInteger index @{SkipLast tk} = InitialSchema $ fromInteger index @{tk}
+
+namespace Many
+    public export
+    data Many : (p : FieldSchema -> Type) -> (xs : Schema) -> Type where
+        Lin : Many p xs
+        (:<) : Many p init
+            -> p x
+            -> Initial xs (init :< x)
+            => Many p xs
+
+    %name Many pxs, pys, pzs

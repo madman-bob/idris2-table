@@ -27,6 +27,10 @@ basicTest ExampleRecord.idr << EOF
     :let exampleCastAge = updateField "age" cast exampleRecord
     exampleCastAge
 
+    :let exampleUpdateFields : Record [<"name" :! String, "age" :! Int, "favorite color" :! Maybe String]
+    :let exampleUpdateFields = updateFields [<"age" ::= 13, "favorite color" ::= Nothing] exampleRecord
+    exampleUpdateFields
+
     dropField "age" exampleRecord
     dropField "favorite color" exampleRecord
     dropField "grade" exampleRecord
