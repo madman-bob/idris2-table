@@ -178,13 +178,16 @@ joinGen joinData rec1 rec2 =
 public export total
 0 jointSchemaType : (schema1, schema2 : Schema) -> String -> Type
 jointSchemaType schema1 schema2 fld =
- (pos : schema1 `FieldNamed` fld ** (Field schema2 fld (schema1 !! pos), Eq (schema1 !! pos)))
-
+ Exists $ \type => ( Field schema1 fld type
+                   , Field schema2 fld type
+                   , Eq type
+                   )
 -- For now, since Data.List's intersect is export non-public
 
 public export
 jointNames : (schema1, schema2 : Schema) -> SnocList String
 jointNames schema1 schema2 = (names schema1) `intersect` (names schema2)
+
 
 recallAux : {schema : Schema} -> (0 type : Type) ->
   (fld : Field schema name type) -> type === (schema !! (Evidence type fld))
@@ -196,35 +199,28 @@ recallAux type (There fld)
 recall : {schema : Schema} -> (fld : schema `FieldNamed` n) -> fld.fst = schema !! fld
 recall fld = recallAux fld.fst fld.snd
 
-total
+total 0
 fromAllSchema : {ns : SnocList String} -> {schema1 : Schema} ->
   All (jointSchemaType schema1 schema2) ns -> Schema
 fromAllSchema [<] = [<]
 fromAllSchema (joints :< joint) =
   fromAllSchema joints :<
-  (last ns) :! (schema1 !! joint.fst)
-
-
-replace2 : {p : a -> b -> Type} -> x = x' -> y = y' -> p x y -> p x' y'
+  (last ns) :! joint.fst
 
 Projection1 : {0 ns : SnocList String} -> {schema1 : Schema} ->
   (prf : All (jointSchemaType schema1 schema2) ns) ->
   Ren (fromAllSchema {schema1,schema2} prf) schema1
 Projection1 [<] = [<]
-Projection1 ((joints :< joint@(pos@(Evidence d e) ** (j2, j3))) {x = name})
+Projection1 ((joints :< Evidence type (fld, _)) {x = name})
   =
-  Projection1 joints :<
-  (rewrite sym $ recall pos in
-  Evidence name pos.snd)
+  Projection1 joints :< Evidence name fld
 
 Projection2 : {ns : SnocList String} -> {schema1 : Schema} ->
   (prf : All (jointSchemaType schema1 schema2) ns) ->
   Ren (fromAllSchema {schema1,schema2} prf) schema2
 Projection2 [<] = [<]
-Projection2 ((joints :< joint@(pos@(Evidence d e) ** (fld, j3))) {x = name})
-  = Projection2 joints :<
-    --rewrite sym $ recall pos in
-    (Evidence _ fld)
+Projection2 ((joints :< Evidence type (_, fld, _)) {x = name})
+  = Projection2 joints :< Evidence _ fld
 
 public export
 generateJoinData : {schema1,schema2 : Schema} ->
@@ -268,9 +264,9 @@ T2 : Record S2
 ||| behaviour with other `Exists` instances.
 %hint
 public export
-evidenceFieldNamed : (fld : Field schema name type) ->
-  (schema `FieldNamed` name)
-evidenceFieldNamed {type} fld = Evidence type fld
+evidenceFieldNamed : (flds : (Field schema1 name type, Field schema2 name type, Eq type)) ->
+  jointSchemaType schema1 schema2 name
+evidenceFieldNamed {type} flds = Evidence type flds
 
 H : ?
 H = join T1 T2
