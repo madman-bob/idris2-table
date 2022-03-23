@@ -7,6 +7,7 @@ import public Data.Table.Row
 import public Data.Table.Row.Constructor
 import public Data.Table.Schema
 import public Data.Table.Schema.Quantifiers
+import public Data.Table.Schema.Properties
 
 import public Data.List
 import Data.SnocList.Operations
@@ -63,7 +64,7 @@ infix 4 !!
 
 (!!) : (schema : Schema) -> schema `FieldNamed` name -> Type
 schema !! pos = pos.snd.field.Sort
-
+{-
 namespace Thin
   public export
   data Thin : (src, tgt : Schema) -> Type where
@@ -130,7 +131,7 @@ namespace Thin
   thin.complement = replace {p = flip Thin schema}
                     (flipInOut _)
                     $ Fwd (Bwd thin).flip
-
+-}
 namespace Projection
   public export
   FieldTyped : Schema -> Type -> Type
@@ -222,6 +223,27 @@ Filter2 [<] = [<]
 Filter2 ((joints :< Evidence type (_, fld, _)) {x = name})
   = Filter2 joints :< Evidence _ fld
 
+weakenField : (schema2 : Schema) ->
+  Field schema1 name type ->
+  Field (schema1 ++ schema2) name type
+weakenField [<]            fld = fld
+weakenField (schema :< fs) fld = There (weakenField schema fld)
+
+IdRen : {schema : Schema} -> Ren schema schema
+IdRen {schema = [<]         } = [<]
+IdRen {schema = schema :< fs@(name :! type)} =
+  Schema.Quantifiers.map (\x => Evidence x.fst $ weakenField [<fs] x.snd) (IdRen {schema})
+  :< (Evidence name Here)
+
+weaken : {schema1, schema2 : Schema} ->
+  Ren schema1 (schema1 ++ schema2)
+weaken {schema1 = [<]} = [<]
+weaken {schema1 = schema1 :< fld@(_ :! _)} =
+  (replace {p = Ren schema1}
+          (appendSchemaAssociative schema1 [<fld] schema2) $
+          weaken {schema1, schema2 = [<fld] ++ schema2}
+  ) :< Evidence fld.Name (weakenField schema2 Here)
+
 public export
 generateJoinData : {schema1,schema2 : Schema} ->
   All (jointSchemaType schema1 schema2) (jointNames schema1 schema2) ->
@@ -231,8 +253,8 @@ generateJoinData datum =
    { eqSchema = ?
    , filter1 = Filter1 datum
    , filter2 = Filter2 datum
-   , filterSchema = _
-   , projection1 = ?h100
+   , filterSchema = fromAllSchema datum
+   , projection1 = IdRen
    , projection2 = ?generateJoinData_rhs
    }
 
