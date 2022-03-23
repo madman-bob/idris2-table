@@ -83,4 +83,7 @@ b2t2Test ExampleTables.idr << EOF
     SortedMap.toList $ countBy (mFloor 5 . value "final") gradebook
     SortedMap.toList $ count "favorite color" students
     SortedMap.toList $ count "age" gradebook
+
+    the (Table [<"name" :! String, "age" :! Nat, "quizzes" :! Nat, "midterm" :! Nat, "final" :! Nat]) $ flatten [<"quizzes"] gradebookSeq
+    the (Table [<"name" :! String, "age" :! Nat, "quizzes" :! Nat, "midterm" :! Nat, "final" :! Nat, "quiz-pass?" :! Bool]) $ flatten [<"quizzes", "quiz-pass?"] $ buildColumn "quiz-pass?" (map (>= 8) . value "quizzes") gradebookSeq
 EOF

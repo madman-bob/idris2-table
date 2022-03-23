@@ -9,7 +9,7 @@ public export
 data Subschema : (subschema : Schema) -> (superschema : Schema) -> Type where [uniqueSearch, search superschema]
     Lin : Subschema [<] superschema
     (:<) : Subschema subschema init
-        -> Initial schema (init :< fs)
+        -> Concat schema (init :< fs) rest
         -> Subschema (subschema :< fs) schema
 
 public export
@@ -17,6 +17,6 @@ complement : (schema : Schema)
           -> Subschema subschema schema
           -> Schema
 complement schema [<] = schema
-complement o@(schema :< fs) (ss :< i) with ()
-  complement o@(schema :< fs) (ss :< WholeSchema) | _ = complement schema ss
-  complement o@(schema :< fs) (ss :< InitialSchema j) | _ = complement schema (ss :< j) :< fs
+complement o@(schema :< fs) (ss :< c) with ()
+  complement o@(schema :< fs) (ss :< ConcatLin) | _ = complement schema ss
+  complement o@(schema :< fs) (ss :< ConcatSnoc d) | _ = complement schema (ss :< d) :< fs

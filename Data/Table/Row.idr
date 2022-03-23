@@ -87,3 +87,45 @@ dropNa fld tbl = do
     case value fld rec of
         Nothing => [<]
         Just x => pure $ setField fld x rec
+
+namespace Flatten
+    public export
+    data Flatten : (t : Type -> Type)
+                -> (flatSchema : Schema)
+                -> (tSchema : Schema)
+                -> Type where [search t tSchema]
+      Lin : Flatten t schema schema
+      (:<) : Flatten t f s
+          -> Concat flatSchema (f :< (name :! type)) rest
+          -> Concat schema (s :< (name :! t type)) rest
+          => Flatten t flatSchema schema
+
+    unroll' : Applicative t
+           => Zippable t
+           => Foldable t
+           => Flatten t flatSchema schema
+           -> Record schema
+           -> t (Record flatSchema)
+    unroll' [<] rec = pure rec
+    unroll' ((fltn :< ConcatLin) @{ConcatLin}) (rec :< x) = zipWith (:<) (unroll' fltn rec) x
+    unroll' ((fltn :< ConcatSnoc c) @{ConcatSnoc _}) (rec :< x) = (:< x) <$> unroll' (fltn :< c) rec
+
+    export
+    unroll : Applicative t
+          => Zippable t
+          => Foldable t
+          => Flatten t flatSchema schema
+          -> Record schema
+          -> Table flatSchema
+    unroll fltn rec = mkTable $ unroll' fltn rec
+
+    export
+    flatten : Applicative t
+           => Zippable t
+           => Foldable t
+           => Flatten t flatSchema schema
+           -> Table schema
+           -> Table flatSchema
+    flatten f tbl = do
+        rec <- tbl
+        unroll f rec
