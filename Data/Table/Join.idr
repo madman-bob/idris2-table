@@ -207,20 +207,20 @@ fromAllSchema (joints :< joint) =
   fromAllSchema joints :<
   (last ns) :! joint.fst
 
-Projection1 : {0 ns : SnocList String} -> {schema1 : Schema} ->
+Filter1 : {0 ns : SnocList String} -> {schema1 : Schema} ->
   (prf : All (jointSchemaType schema1 schema2) ns) ->
   Ren (fromAllSchema {schema1,schema2} prf) schema1
-Projection1 [<] = [<]
-Projection1 ((joints :< Evidence type (fld, _)) {x = name})
+Filter1 [<] = [<]
+Filter1 ((joints :< Evidence type (fld, _)) {x = name})
   =
-  Projection1 joints :< Evidence name fld
+  Filter1 joints :< Evidence name fld
 
-Projection2 : {ns : SnocList String} -> {schema1 : Schema} ->
+Filter2 : {ns : SnocList String} -> {schema1 : Schema} ->
   (prf : All (jointSchemaType schema1 schema2) ns) ->
   Ren (fromAllSchema {schema1,schema2} prf) schema2
-Projection2 [<] = [<]
-Projection2 ((joints :< Evidence type (_, fld, _)) {x = name})
-  = Projection2 joints :< Evidence _ fld
+Filter2 [<] = [<]
+Filter2 ((joints :< Evidence type (_, fld, _)) {x = name})
+  = Filter2 joints :< Evidence _ fld
 
 public export
 generateJoinData : {schema1,schema2 : Schema} ->
@@ -229,8 +229,8 @@ generateJoinData : {schema1,schema2 : Schema} ->
 generateJoinData datum =
  MkJoin
    { eqSchema = ?
-   , filter1 = Projection1 datum
-   , filter2 = Projection2 datum
+   , filter1 = Filter1 datum
+   , filter2 = Filter2 datum
    , filterSchema = _
    , projection1 = ?h100
    , projection2 = ?generateJoinData_rhs
