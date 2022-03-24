@@ -559,11 +559,21 @@ public export
 ||| ensures:
 |||    nrows(t2) is equal to nrows(t1)
 |||    schema(t2) is equal to schema(t1)
-tsort :  (t1: Table schema)
-      -> (c: String)
+tsort :  Table schema
+      -> (name: String)
+      -> Ord (Record schema)
+      => Ord type
+      => {auto field: Field schema name type}
       -> (b: Bool)
       -> Table schema
-tsort t1 c b = ?tsort_t2
+tsort t _ {field} True = sort @{byField field} t
+tsort t _ {field} False = sort @{byField field} t -- TODO: reverse
+
+tsort1 : Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)]
+tsort1 = tsort students "age" True
+
+-- tsort2 : ?t
+--tsort2 = tsort gradebook "final" True
 
 public export
 sortByColumns :  (t1: Table schema)
@@ -589,18 +599,35 @@ orderBy t1 fs = ?orderBy_t2
 --    nrows(t2) is equal to nrows(t1)
 
 public export
-count :  (t1: Table schema)
-      -> (c: String)
-      -> Table schema
--- requires:
---    c is in header(t1)
---    schema(t1)[c] is a categorical sort
-count t1 c = ?count_t2
--- ensures:
---    header(t2) is equal to ["value", "count"]
---    schema(t2)["value"] is equal to schema(t1)[c]
---    schema(t2)["count"] is equal to Number
---    nrows(t2) is equal to length(removeDuplicates(getColumn(t1, c)))
+||| Takes a Table and a ColName representing the name of a column in that Table.
+||| Produces a Table that summarizes how many rows have each value in the given column
+|||
+||| count :: t1:Table * c:ColName -> t2:Table
+|||
+||| requires:
+|||    c is in header(t1)
+|||    schema(t1)[c] is a categorical sort
+|||
+||| ensures:
+|||    header(t2) is equal to ["value", "count"]
+|||    schema(t2)["value"] is equal to schema(t1)[c]
+|||    schema(t2)["count"] is equal to Number
+|||    nrows(t2) is equal to length(removeDuplicates(getColumn(t1, c)))
+count :  Table schema
+      -> (name: String)
+      -> Ord type
+      => {auto field: Field schema name type}
+      -> Table [<"value" :! type, "count" :! Nat]
+count t _ {field} = toTable (Data.SortedMap.toList (Data.Table.Row.Aggregate.count field t)) where
+  toTable : List (type, Nat) -> Table [<"value" :! type, "count" :! Nat]
+  toTable [] = [<]
+  toTable ((t, v) :: xs) = (toTable xs) :< [< t, v]
+
+count1 : Table [<("value" :! String), ("count" :! Nat)]
+count1 = count students "favorite color"
+
+count2 : Table [<("value" :! Nat), ("count" :! Nat)]
+count2 = count gradebook "age"
 
 public export
 bin :  (t1: Table schema1)
