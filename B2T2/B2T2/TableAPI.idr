@@ -124,7 +124,17 @@ vcat : (t1: Table schema)
 vcat t1 t2 = t1 ++ t2
 
 -- vcat1: ?t
--- vcat1 = vcat students (update students \r => ???)
+-- vcat1 = vcat students (update students id)
+
+{-
+vcat1: Table [<"name" :! String, "age" :! Nat, "favorite color" :! String]
+vcat1 = vcat students updatedStudents where
+  updatedStudents : Table [<"name" :! String, "age" :! Nat, "favorite color" :! String]
+  updatedStudents = update students increaseAge
+  increaseAge : Record [<"name" :! String, "age" :! Nat, "favorite color" :! String]
+             -> Record [<"name" :! String, "age" :! Nat, "favorite color" :! String]
+  increaseAge r = r
+-}
 
 public export
 ||| Combines two tables horizontally. The output table starts with columns from the first input,
@@ -301,38 +311,55 @@ public export
 ||| getColumn :: t:Table * n:Number -> vs:Seq<Value>
 |||
 ||| requires:
-|||   n is in range(ncols(t)) [Enforced by: Type]
+|||   n is in range(ncols(t))
 |||
 ||| ensures:
 |||   length(vs) is equal to nrows(t)
 |||   for all v in vs, v is of sort schema(t)[header(t)[n]]
 getColumnByNumber :  (t: Table schema)
-                  -> HasRows t n
-                  => Fin n
+                  -> Fin n
                   -> SnocList type
 getColumnByNumber t n = ?getColumnByNumber_vs
 
 public export
+||| Returns a Seq of the values in the named column in t
+||| 
+||| getColumn :: t:Table * c:ColName -> vs:Seq<Value>
+||| 
+||| requires:
+|||   c is in header(t) [Enforced by: Type]
+||| 
+||| ensures:
+|||   for all v in vs, v is of sort schema(t)[c]
+|||   length(vs) is equal to nrows(t)
 getColumnByName :  (t: Table schema)
                 -> (c: String)
+                -> {auto field: Field schema c type}
                 -> SnocList type
--- requires:
---    c is in header(t)
-getColumnByName t c = ?getColumnByName_vs
--- ensures:
---    for all v in vs, v is of sort schema(t)[c]
---    length(vs) is equal to nrows(t)
+getColumnByName t _ {field} = column field t
+
+getColumnByName1: SnocList Nat
+getColumnByName1 = getColumnByName students "age"
+
+getColumnByName2: SnocList String
+getColumnByName2 = getColumnByName gradebook "name"
 
 public export
-selectRowsByNumber : (t1: Table schema)
-                  -> (ns: List Nat)
+||| Given a Table and a Seq<Number> containing row indices, produces a new Table containing only those rows.
+|||
+||| selectRows :: t1:Table * ns:Seq<Number> -> t2:Table
+|||
+||| requires:
+|||    for all n in ns, n is in range(nrows(t1)) [Enforced by: Type]
+|||
+||| ensures:
+|||    schema(t2) is equal to schema(t1)
+|||    nrows(t2) is equal to length(ns)
+selectRowsByNumber : (t: Table schema)
+                  -> HasRows t n
+                  => List (Fin n)
                   -> Table schema
--- requires:
---    for all n in ns, n is in range(nrows(t1))
-selectRowsByNumber t1 ns = ?selectRowsByNumber_t2
--- ensures:
---    schema(t2) is equal to schema(t1)
---    nrows(t2) is equal to length(ns)
+selectRowsByNumber t ns = ?selectRowsByNumber_t2
 
 public export
 selectRowsByBoolean :  (t1: Table schema)
@@ -682,18 +709,47 @@ groupBySubstractive :  (t1: Table schema1)
 --    nrows(t2) is equal to length(removeDuplicates(getColumn(t1, c)))
 
 public export
-update : (t1: Table schema1)
-      -> (f: (Record schema1 -> Record schema2))
+||| Consumes an existing Table and produces a new Table with the named columns updated,
+||| using f to produce the values for those columns, once for each row.
+|||
+||| update :: t1:Table * f:(r1:Row -> r2:Row) -> t2:Table
+|||
+||| requires:
+|||   for all c in header(r2), c is in header(t1) [Enforced by: User]
+|||
+||| ensures:
+|||    schema(r1) is equal to schema(t1)
+|||    header(t2) is equal to header(t1)
+|||    for all c in header(t2)
+|||      if c in header(r2) then schema(t2)[c] is equal to schema(r2)[c]
+|||      otherwise, schema(t2)[c] is equal to schema(t1)[c]
+|||    nrows(t2) is equal to nrows(t1)
+||| TODO: match B2T2 API
+update : Table schema
+      -> (Record schema -> Record schema2)
       -> Table schema2
--- requires:
---    for all c in header(r2), c is in header(t1)
--- ensures:
---    schema(r1) is equal to schema(t1)
---    header(t2) is equal to header(t1)
---    for all c in header(t2)
---      if c in header(r2) then schema(t2)[c] is equal to schema(r2)[c]
---      otherwise, schema(t2)[c] is equal to schema(t1)[c]
---    nrows(t2) is equal to nrows(t1)
+update t f = toTable (map f t) where
+  toTable : SnocList (Record s) -> Table s
+  toTable [<] = [<]
+  toTable (lst :< rec) = toTable lst :< rec
+
+update1 : Table [<("name" :! String), ("age" :! String), ("favorite color" :! String)]
+update1 = update students abstractAge where
+  abstractAge : Record [<"name" :! String, "age" :! Nat, "favorite color" :! String]
+             -> Record [<"name" :! String, "age" :! String, "favorite color" :! String]
+  abstractAge r = updateField "age" (\age => if age <= 12 then "kid"
+                                             else if age <= 19 then "teenager"
+                                             else "adult") r
+
+update2: Table [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2" :! Nat), ("midterm" :! Bool), ("quiz3" :! Nat), ("quiz4" :! Nat), ("final" :! Bool)]
+update2 = update gradebook didWellInFinal where
+  didWellInFinal : Record [< "name" :! String, "age" :! Nat, "quiz1" :! Nat, "quiz2" :! Nat,
+                             "midterm" :! Nat, "quiz3" :! Nat, "quiz4" :! Nat, "final" :! Nat ]
+                -> Record [< "name" :! String, "age" :! Nat, "quiz1" :! Nat, "quiz2" :! Nat,
+                             "midterm" :! Bool, "quiz3" :! Nat, "quiz4" :! Nat, "final" :! Bool ]
+  didWellInFinal r = let r1 = updateField "midterm" (\grade => 85 <= grade) r in
+                         updateField "final" (\grade => 85 <= grade) r1
+
 
 public export
 select : (t1: Table schema1)
