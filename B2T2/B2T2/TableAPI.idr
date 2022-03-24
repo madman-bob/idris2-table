@@ -38,11 +38,11 @@ addRows :  (t1: Table schema)
 addRows t1 [] = t1
 addRows t1 (r :: rs) = addRows (t1 :< r) rs
 
-addRowsExample1: Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)]
-addRowsExample1 = addRows students [ [<"Colton", 19, "blue"] ]
+addRows1: Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)]
+addRows1 = addRows students [ [<"Colton", 19, "blue"] ]
 
-addRowsExample2: Table [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2" :! Nat), ("midterm" :! Nat), ("quiz3" :! Nat), ("quiz4" :! Nat), ("final" :! Nat)]
-addRowsExample2 = addRows gradebook []
+addRows2: Table [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2" :! Nat), ("midterm" :! Nat), ("quiz3" :! Nat), ("quiz4" :! Nat), ("final" :! Nat)]
+addRows2 = addRows gradebook []
 
 public export
 ||| Consumes a column name and a Seq of values and produces a new Table with the columns of the input
@@ -68,11 +68,11 @@ addColumn :  (t1: Table schema)
 addColumn t1 c vs = with Data.Table.Column.addColumn (addColumn c vs t1)
 
 
-addColumnExample1: Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String), ("hair-color" :! String)]
-addColumnExample1 = addColumn students "hair-color" [<"brown", "red", "blonde"]
+addColumn1: Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String), ("hair-color" :! String)]
+addColumn1 = addColumn students "hair-color" [<"brown", "red", "blonde"]
 
-addColumnExample2: Table [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2" :! Nat), ("midterm" :! Nat), ("quiz3" :! Nat), ("quiz4" :! Nat), ("final" :! Nat), ("presentation" :! Integer)]
-addColumnExample2 = addColumn gradebook "presentation" [<9, 9, 6]
+addColumn2: Table [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2" :! Nat), ("midterm" :! Nat), ("quiz3" :! Nat), ("quiz4" :! Nat), ("final" :! Nat), ("presentation" :! Integer)]
+addColumn2 = addColumn gradebook "presentation" [<9, 9, 6]
 
 public export
 ||| Consumes an existing Table and produces a new Table containing an additional column with the
@@ -95,14 +95,14 @@ buildColumn :  (t1: Table schema)
             -> Table (schema :< c :! type)
 buildColumn t1 c f = with Data.Table.Column.buildColumn (buildColumn c f t1)
 
-buildColumnExample1: Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String), ("is-teenager" :! Bool)]
-buildColumnExample1 = buildColumn students "is-teenager" isTeenagerBuilder where
+buildColumn1: Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String), ("is-teenager" :! Bool)]
+buildColumn1 = buildColumn students "is-teenager" isTeenagerBuilder where
   isTeenagerBuilder : Record [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)] -> Bool
   isTeenagerBuilder r = (12 < value "age" r) && (value "age" r < 20)
   -- isTeenagerBuilder r = (12 < (value "age" r)) and ((value "age" r) < 20) -- this throws a very hard to understand error ...
 
-buildColumnExample2: Table [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2" :! Nat), ("midterm" :! Nat), ("quiz3" :! Nat), ("quiz4" :! Nat), ("final" :! Nat), (?c :! Bool)]
-buildColumnExample2 = buildColumn gradebook "did-well-in-final" didWellInFinal where
+buildColumn2: Table [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2" :! Nat), ("midterm" :! Nat), ("quiz3" :! Nat), ("quiz4" :! Nat), ("final" :! Nat), (?c :! Bool)]
+buildColumn2 = buildColumn gradebook "did-well-in-final" didWellInFinal where
   didWellInFinal : Record [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2" :! Nat), ("midterm" :! Nat), ("quiz3" :! Nat), ("quiz4" :! Nat), ("final" :! Nat)] -> Bool
   didWellInFinal r = 85 <= value "final" r
 
@@ -123,8 +123,8 @@ vcat : (t1: Table schema)
     -> Table schema
 vcat t1 t2 = t1 ++ t2
 
--- vcatExample1: ?t
--- vcatExample1 = vcat students (update students \r => ???)
+-- vcat1: ?t
+-- vcat1 = vcat students (update students \r => ???)
 
 public export
 ||| Combines two tables horizontally. The output table starts with columns from the first input,
@@ -151,7 +151,7 @@ hcat {n = (S k)} {t1HasRows} (t1 :< rec1) {t2HasRows} (t2 :< rec2) =
     dropRow: HasRows (t :< _) (S m) -> HasRows t m
     dropRow (SnocTable hasRows) = hasRows
 
--- hcatExample1: ?t
+-- hcat1: ?t
 
 public export
 ||| Returns a sequence of one or more rows as a table.
@@ -208,11 +208,11 @@ nrows : (t: Table schema) -> Nat
 nrows [<] = Z
 nrows (tbl :< rec) = S $ nrows tbl
 
-nrowsExample1: Nat
-nrowsExample1 = nrows emptyTable
+nrows1: Nat
+nrows1 = nrows emptyTable
 
-nrowsExample2: Nat
-nrowsExample2 = nrows studentsMissing
+nrows2: Nat
+nrows2 = nrows studentsMissing
 
 public export
 ||| Returns a Number representing the number of columns in the Table.
@@ -226,11 +226,11 @@ ncols : {schema: Schema}
       -> Nat
 ncols t = length schema
 
-ncolsExample1: Nat
-ncolsExample1 = ncols students
+ncols1: Nat
+ncols1 = ncols students
 
-ncolsExample2: Nat
-ncolsExample2 = ncols studentsMissing
+ncols2: Nat
+ncols2 = ncols studentsMissing
 
 public export
 ||| Returns a Seq representing the column names in the Table
@@ -244,40 +244,73 @@ header : {schema: Schema}
       -> SnocList String
 header t = names schema
 
-headerExample1: SnocList String
-headerExample1 = header students
+header1: SnocList String
+header1 = header students
 
-headerExample2: SnocList String
-headerExample2 = header gradebook
+header2: SnocList String
+header2 = header gradebook
 
 public export
+||| Extracts a row out of a table by a numeric index.
+|||
+||| getRow :: t:Table * n:Number -> r:Row
+|||
+||| requires:
+|||   - n is in range(nrows(t)) [Enforced by: Type]
 getRow : (t: Table schema)
-      -> (n: Nat)
+      -> HasRows t n
+      => Fin n -- Nat
       -> Record schema
--- requires:
---    n is in range(nrows(t))
-getRow t n = ?getRow_r
+getRow = row
+
+getRow1: Record [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)]
+getRow1 = getRow students 0
+
+getRow2: Record [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2" :! Nat), ("midterm" :! Nat), ("quiz3" :! Nat), ("quiz4" :! Nat), ("final" :! Nat)]
+getRow2 = getRow gradebook 1
 
 public export
+||| Retrieves the value for the column c in the row r
+|||
+||| getValue :: r:Row * c:ColName -> v:Value
+|||
+||| requires:
+|||   c is in header(r)
+|||
+||| ensures:
+|||   v is of sort schema(r)[c]
 getValue : (r: Record schema)
         -> (c: String)
+        -> {auto field: Field schema c type}
         -> type
--- requires:
---    c is in header(r)
-getValue r c = ?getValue_v
--- ensures:
---    v is of sort schema(r)[c]
+getValue r _ {field} = value field r
+
+getValue1: String
+getValue1 = getValue row "name" where
+  row: Record [<"name" :! String, "age" :! Nat]
+  row = [<"Bob", 12]
+
+getValue2: Nat
+getValue2 = getValue row "age" where
+  row: Record [<"name" :! String, "age" :! Nat]
+  row = [<"Bob", 12]
 
 public export
+||| Returns a Seq of the values in the indexed column in t
+|||
+||| getColumn :: t:Table * n:Number -> vs:Seq<Value>
+|||
+||| requires:
+|||   n is in range(ncols(t)) [Enforced by: Type]
+|||
+||| ensures:
+|||   length(vs) is equal to nrows(t)
+|||   for all v in vs, v is of sort schema(t)[header(t)[n]]
 getColumnByNumber :  (t: Table schema)
-                  -> (n: Nat)
+                  -> HasRows t n
+                  => Fin n
                   -> SnocList type
--- requires:
---    n is in range(ncols(t))
 getColumnByNumber t n = ?getColumnByNumber_vs
--- ensures:
---    length(vs) is equal to nrows(t)
---    for all v in vs, v is of sort schema(t)[header(t)[n]]
 
 public export
 getColumnByName :  (t: Table schema)
