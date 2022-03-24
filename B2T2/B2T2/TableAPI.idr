@@ -2,6 +2,7 @@ module B2T2.TableAPI
 
 import public Data.Table
 import public Data.List
+import public Data.Vect
 
 import B2T2.ExampleTables
 
@@ -32,11 +33,11 @@ public export
 ||| ensures:
 |||   - schema(t2) is equal to schema(t1)
 |||   - nrows(t2) is equal to nrows(t1) + length(rs)
-addRows :  (t1: Table schema)
-        -> (rs: List (Record schema))
+addRows :  Table schema
+        -> List (Record schema)
         -> Table schema
-addRows t1 [] = t1
-addRows t1 (r :: rs) = addRows (t1 :< r) rs
+addRows t [] = t
+addRows t (r :: rs) = addRows (t :< r) rs
 
 addRows1: Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)]
 addRows1 = addRows students [ [<"Colton", 19, "blue"] ]
@@ -60,12 +61,12 @@ public export
 |||   - for all c' in header(t1), schema(t2)[c'] is equal to schema(t1)[c']
 |||   - schema(t2)[c] is the sort of elements of vs
 |||   - nrows(t2) is equal to nrows(t1)
-addColumn :  (t1: Table schema)
-          -> (0 c: String)
-          -> (vs: SnocList type)
-          -> {auto 0 nRows : HasRows t1 (length vs)}
-          -> Table (schema :< c :! type)
-addColumn t1 c vs = with Data.Table.Column.addColumn (addColumn c vs t1)
+addColumn :  (t: Table schema)
+          -> (0 name: String)
+          -> (values: SnocList type)
+          -> {auto 0 nRows : HasRows t (length values)}
+          -> Table (schema :< name :! type)
+addColumn t name vs = Data.Table.Column.addColumn name vs t
 
 
 addColumn1: Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String), ("hair-color" :! String)]
@@ -89,11 +90,11 @@ public export
 |||   - for all c' in header(t1), schema(t2)[c'] is equal to schema(t1)[c']
 |||   - schema(t2)[c] is the sort of elements of vs
 |||   - nrows(t2) is equal to nrows(t1)
-buildColumn :  (t1: Table schema)
-            -> (0 c: String)
-            -> (f: (Record schema -> type))
-            -> Table (schema :< c :! type)
-buildColumn t1 c f = with Data.Table.Column.buildColumn (buildColumn c f t1)
+buildColumn :  Table schema
+            -> (0 name: String)
+            -> (Record schema -> type)
+            -> Table (schema :< name :! type)
+buildColumn t name f = Data.Table.Column.buildColumn name f t
 
 buildColumn1: Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String), ("is-teenager" :! Bool)]
 buildColumn1 = buildColumn students "is-teenager" isTeenagerBuilder where
@@ -118,8 +119,8 @@ public export
 ||| ensures:
 |||   - schema(t3) is equal to schema(t1)
 |||   - nrows(t3) is equal to nrows(t1) + nrows(t2)
-vcat : (t1: Table schema)
-    -> (t2: Table schema)
+vcat : Table schema
+    -> Table schema
     -> Table schema
 vcat t1 t2 = t1 ++ t2
 
@@ -173,8 +174,7 @@ public export
 ||| ensures:
 |||   - schema(t) is equal to schema(rs[0])
 |||   - nrows(t) is equal to length(rs)
-values : (rs: SnocList (Record schema))
-      -> Table schema
+values : SnocList (Record schema) -> Table schema
 values [<] = [<]
 values (rs :< r) = values rs :< r
 
@@ -214,7 +214,7 @@ public export
 |||
 ||| ensures:
 |||   n is equal to nrows(t)
-nrows : (t: Table schema) -> Nat
+nrows : Table schema -> Nat
 nrows [<] = Z
 nrows (tbl :< rec) = S $ nrows tbl
 
@@ -232,7 +232,7 @@ public export
 ||| ensures:
 |||    n is equal to ncols(t)
 ncols : {schema: Schema}
-      -> (t: Table schema)
+      -> Table schema
       -> Nat
 ncols t = length schema
 
@@ -250,7 +250,7 @@ public export
 ||| ensures:
 |||    cs is equal to header(t)
 header : {schema: Schema}
-      -> (t: Table schema)
+      -> Table schema
       -> SnocList String
 header t = names schema
 
@@ -269,7 +269,7 @@ public export
 |||   - n is in range(nrows(t)) [Enforced by: Type]
 getRow : (t: Table schema)
       -> HasRows t n
-      => Fin n -- Nat
+      => Fin n
       -> Record schema
 getRow = row
 
@@ -289,9 +289,9 @@ public export
 |||
 ||| ensures:
 |||   v is of sort schema(r)[c]
-getValue : (r: Record schema)
-        -> (c: String)
-        -> {auto field: Field schema c type}
+getValue : Record schema
+        -> (0 name: String)
+        -> {auto field: Field schema name type}
         -> type
 getValue r _ {field} = value field r
 
@@ -311,15 +311,22 @@ public export
 ||| getColumn :: t:Table * n:Number -> vs:Seq<Value>
 |||
 ||| requires:
-|||   n is in range(ncols(t))
+|||   n is in range(ncols(t)) [Enforced by: Type]
 |||
 ||| ensures:
 |||   length(vs) is equal to nrows(t)
 |||   for all v in vs, v is of sort schema(t)[header(t)[n]]
-getColumnByNumber :  (t: Table schema)
-                  -> Fin n
+getColumnByNumber : (t: Table schema)
+                  -> (n: Fin (length schema))
                   -> SnocList type
-getColumnByNumber t n = ?getColumnByNumber_vs
+getColumnByNumber t n = ?g
+                  {-
+getColumnByNumber t n = map (\r => indexValue (complement n) r) t where
+  indexValue : {type: Type} -> {schema: Schema} -> Fin (length schema) -> Record schema -> type
+  indexValue _ [<] impossible
+  indexValue FZ (_ :< x) = x
+  indexValue (FS y) (rec :< x) = indexValue y rec
+  -}
 
 public export
 ||| Returns a Seq of the values in the named column in t
@@ -332,9 +339,9 @@ public export
 ||| ensures:
 |||   for all v in vs, v is of sort schema(t)[c]
 |||   length(vs) is equal to nrows(t)
-getColumnByName :  (t: Table schema)
-                -> (c: String)
-                -> {auto field: Field schema c type}
+getColumnByName :  Table schema
+                -> (name: String)
+                -> {auto field: Field schema name type}
                 -> SnocList type
 getColumnByName t _ {field} = column field t
 
@@ -356,25 +363,58 @@ public export
 |||    schema(t2) is equal to schema(t1)
 |||    nrows(t2) is equal to length(ns)
 selectRowsByNumber : (t: Table schema)
+                  -> {n: Nat}
                   -> HasRows t n
                   => List (Fin n)
                   -> Table schema
-selectRowsByNumber t ns = ?selectRowsByNumber_t2
+selectRowsByNumber t is = selectRowsByNumberHelper t (reverse (map complement is)) where
+  selectRowsByNumberHelper : (t: Table schema) -> {n: Nat} -> HasRows t n => List (Fin n) -> Table schema
+  selectRowsByNumberHelper t [] = [<]
+  selectRowsByNumberHelper t (i :: is) =
+    let rest = selectRowsByNumberHelper t is in
+        rest :< rowFromEnd t i
+
+selectRowsByNumber1 : Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)]
+selectRowsByNumber1 = selectRowsByNumber students [2, 0, 2, 1]
+
+selectRowsByNumber2 : Table [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2" :! Nat), ("midterm" :! Nat), ("quiz3" :! Nat), ("quiz4" :! Nat), ("final" :! Nat)]
+selectRowsByNumber2 = selectRowsByNumber gradebook [2, 1]
 
 public export
-selectRowsByBoolean :  (t1: Table schema)
-                    -> (bs: List Bool)
+||| Given a Table and a Seq<Boolean> that represents a predicate on rows,
+||| returns a Table with only the rows for which the predicate returns true
+|||
+||| selectRows :: t1:Table * bs:Seq<Boolean> -> t2:Table
+|||
+||| requires:
+|||    length(bs) is equal to nrows(t1) [Enforced by: Type]
+|||
+||| ensures:
+|||    schema(t2) is equal to schema(t1)
+|||    nrows(t2) is equal to length(removeAll(bs, [false]))
+selectRowsByBoolean :  (t: Table schema)
+                    -> {n: Nat}
+                    -> HasRows t n
+                    => Vect n Bool
                     -> Table schema
--- requires:
---    length(bs) is equal to nrows(t1)
-selectRowsByBoolean t1 bs = ?selectRowsByBoolean_t2
--- ensures:
---    schema(t2) is equal to schema(t1)
---    nrows(t2) is equal to length(removeAll(bs, [false]))
+selectRowsByBoolean t bs = selectRowsByBooleanHelper t (reverse bs) where
+  selectRowsByBooleanHelper : (t: Table schema) -> {n: Nat} -> HasRows t n => Vect n Bool -> Table schema
+  selectRowsByBooleanHelper {n = 0} [<] [] = [<]
+  selectRowsByBooleanHelper {n = _} @{SnocTable _} (tbl :< rec) (b :: bs) =
+    let rest = selectRowsByBooleanHelper tbl bs in
+        case b of
+             False => rest
+             True => rest :< rec
+
+selectRowsByBoolean1 : Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)]
+selectRowsByBoolean1 = selectRowsByBoolean students [True, False, True]
+
+selectRowsByBoolean2 : Table [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2" :! Nat), ("midterm" :! Nat), ("quiz3" :! Nat), ("quiz4" :! Nat), ("final" :! Nat)]
+selectRowsByBoolean2 = selectRowsByBoolean gradebook [False, False, True]
 
 public export
 selectColumnsByBoolean :  (t1: Table schema1)
-                       -> (bs: List Bool)
+                       -> (bs: Vect (length schema1) Bool)
                        -> Table schema2
 -- requires:
 --    length(bs) is equal to ncols(t1)
@@ -387,7 +427,7 @@ selectColumnsByBoolean t1 bs = ?selectColumnsByBoolean_t2
 
 public export
 selectColumnsByNumber :  (t1: Table schema1)
-                      -> (ns: List Nat)
+                      -> (ns: List (Fin (length schema1)))
                       -> Table schema2
 -- requires:
 --    ns has no duplicates
@@ -413,17 +453,29 @@ selectColumnsByName t1 cs = ?selectColumnsByName_t2
 --    nrows(t2) is equal to nrows(t1)
 
 public export
-head : (t1: Table schema)
-    -> (n: Nat)
+||| Returns the first n rows of the table based on position.
+||| TODO: support for negative values
+||| For negative values of n, this function returns all rows except the last n rows.
+|||
+||| head :: t1:Table * n:Number -> t2:Table
+|||
+||| requires:
+|||    if n is non-negative then n is in range(nrows(t1))
+|||    if n is negative then - n is in range(nrows(t1))
+|||
+||| ensures:
+|||    schema(t2) is equal to schema(t1)
+|||    if n is non-negative then nrows(t2) is equal to n
+|||    if n is negative then nrows(t2) is equal to nrows(t1) + n
+head : (t: Table schema)
+    -> {n: Nat}
+    -> HasRows t n
+    => Fin (S n)
     -> Table schema
--- requires:
---    if n is non-negative then n is in range(nrows(t1))
---    if n is negative then - n is in range(nrows(t1))
-head t1 n = ?head_t2
--- ensures:
---    schema(t2) is equal to schema(t1)
---    if n is non-negative then nrows(t2) is equal to n
---    if n is negative then nrows(t2) is equal to nrows(t1) + n
+head t n = dropRows t (complement n)
+
+head1 : Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)]
+head1 = head students 1
 
 public export
 distinct : (t1: Table schema)
@@ -433,16 +485,22 @@ distinct t1 = ?distinct_t2
 --    schema(t2) is equal to schema(t1)
 
 public export
-dropColumn : (t1: Table schema1)
-          -> (c: String)
-          -> Table schema2
--- requires:
---    c is in header(t1)
-dropColumn t1 c = ?dropColumn_t2
--- ensures:
---    nrows(t2) is equal to nrows(t1)
---    header(t2) is equal to removeAll(header(t1), [c])
---    schema(t2) is a subsequence of schema(t1)
+||| Returns a Table that is the same as t, except without the named column
+|||
+||| dropColumn :: t1:Table * c:ColName -> t2:Table
+|||
+||| requires:
+|||    c is in header(t1)
+|||
+||| ensures:
+|||   nrows(t2) is equal to nrows(t1)
+|||    header(t2) is equal to removeAll(header(t1), [c])
+|||    schema(t2) is a subsequence of schema(t1)
+dropColumn : Table schema
+          -> (name: String)
+          -> {field: Field schema name type}
+          -> Table (drop schema field)
+dropColumn t _ {field} = Data.Table.Column.dropColumn field t
 
 public export
 dropColumns :  (t1: Table schema1)
@@ -711,6 +769,7 @@ groupBySubstractive :  (t1: Table schema1)
 public export
 ||| Consumes an existing Table and produces a new Table with the named columns updated,
 ||| using f to produce the values for those columns, once for each row.
+||| TODO: match B2T2 API
 |||
 ||| update :: t1:Table * f:(r1:Row -> r2:Row) -> t2:Table
 |||
@@ -724,7 +783,6 @@ public export
 |||      if c in header(r2) then schema(t2)[c] is equal to schema(r2)[c]
 |||      otherwise, schema(t2)[c] is equal to schema(t1)[c]
 |||    nrows(t2) is equal to nrows(t1)
-||| TODO: match B2T2 API
 update : Table schema
       -> (Record schema -> Record schema2)
       -> Table schema2
