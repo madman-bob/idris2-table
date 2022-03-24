@@ -14,6 +14,8 @@ import Data.SnocList.Operations
 import public Data.SnocList.Quantifiers
 import public Data.List.Quantifiers
 
+import Data.Table.Show
+
 import Syntax.WithProof
 
 %default total
@@ -289,28 +291,39 @@ generateJoinData datum =
    , projection2 = embedSubtraction
    }
 
-
-
-
-mkSchema : List (String, Type) -> Schema
-
-(.project) : Record schema -> (proj : List (Exists $ \(fld,type) => Field schema fld type))
-  -> Record (mkSchema $ map Exists.fst proj)
-
 public export
 join : {schema1,schema2 : Schema} -> (rec1 : Record schema1) -> (rec2 : Record schema2)
   -> {auto 0 ford1 : u === (jointSchemaType schema1 schema2)}
   -> {auto 0 ford2 : v === (jointNames schema1 schema2)}
   -> {auto joint : All u v}
   -> Table (schema1 ++ (schema2 |-| names schema1))
---join rec1 rec2 {joint} = ?h910
+join rec1 rec2 {joint, ford1 = Refl, ford2 = Refl} 
+  = joinGen (generateJoinData joint) rec1 rec2
+
+public export
+joinTable : {schema1,schema2 : Schema} -> (tbl1 : Table schema1) -> (tbl2 : Table schema2)
+  -> {auto 0 ford1 : u === (jointSchemaType schema1 schema2)}
+  -> {auto 0 ford2 : v === (jointNames schema1 schema2)}
+  -> {auto joint : All u v}
+  -> Table (schema1 ++ (schema2 |-| names schema1))
+joinTable tbl1 tbl2 {joint, ford1 = Refl, ford2 = Refl} = do
+  row1 <- tbl1
+  row2 <- tbl2
+  join row1 row2
+
 
 S1, S2 : Schema
-S1 = [< "a" :! Nat, "b" :! Bool]
-S2 = [< "a" :! Nat, "b" :! Bool]
+S1 = [< "a" :! Nat, "b" :! Bool, "c" :! String]
+S2 = [< "a" :! Nat, "b" :! Bool, "d" :! Double]
 
-T1 : Record S1
-T2 : Record S2
+T1 : Table S1
+T1  =[< [<2, True , "hello"]
+     ,  [<2, False, "hello"]
+     ]
+T2 : Table S2
+T2 = [< [<2, True, 3.5]
+     ,  [<2, True, 6.5]
+     ]
 
 ||| Hint so that `auto`-search can find appropriate `Exists`
 ||| instances. Don't export more generically as may cause unexpected
@@ -322,7 +335,7 @@ evidenceFieldNamed : (flds : (Field schema1 name type, Field schema2 name type, 
 evidenceFieldNamed {type} flds = Evidence type flds
 
 H : ?
-H = join T1 T2
+H = joinTable T1 T2
 
 {-
 join rec1 rec2 {joint} =
