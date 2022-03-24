@@ -478,11 +478,22 @@ head1 : Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)
 head1 = head students 1
 
 public export
-distinct : (t1: Table schema)
+||| Retains only unique/distinct rows from an input Table
+|||
+||| distinct :: t1:Table -> t2:Table
+|||
+||| ensures:
+|||    schema(t2) is equal to schema(t1)
+distinct : Eq (Record schema)
+        => Table schema
         -> Table schema
-distinct t1 = ?distinct_t2
--- ensures:
---    schema(t2) is equal to schema(t1)
+distinct t = Data.Table.Row.distinct t
+
+distinct1 : Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)]
+distinct1 = B2T2.TableAPI.distinct students
+
+-- distinct2 : ?t
+-- distinct2 = B2T2.TableAPI.distinct (selectColumns gradebook ["quiz3"])
 
 public export
 ||| Returns a Table that is the same as t, except without the named column
@@ -535,17 +546,24 @@ tfilter2 : Table [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2
 tfilter2 = tfilter gradebook (\r => (length (value "name" r)) > 3)
 
 public export
+||| Given a Table and one of its column names, returns a Table with the same rows ordered based
+||| on the named column. If b is true, the Table will be sorted in ascending order, otherwise
+||| it will be in descending order.
+|||
+||| tsort :: t1:Table * c:ColName * b:Boolean -> t2:Table
+|||
+||| requires:
+|||    c is in header(t1)
+|||    schema(t1)[c] is Number
+|||
+||| ensures:
+|||    nrows(t2) is equal to nrows(t1)
+|||    schema(t2) is equal to schema(t1)
 tsort :  (t1: Table schema)
       -> (c: String)
       -> (b: Bool)
       -> Table schema
--- requires:
---    c is in header(t1)
---    schema(t1)[c] is Number
 tsort t1 c b = ?tsort_t2
--- ensures:
---    nrows(t2) is equal to nrows(t1)
---    schema(t2) is equal to schema(t1)
 
 public export
 sortByColumns :  (t1: Table schema)
