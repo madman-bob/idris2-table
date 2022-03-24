@@ -244,18 +244,33 @@ weaken {schema1 = schema1 :< fld@(_ :! _)} =
           weaken {schema1, schema2 = [<fld] ++ schema2}
   ) :< Evidence fld.Name (weakenField schema2 Here)
 
+embedSubtraction : {schema : Schema} -> {names : SnocList String} ->
+  Ren (schema |-| names) schema
+embedSubtraction {schema = [<]} = [<]
+embedSubtraction  {schema = schema :< fs} {names} with (fs.Name `elem` names)
+ _ | True = Schema.Quantifiers.map
+              (\x => Evidence x.fst $ weakenField [<fs] x.snd)
+              (embedSubtraction {schema})
+ embedSubtraction {schema = schema :< fs@(_ :! _)} {names}
+   | False = let u = (embedSubtraction {schema})
+                 v = Schema.Quantifiers.map
+                   (\x => Evidence x.fst $ weakenField [<fs] x.snd)
+                   (embedSubtraction {schema})
+        in v :< Evidence fs.Name Here
+
+
 public export
 generateJoinData : {schema1,schema2 : Schema} ->
   All (jointSchemaType schema1 schema2) (jointNames schema1 schema2) ->
   ProjectionJoin schema1 schema2 schema1 (schema2 |-| names schema1)
 generateJoinData datum =
  MkJoin
-   { eqSchema = ?
+   { eqSchema = ?h190
    , filter1 = Filter1 datum
    , filter2 = Filter2 datum
    , filterSchema = fromAllSchema datum
    , projection1 = IdRen
-   , projection2 = ?generateJoinData_rhs
+   , projection2 = embedSubtraction
    }
 
 
