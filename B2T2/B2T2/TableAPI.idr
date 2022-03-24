@@ -516,13 +516,23 @@ dropColumns t1 c2 = ?dropColumns_t2
 --    schema(t2) is a subsequence of schema(t1)
 
 public export
-tfilter :  (t1: Table schema)
-        -> (f: (Record schema -> Bool))
+||| Given a Table and a predicate on rows, returns a Table with only the rows for which the predicate returns true
+|||
+||| tfilter :: t1:Table * f:(r:Row -> b:Boolean) -> t2:Table
+|||
+||| ensures:
+|||    schema(r) is equal to schema(t1)
+|||    schema(t2) is equal to schema(t1)
+tfilter :  Table schema
+        -> (Record schema -> Bool)
         -> Table schema
-tfilter t1 f = ?tfilter_t2
--- ensures:
---    schema(r) is equal to schema(t1)
---    schema(t2) is equal to schema(t1)
+tfilter t f = filter f t
+
+tfilter1 : Table [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)]
+tfilter1 = tfilter students (\r => (value "age" r) < 15)
+
+tfilter2 : Table [<("name" :! String), ("age" :! Nat), ("quiz1" :! Nat), ("quiz2" :! Nat), ("midterm" :! Nat), ("quiz3" :! Nat), ("quiz4" :! Nat), ("final" :! Nat)]
+tfilter2 = tfilter gradebook (\r => (length (value "name" r)) > 3)
 
 public export
 tsort :  (t1: Table schema)
