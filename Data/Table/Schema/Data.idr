@@ -17,11 +17,6 @@ data Schema : Type where
 %name Schema schema
 
 public export
-(++) : Schema -> Schema -> Schema
-s ++ [<] = s
-s ++ (schema :< rec) = (s ++ schema) :< rec
-
-public export
 names : Schema -> SnocList String
 names [<] = [<]
 names (schema :< (name :! type)) = names schema :< name
