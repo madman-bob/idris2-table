@@ -252,12 +252,28 @@ embedSubtraction  {schema = schema :< fs} {names} with (fs.Name `elem` names)
               (\x => Evidence x.fst $ weakenField [<fs] x.snd)
               (embedSubtraction {schema})
  embedSubtraction {schema = schema :< fs@(_ :! _)} {names}
-   | False = let u = (embedSubtraction {schema})
-                 v = Schema.Quantifiers.map
+   | False = Schema.Quantifiers.map
                    (\x => Evidence x.fst $ weakenField [<fs] x.snd)
                    (embedSubtraction {schema})
-        in v :< Evidence fs.Name Here
+             :< Evidence fs.Name Here
 
+[emptyRecEq] Eq (Record [<]) where
+  x == y = True
+
+recordEq : All (\fld => Eq fld.Sort) schema -> Eq (Record schema)
+recordEq [<] = emptyRecEq
+recordEq {schema = schema :< (name :! type)} (eqs :< eq) = 
+   instance
+   where
+     recEq : ?
+     recEq = recordEq eqs
+     [instance] Eq (Record (schema :< (name :! type))) where
+       (xs :< x) == (ys :< y) = (x == y) && (xs == ys) @{recEq}
+
+mapSnocSchema : (prf : SnocList.Quantifiers.All.All (jointSchemaType schema1 schema2) ns) -> 
+  All (\fld => Eq fld.Sort) (fromAllSchema {schema1, schema2} prf)
+mapSnocSchema [<] = [<]
+mapSnocSchema (prfs :< prf) = mapSnocSchema prfs :< (snd $ snd $ prf.snd)
 
 public export
 generateJoinData : {schema1,schema2 : Schema} ->
@@ -265,7 +281,7 @@ generateJoinData : {schema1,schema2 : Schema} ->
   ProjectionJoin schema1 schema2 schema1 (schema2 |-| names schema1)
 generateJoinData datum =
  MkJoin
-   { eqSchema = ?h190
+   { eqSchema = recordEq (mapSnocSchema datum)
    , filter1 = Filter1 datum
    , filter2 = Filter2 datum
    , filterSchema = fromAllSchema datum
