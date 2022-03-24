@@ -22,7 +22,7 @@ fisherTest f1 f2 tbl = pValue $ contingencySquare f1 f2 tbl
 
 export
 pHacking : {schema : Schema}
-        -> AllColumns schema Bool
+        -> (0 _ : AllColumns schema Bool)
         => {baseCol : String}
         -> Field schema baseCol Bool
         -> Table schema

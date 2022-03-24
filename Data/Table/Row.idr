@@ -8,36 +8,9 @@ import public Data.Table.Row.Aggregate
 import public Data.Table.Row.Constructor
 import public Data.Table.Row.Frame
 import public Data.Table.Row.HasRows
+import public Data.Table.Row.Interface
 
 %default total
-
-public export
-toSnocList : Table schema -> SnocList (Record schema)
-toSnocList [<] = [<]
-toSnocList (tbl :< rec) = toSnocList tbl :< rec
-
-public export
-elemBy : (Record schema -> Record schema -> Bool) -> Record schema -> Table schema -> Bool
-elemBy f rec tbl = elemBy f rec (toSnocList tbl)
-
-public export
-elem : Eq (Record schema) => Record schema -> Table schema -> Bool
-elem = elemBy (==)
-
-public export
-map : (Record schema -> a) -> Table schema -> SnocList a
-map f [<] = [<]
-map f (tbl :< rec) = map f tbl :< f rec
-
-export
-mapPreservesLength : HasRows tbl n => HasRows tbl (length (map f tbl))
-mapPreservesLength @{EmptyTable} = EmptyTable
-mapPreservesLength @{SnocTable _} = SnocTable mapPreservesLength
-
-public export
-foldr : (Record schema -> a -> a) -> a -> Table schema -> a
-foldr f x [<] = x
-foldr f x (tbl :< rec) = foldr f (f rec x) tbl
 
 public export
 distinctBy : (Record schema -> Record schema -> Bool) -> Table schema -> Table schema
@@ -46,6 +19,48 @@ distinctBy f tbl = foldl (\acc, rec => ifThenElse (elemBy f rec acc) acc (acc :<
 public export
 distinct : Eq (Record schema) => Table schema -> Table schema
 distinct = distinctBy (==)
+
+public export
+enum : (tbl : Table schema)
+    -> HasRows tbl n
+    => SnocList (Fin n, Record schema)
+enum tbl = snd $ enum' tbl
+  where
+    enum' : (t : Table schema)
+         -> HasRows t m
+         => (Fin (S m), SnocList (Fin m, Record schema))
+    enum' [<] = (FZ, [<])
+    enum' {m = S m} (t :< rec) @{SnocTable _} =
+        let (k, acc) = enum' t in
+        (FS k, Prelude.map (mapFst weaken) acc :< (k, rec))
+
+public export
+findIndexFromEndBy : (Record schema -> Bool)
+                  -> (tbl : Table schema)
+                  -> {auto 0 hasRows : HasRows tbl n}
+                  -> Maybe (Fin n)
+findIndexFromEndBy f [<] = Nothing
+findIndexFromEndBy f (tbl :< rec) {hasRows = SnocTable _} =
+    if f rec
+        then Just FZ
+        else FS <$> findIndexFromEndBy f tbl
+
+public export
+findIndexBy : (Record schema -> Bool)
+           -> (tbl : Table schema)
+           -> HasRows tbl n
+           => Maybe (Fin n)
+findIndexBy f tbl =
+    let Val _ = length tbl in
+    complement <$> findIndexFromEndBy f tbl
+
+public export
+findIndex : Eq (Record schema)
+         => Record schema
+         -> (tbl : Table schema)
+         -> HasRows tbl n
+         => Maybe (Fin n)
+findIndex rec = findIndexBy (== rec)
 
 export
 sortBy : (Record schema -> Record schema -> Ordering) -> Table schema -> Table schema
@@ -57,9 +72,18 @@ sort = sortBy compare
 
 public export
 filter : (Record schema -> Bool) -> Table schema -> Table schema
-filter f [<] = [<]
-filter f (rows :< rec) =
-    let rest = filter f rows in
+filter f tbl = do
+    rec <- tbl
     case f rec of
-        False => rest
-        True => rest :< rec
+        False => [<]
+        True => pure rec
+
+public export
+dropNa : (fld : Field schema name (Maybe type))
+      -> Table schema
+      -> Table (update schema fld type)
+dropNa fld tbl = do
+    rec <- tbl
+    case value fld rec of
+        Nothing => [<]
+        Just x => pure $ setField fld x rec

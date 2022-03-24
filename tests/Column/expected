@@ -2,12 +2,17 @@
 
 [<"Bob", "Alice", "Eve"]
 [<12, 17, 13]
-Error: Can't find an implementation for Field StudentSchema "grade" ?sa.
+Error: Can't find an implementation for Field StudentSchema "grade" ?type.
 
 (Interactive):1:12--1:19
  1 |     column "grade" students
                 ^^^^^^^
 
+
+[<[<"Bob"], [<"Alice"], [<"Eve"]]
+[<[<"Bob", 12], [<"Alice", 17], [<"Eve", 13]]
+
+[<[<"Bob", 12, "blue"], [<"Alice", 17, "green"], [<"Eve", 13, "red"]]
 
 [<[<"Bob", 12, "blue", 87], [<"Alice", 17, "green", 85], [<"Eve", 13, "red", 77]]
 
@@ -23,15 +28,18 @@ Error: Can't find an implementation for Field StudentSchema "grade" ?sa.
 
 [<[<"Bob", "blue"], [<"Alice", "green"], [<"Eve", "red"]]
 [<[<"Bob", 12], [<"Alice", 17], [<"Eve", 13]]
-Error: Can't find an implementation for Field StudentSchema "grade" ?sa.
+Error: Can't find an implementation for Field StudentSchema "grade" ?type.
 
 (Interactive):1:16--1:23
  1 |     dropColumn "grade" students
                     ^^^^^^^
 
 
+[<[<"Bob", "blue"], [<"Alice", "green"], [<"Eve", "red"]]
+[<[<"Bob"], [<"Alice"], [<"Eve"]]
+
 [<MkDPair "name" (There Here), MkDPair "favorite color" Here]
-Error: Can't find an implementation for AllColumns [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)] String.
+Error: Can't find an implementation for All (TypeHas (\{arg:0} => arg = String)) [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)].
 
 (Interactive):1:5--1:29
  1 |     allColumns StudentSchema

@@ -3,5 +3,5 @@
 b2t2Test << EOF
     :exec pHackingHomogeneous
 
-    :exec pHackingHomogeneous
+    :exec pHackingHeterogeneous
 EOF

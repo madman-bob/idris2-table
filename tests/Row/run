@@ -16,6 +16,14 @@ basicTest ExampleTables.idr << EOF
     employees ++ the (SnocList _) [<robinson, smith, williams]
     employees ++ the (Maybe _) (Just robinson)
 
+    employees |+| [<sales, finance, production]
+    employees |+| [<sales, finance]
+
+    employees |*| [<sales, finance]
+
+    the (SnocList _) $ map (value "Last Name") allEmployees
+    the (Table _) $ map (updateField "Department ID" $ maybe 30 id) allEmployees
+
     toSnocList allEmployees
 
     elemBy sameDepartment [<"Unknown", Just 34] employees
@@ -29,10 +37,19 @@ basicTest ExampleTables.idr << EOF
     distinctBy sameDepartment $ allEmployees ++ allEmployees
     distinct $ allEmployees ++ allEmployees
 
+    mapFst finToNat <$> enum allEmployees
+
+    finToNat <$> findIndexBy ((== Just 32) . value "Department ID") allEmployees
+    finToNat <$> findIndexBy ((== Just 35) . value "Department ID") allEmployees
+
+    finToNat <$> findIndex robinson allEmployees
+    finToNat <$> findIndex robinson employees
+
     sort allEmployees
     sort @{byField "Department ID"} allEmployees
 
     filter hasDepartment allEmployees
+    dropNa "Department ID" allEmployees
 
     row employees 0
     row employees 1
