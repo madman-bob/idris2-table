@@ -292,24 +292,24 @@ generateJoinData datum =
    }
 
 public export
-join : {schema1,schema2 : Schema} -> (rec1 : Record schema1) -> (rec2 : Record schema2)
+joinRecord : {schema1,schema2 : Schema} -> (rec1 : Record schema1) -> (rec2 : Record schema2)
   -> {auto 0 ford1 : u === (jointSchemaType schema1 schema2)}
   -> {auto 0 ford2 : v === (jointNames schema1 schema2)}
   -> {auto joint : All u v}
   -> Table (schema1 ++ (schema2 |-| names schema1))
-join rec1 rec2 {joint, ford1 = Refl, ford2 = Refl} 
+joinRecord rec1 rec2 {joint, ford1 = Refl, ford2 = Refl} 
   = joinGen (generateJoinData joint) rec1 rec2
 
 public export
-joinTable : {schema1,schema2 : Schema} -> (tbl1 : Table schema1) -> (tbl2 : Table schema2)
+join : {schema1,schema2 : Schema} -> (tbl1 : Table schema1) -> (tbl2 : Table schema2)
   -> {auto 0 ford1 : u === (jointSchemaType schema1 schema2)}
   -> {auto 0 ford2 : v === (jointNames schema1 schema2)}
   -> {auto joint : All u v}
   -> Table (schema1 ++ (schema2 |-| names schema1))
-joinTable tbl1 tbl2 {joint, ford1 = Refl, ford2 = Refl} = do
+join tbl1 tbl2 {joint, ford1 = Refl, ford2 = Refl} = do
   row1 <- tbl1
   row2 <- tbl2
-  join row1 row2
+  joinRecord row1 row2
 
 
 S1, S2 : Schema
@@ -335,7 +335,7 @@ evidenceFieldNamed : (flds : (Field schema1 name type, Field schema2 name type, 
 evidenceFieldNamed {type} flds = Evidence type flds
 
 H : ?
-H = joinTable T1 T2
+H = join T1 T2
 
 {-
 join rec1 rec2 {joint} =
