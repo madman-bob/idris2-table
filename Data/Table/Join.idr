@@ -8,7 +8,7 @@ import public Data.Table.Row.Constructor
 import public Data.Table.Schema
 import public Data.Table.Schema.Quantifiers
 import public Data.Table.Schema.Properties
-import public Data.Table.Schema.Renaming
+import public Data.Table.Schema.Substitution
 
 import public Data.List
 import public Data.SnocList.Operations
@@ -69,10 +69,10 @@ record ProjectionJoin (src1, src2, tgt1, tgt2 : Schema) where
   constructor MkJoin
   0 filterSchema : Schema
   eqSchema : Eq (Record filterSchema)
-  filter1 : Ren filterSchema src1
-  filter2 : Ren filterSchema src2
-  projection1 : Ren tgt1 src1
-  projection2 : Ren tgt2 src2
+  filter1 : Subst filterSchema src1
+  filter2 : Subst filterSchema src2
+  projection1 : Subst tgt1 src1
+  projection2 : Subst tgt2 src2
 
 public export
 joinGen : ProjectionJoin src1 src2 tgt1 tgt2 -> Record src1 -> Record src2 -> Table (tgt1 ++ tgt2)
@@ -98,7 +98,7 @@ jointNames schema1 schema2 = (names schema1) `intersect` (names schema2)
 
 -- TODO: should probably go into Data.Table.Schema.Renaming
 embedSubtraction : {schema : Schema} -> {names : SnocList String} ->
-  Ren (schema |-| names) schema
+  Subst (schema |-| names) schema
 embedSubtraction {schema = [<]} = [<]
 embedSubtraction  {schema = schema :< fs} {names} with (fs.Name `elem` names)
  _ | True = Schema.Quantifiers.map
@@ -135,7 +135,7 @@ fromAllSchema (joints :< joint) =
 
 Filter1 : {0 ns : SnocList String} -> {schema1 : Schema} ->
   (prf : equijoinData schema1 schema2 ns) ->
-  Ren (fromAllSchema {schema1,schema2} prf) schema1
+  Subst (fromAllSchema {schema1,schema2} prf) schema1
 Filter1 [<] = [<]
 Filter1 ((joints :< Evidence type (fld, _)) {x = name})
   =
@@ -143,7 +143,7 @@ Filter1 ((joints :< Evidence type (fld, _)) {x = name})
 
 Filter2 : {0 ns : SnocList String} -> {schema1 : Schema} ->
   (prf : equijoinData schema1 schema2 ns) ->
-  Ren (fromAllSchema {schema1,schema2} prf) schema2
+  Subst (fromAllSchema {schema1,schema2} prf) schema2
 Filter2 [<] = [<]
 Filter2 ((joints :< Evidence type (_, fld, _)) {x = name})
   = Filter2 joints :< Evidence _ fld
@@ -173,7 +173,7 @@ generateJoinData datum =
    , filter1 = Filter1 datum
    , filter2 = Filter2 datum
    , filterSchema = fromAllSchema datum
-   , projection1 = IdRen
+   , projection1 = IdSubst
    , projection2 = embedSubtraction
    }
 
