@@ -1,5 +1,7 @@
 module Data.Table.Schema.Data
 
+import public Data.DPair
+
 %default total
 
 infix 10 :!
@@ -59,3 +61,37 @@ public export
 (.field) : {schema : Schema} -> Field schema name type -> FieldSchema
 (Here).field {schema = _ :< fld@(_ :! _)} = fld
 (There fld).field = fld.field
+
+-- Pivoted types of fields
+public export
+FieldNamed : Schema -> String -> Type
+FieldNamed schema name = Exists (\type => Field schema name type)
+
+infix 4 !!
+
+public export
+(!!) : (schema : Schema) -> schema `FieldNamed` name -> Type
+schema !! pos = pos.snd.field.Sort
+
+public export
+FieldTyped : Schema -> Type -> Type
+FieldTyped schema type = Exists (\name => Field schema name type)
+
+recallAux : {schema : Schema} -> (0 type : Type) ->
+  (fld : Field schema name type) -> type === (schema !! (Evidence type fld))
+recallAux type Here = Refl
+recallAux type (There fld)
+  {schema = _ :< _ :! _}
+  = recallAux type fld
+
+export
+recall : {schema : Schema} -> (fld : schema `FieldNamed` n) -> fld.fst = schema !! fld
+recall fld = recallAux fld.fst fld.snd
+
+public export
+weakenField : (schema2 : Schema) ->
+  Field schema1 name type ->
+  Field (schema1 ++ schema2) name type
+weakenField [<]            fld = fld
+weakenField (schema :< fs) fld = There (weakenField schema fld)
+

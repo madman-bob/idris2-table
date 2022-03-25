@@ -8,9 +8,10 @@ import public Data.Table.Row.Constructor
 import public Data.Table.Schema
 import public Data.Table.Schema.Quantifiers
 import public Data.Table.Schema.Properties
+import public Data.Table.Schema.Renaming
 
 import public Data.List
-import Data.SnocList.Operations
+import public Data.SnocList.Operations
 import public Data.SnocList.Quantifiers
 import public Data.List.Quantifiers
 
@@ -58,110 +59,12 @@ public export
  _ | True  = (rec |-| names)
  _ | False = (rec |-| names) :< fld
 
+
+-- Lets reinvent relational algebra
+
+-- Am I going to regret publicly exporting these?
+
 public export
-FieldNamed : Schema -> String -> Type
-FieldNamed schema name = Exists (\type => Field schema name type)
-
-infix 4 !!
-
-(!!) : (schema : Schema) -> schema `FieldNamed` name -> Type
-schema !! pos = pos.snd.field.Sort
-{-
-namespace Thin
-  public export
-  data Thin : (src, tgt : Schema) -> Type where
-    Lin : Thin [<] schema
-    K{-eep-} : Thin src tgt -> Thin (src :< fld) (tgt :< fld)
-    T{-hin-} : Thin src tgt -> Thin src (tgt :< fld)
-
-namespace Mask
-  -- Can help thinking about thinnings as bit-masks
-  public export
-  data Bit = K | T
-
-  public export
-  data Mask : Schema -> Type where
-    Lin : Mask [<]
-    (:<) : Mask schema -> Bit -> Mask (schema :< fld)
-
-  public export
-  (.in) : {schema : Schema} -> Mask schema -> Schema
-  [<].in = [<]
-  (mask :< K).in {schema = schema :< fld} = mask.in :< fld
-  (mask :< T).in = mask.in
-
-  public export
-  (.out) : {schema : Schema} -> Mask schema -> Schema
-  [<].out = [<]
-  (mask :< T).out {schema = schema :< fld} = mask.out :< fld
-  (mask :< K).out = mask.out
-
-  public export
-  Fwd : (mask : Mask schema) -> Thin mask.in schema
-  Fwd [<] = [<]
-  Fwd (mask :< K) = K (Fwd mask)
-  Fwd (mask :< T) = T (Fwd mask)
-
-  public export
-  Bwd : {schema : Schema} -> Thin src schema -> Mask schema
-  Bwd [<] {schema = [<]} = [<]
-  Bwd [<] {schema = (schema :< fs)} = Bwd [<] :< T
-  Bwd (K x) = Bwd x :< K
-  Bwd (T x) = Bwd x :< T
-
-  public export
-  (.flip) : Mask schema -> Mask schema
-  [<].flip = [<]
-  (mask :< K).flip = mask.flip :< T
-  (mask :< T).flip = mask.flip :< K
-
-  export
-  flipInOut : (mask : Mask schema) -> mask.flip.in = mask.out
-  flipInOut [<] = Refl
-  flipInOut (mask :< K) = flipInOut mask
-  flipInOut ((mask :< T) {fld}) = cong (:< fld) $ flipInOut mask
-
-
-namespace Thin
-  public export
-  (|!|) : (schema : Schema) -> Thin src schema -> Schema
-  schema |!| thin = (Bwd thin).out
-
-  public export
-  (.complement) : {schema : Schema} -> (thin : Thin src schema)
-    -> Thin (schema |!| thin) schema
-  thin.complement = replace {p = flip Thin schema}
-                    (flipInOut _)
-                    $ Fwd (Bwd thin).flip
--}
-namespace Projection
-  public export
-  FieldTyped : Schema -> Type -> Type
-  FieldTyped schema type = Exists (\name => Field schema name type)
-
-  public export
-  (.project) : (rec : Record schema) -> FieldTyped schema type -> type
-  rec.project pos = value pos.snd rec
-
-
-namespace Renaming
-  public export
-  Ren : (src, tgt : Schema) -> Type
-  Ren src tgt = All (\fld => tgt `FieldTyped` fld.Sort) src
-
-  infixl 7 :<.
-
-  ||| Smart constructor for records that uses eta on the field
-  public export
-  (:<.) : Record schema -> fld.Sort -> Record (schema :< fld)
-  (rec :<. x) {fld = _ :! _} = rec `Record.(:<)` x
-
-  public export
-  (.project) : (rec : Record src) -> Ren tgt src -> Record tgt
-  rec.project [<] = [<]
-  rec.project (ren :< pos) = (rec.project ren) :<. (rec.project pos)
-
--- Probably too specialised
 record ProjectionJoin (src1, src2, tgt1, tgt2 : Schema) where
   constructor MkJoin
   0 filterSchema : Schema
@@ -171,6 +74,7 @@ record ProjectionJoin (src1, src2, tgt1, tgt2 : Schema) where
   projection1 : Ren tgt1 src1
   projection2 : Ren tgt2 src2
 
+public export
 joinGen : ProjectionJoin src1 src2 tgt1 tgt2 -> Record src1 -> Record src2 -> Table (tgt1 ++ tgt2)
 joinGen joinData rec1 rec2 =
   if (rec1.project (joinData.filter1) == rec2.project (joinData.filter2)) @{joinData.eqSchema}
@@ -178,7 +82,7 @@ joinGen joinData rec1 rec2 =
           rec2.project joinData.projection2]
   else [<]
 
-public export total
+public export
 0 jointSchemaType : (schema1, schema2 : Schema) -> String -> Type
 jointSchemaType schema1 schema2 fld =
  Exists $ \type => ( Field schema1 fld type
@@ -192,60 +96,7 @@ jointNames : (schema1, schema2 : Schema) -> SnocList String
 jointNames schema1 schema2 = (names schema1) `intersect` (names schema2)
 
 
-recallAux : {schema : Schema} -> (0 type : Type) ->
-  (fld : Field schema name type) -> type === (schema !! (Evidence type fld))
-recallAux type Here = Refl
-recallAux type (There fld)
-  {schema = _ :< _ :! _}
-  = recallAux type fld
-
-recall : {schema : Schema} -> (fld : schema `FieldNamed` n) -> fld.fst = schema !! fld
-recall fld = recallAux fld.fst fld.snd
-
-total 0
-fromAllSchema : {ns : SnocList String} -> {schema1 : Schema} ->
-  All (jointSchemaType schema1 schema2) ns -> Schema
-fromAllSchema [<] = [<]
-fromAllSchema (joints :< joint) =
-  fromAllSchema joints :<
-  (last ns) :! joint.fst
-
-Filter1 : {0 ns : SnocList String} -> {schema1 : Schema} ->
-  (prf : All (jointSchemaType schema1 schema2) ns) ->
-  Ren (fromAllSchema {schema1,schema2} prf) schema1
-Filter1 [<] = [<]
-Filter1 ((joints :< Evidence type (fld, _)) {x = name})
-  =
-  Filter1 joints :< Evidence name fld
-
-Filter2 : {ns : SnocList String} -> {schema1 : Schema} ->
-  (prf : All (jointSchemaType schema1 schema2) ns) ->
-  Ren (fromAllSchema {schema1,schema2} prf) schema2
-Filter2 [<] = [<]
-Filter2 ((joints :< Evidence type (_, fld, _)) {x = name})
-  = Filter2 joints :< Evidence _ fld
-
-weakenField : (schema2 : Schema) ->
-  Field schema1 name type ->
-  Field (schema1 ++ schema2) name type
-weakenField [<]            fld = fld
-weakenField (schema :< fs) fld = There (weakenField schema fld)
-
-IdRen : {schema : Schema} -> Ren schema schema
-IdRen {schema = [<]         } = [<]
-IdRen {schema = schema :< fs@(name :! type)} =
-  Schema.Quantifiers.map (\x => Evidence x.fst $ weakenField [<fs] x.snd) (IdRen {schema})
-  :< (Evidence name Here)
-
-weaken : {schema1, schema2 : Schema} ->
-  Ren schema1 (schema1 ++ schema2)
-weaken {schema1 = [<]} = [<]
-weaken {schema1 = schema1 :< fld@(_ :! _)} =
-  (replace {p = Ren schema1}
-          (appendSchemaAssociative schema1 [<fld] schema2) $
-          weaken {schema1, schema2 = [<fld] ++ schema2}
-  ) :< Evidence fld.Name (weakenField schema2 Here)
-
+-- TODO: should probably go into Data.Table.Schema.Renaming
 embedSubtraction : {schema : Schema} -> {names : SnocList String} ->
   Ren (schema |-| names) schema
 embedSubtraction {schema = [<]} = [<]
@@ -258,6 +109,44 @@ embedSubtraction  {schema = schema :< fs} {names} with (fs.Name `elem` names)
                    (\x => Evidence x.fst $ weakenField [<fs] x.snd)
                    (embedSubtraction {schema})
              :< Evidence fs.Name Here
+
+
+
+public export
+equijoinData : (schema1, schema2 : Schema) -> (selection : SnocList String) -> Type
+equijoinData schema1 schema2 selection = All (jointSchemaType schema1 schema2) selection
+
+-- Extract the joinGen parameter out-of an equijoinData
+public export
+generateJoinData : {schema1,schema2 : Schema} ->
+  equijoinData schema1 schema2 (jointNames schema1 schema2) ->
+  ProjectionJoin schema1 schema2 schema1 (schema2 |-| names schema1)
+
+-- To implement it, we'll first define some auxiliary lemmata
+-- to extract each field in `ProjectionJoin`.
+
+total 0
+fromAllSchema : {0 ns : SnocList String} -> {schema1 : Schema} ->
+  equijoinData schema1 schema2 ns -> Schema
+fromAllSchema [<] = [<]
+fromAllSchema (joints :< joint) =
+  fromAllSchema joints :<
+  (last ns) :! joint.fst
+
+Filter1 : {0 ns : SnocList String} -> {schema1 : Schema} ->
+  (prf : equijoinData schema1 schema2 ns) ->
+  Ren (fromAllSchema {schema1,schema2} prf) schema1
+Filter1 [<] = [<]
+Filter1 ((joints :< Evidence type (fld, _)) {x = name})
+  =
+  Filter1 joints :< Evidence name fld
+
+Filter2 : {0 ns : SnocList String} -> {schema1 : Schema} ->
+  (prf : equijoinData schema1 schema2 ns) ->
+  Ren (fromAllSchema {schema1,schema2} prf) schema2
+Filter2 [<] = [<]
+Filter2 ((joints :< Evidence type (_, fld, _)) {x = name})
+  = Filter2 joints :< Evidence _ fld
 
 [emptyRecEq] Eq (Record [<]) where
   x == y = True
@@ -272,15 +161,12 @@ recordEq {schema = schema :< (name :! type)} (eqs :< eq) =
      [instance] Eq (Record (schema :< (name :! type))) where
        (xs :< x) == (ys :< y) = (x == y) && (xs == ys) @{recEq}
 
-mapSnocSchema : (prf : SnocList.Quantifiers.All.All (jointSchemaType schema1 schema2) ns) -> 
+mapSnocSchema : (prf : equijoinData schema1 schema2 ns) -> 
   All (\fld => Eq fld.Sort) (fromAllSchema {schema1, schema2} prf)
 mapSnocSchema [<] = [<]
 mapSnocSchema (prfs :< prf) = mapSnocSchema prfs :< (snd $ snd $ prf.snd)
 
-public export
-generateJoinData : {schema1,schema2 : Schema} ->
-  All (jointSchemaType schema1 schema2) (jointNames schema1 schema2) ->
-  ProjectionJoin schema1 schema2 schema1 (schema2 |-| names schema1)
+-- We can now put these together:
 generateJoinData datum =
  MkJoin
    { eqSchema = recordEq (mapSnocSchema datum)
@@ -312,6 +198,16 @@ join tbl1 tbl2 {joint, ford1 = Refl, ford2 = Refl} = do
   joinRecord row1 row2
 
 
+||| Hint so that `auto`-search can find appropriate `Exists`
+||| instances. Don't export more generically as may cause unexpected
+||| behaviour with other `Exists` instances.
+%hint
+public export
+evidenceFieldNamed : (flds : (Field schema1 name type, Field schema2 name type, Eq type)) ->
+  jointSchemaType schema1 schema2 name
+evidenceFieldNamed {type} flds = Evidence type flds
+
+-- TODO: create actual tests
 S1, S2 : Schema
 S1 = [< "a" :! Nat, "b" :! Bool, "c" :! String]
 S2 = [< "a" :! Nat, "b" :! Bool, "d" :! Double]
@@ -325,113 +221,5 @@ T2 = [< [<2, True, 3.5]
      ,  [<2, True, 6.5]
      ]
 
-||| Hint so that `auto`-search can find appropriate `Exists`
-||| instances. Don't export more generically as may cause unexpected
-||| behaviour with other `Exists` instances.
-%hint
-public export
-evidenceFieldNamed : (flds : (Field schema1 name type, Field schema2 name type, Eq type)) ->
-  jointSchemaType schema1 schema2 name
-evidenceFieldNamed {type} flds = Evidence type flds
-
 H : ?
 H = join T1 T2
-
-{-
-join rec1 rec2 {joint} =
-  if all (\case
-            Nothing => True
-            Just pos => value pos rec2 ?h2) joint
-  then ?h23
-  else ?h3
--}
-{-
-IsSubschema : (sub, super : Schema) -> Type
-IsSubschema sub super = All (\fld => Field super fld.Name fld.Sort) sub
-
-Subschema : (super : Schema) -> Type
-Subschema super = Exists (\sub => sub `IsSubschema` super)
-
-foo : Record super -> Unit
-foo rec {super} with (rec)
- foo [<] {super = _}| rec0 = ?h2_0
- foo rec'@(rec :< x) {super = _}| rec0 = ?h2_1
-
-infixl 5 |., \.
-
-
-||| Project a Subschema out of a schema
-public export
-(|.) : Record super -> (sub : Subschema super) -> Record (sub.fst)
-(rec  |. sub@(Evidence _ _)) {super} with (sub.snd)
- (rec |. sub@(Evidence _ _)) {super} | [<] = [<]
- ([<] |. sub@(Evidence _ _)) {super = [<]} | (x :< _) impossible
- (rec |. sub@(Evidence f _)) {super} | (x :< loc) {col = _ :! _}
-   = (rec |. Evidence _ x) :< (value loc rec)
-
-public export
-(\.) : (super : Schema) -> (sub : Subschema super) -> Schema
-super \. (Evidence fst snd) = ?op_rhs_0
-
-
-JoinType : (a,b,c : Type) -> Type
-JoinType a b c = a -> b -> Maybe c
-
-infix 6 =<=, =>=
-
--- Examples
-(=<=) : Eq a => JoinType a a a
-x =<= y = if x == y then Just x else Nothing
-
-(=>=) : Eq a => JoinType a a a
-x =>= y = y =<= x
-
-data Join : (schema1, schema2 : Schema) -> Type where
-  Nil : Join schema1 schema2
-  (::) :
-       ( Field schema1 name1 type1
-       , Field schema2 name2 type2
-       , JoinType type1 type2 result
-       )
-    -> Join schema1 schema2 -> Join schema1 schema2
-
--- smart constructor
-
-When : (name1 : String) -> JoinType type1 type2 result -> (name2 : String)
-  -> (lftField : Field schema1 name1 type1)
-  => (rgtField : Field schema2 name2 type2)
-  => ( Field schema1 name1 type1
-     , Field schema2 name2 type2
-     , JoinType type1 type2 result
-     )
-When _ join _ {lftField, rgtField} = (lftField, rgtField, join)
-
-guardLeft : (a -> x) -> (x -> x -> Bool) -> (b -> x) -> a -> b -> Maybe a
-
-
-blah : Join [< "a" :! String, "b" :! Char] [< "c" :! Int, "d" :! Char]
-blah = [When "b" (=<=) "d", When "a" (guardLeft (cast . length) (==) id) "c"]
-
-
-infixl 5 |><|, ><|, |><, ><
-
-defaultCombinationLft ,
-defaultCombinationRgt : (schema1, schema2 : Schema) -> Schema
-defaultCombinationLft schema1 schema2 = schema1 ++ (schema2 |-| names schema1)
-defaultCombinationRgt schema1 schema2 = schema1 ++ (schema2 |-| names schema1)
-
-
-combineLft : (schema1, schema2 : Schema)
-  -> Record schema1 -> Record schema2
-  -> Record (schema1 `defaultCombinationLft` schema2)
-
--- Inefficient, but that's not the point
-joinBy : Table schema1 -> Table schema2 -> (Record schema1 -> Record schema2
-  -> Maybe (Record schema3)) -> Table schema3
-joinBy table1 table2 join = do
-  xs <- table1
-  ys <- table2
-  case join xs ys of
-    Nothing  => [<]
-    Just rec => [< rec]
--}

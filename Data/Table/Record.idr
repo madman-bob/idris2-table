@@ -79,3 +79,8 @@ byField fld = ByField
   where
     [ByField] Ord (Record schema) where
         compare = compare `on` value fld
+
+public export
+(.project) : (rec : Record schema) -> FieldTyped schema type -> type
+rec.project pos = value pos.snd rec
+
