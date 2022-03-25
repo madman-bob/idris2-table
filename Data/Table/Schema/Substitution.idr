@@ -5,6 +5,8 @@ import public Data.Table.Schema.Quantifiers
 import public Data.Table.Schema.Properties
 import public Data.Table.Row
 
+import Decidable.Equality
+
 public export
 Subst : (src, tgt : Schema) -> Type
 Subst src tgt = All (\fld => tgt `FieldTyped` fld.Sort) src
@@ -57,4 +59,15 @@ weaken {schema1 = schema1 :< fld@(_ :! _)} =
           weaken {schema1, schema2 = [<fld] ++ schema2}
   ) :< Evidence fld.Name (weakenField schema2 Here)
 
+-- local independent coproducts via complements
+
+(.without) : Subst schema1 schema2 -> Field schema1 name type -> Schema
+[<].without fld = [<]
+(rho :< fld').without fld = case decEq fld' fld of
+  foo => ?without_rhs_1
+
+public export
+(.complementSchema) : {schema2 : Schema} -> Subst schema1 schema2 -> Schema
+[<].complementSchema = schema2
+(rho :< fld).complementSchema = ?complementSchema_rhs_1
 
