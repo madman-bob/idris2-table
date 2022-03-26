@@ -96,23 +96,49 @@ weakenField : (schema2 : Schema) ->
 weakenField [<]            fld = fld
 weakenField (schema :< fs) fld = There (weakenField schema fld)
 
-export
-decEqHet : 
-  (fld1 : Field schema name1 type1) ->
-  (fld2 : Field schema name2 type2) ->
-  Dec (fld1 = fld2)
-
-export
-DecEq (Field schema name type) where
-  decEq Here Here = Yes Refl
-  decEq Here (There fld) = No $ \case _ impossible
-  decEq (There fld) Here = No $ \case _ impossible
-  decEq (There fld1) (There fld2) = case decEq fld1 fld2 of
-    Yes prf   => Yes $ cong There prf
+namespace Field
+  export
+  decEqHet :
+    (fld1 : Field schema name1 type1) ->
+    (fld2 : Field schema name2 type2) ->
+    Dec (fld1 = fld2)
+  decEqHet Here Here = Yes Refl
+  decEqHet Here (There fld) = No $ \case _ impossible
+  decEqHet (There fld) Here = No $ \case _ impossible
+  decEqHet (There fld1) (There fld2) = case decEqHet fld1 fld2 of
+    Yes Refl   => Yes $ Refl
     No contra => No $ \Refl => contra Refl
 
-export
-DecEq (FieldTyped schema type) where
-  decEq fld1@(Evidence _ _) fld2@(Evidence _ _) = case decEqHet fld1.snd fld2.snd of
-    Yes prf   => Yes ?h190
-    No contra => ?h1_1
+  export
+  DecEq (Field schema name type) where
+    decEq = decEqHet
+
+namespace FieldTyped
+  export
+  decEqHet :
+    (fld1 : FieldTyped schema type1) ->
+    (fld2 : FieldTyped schema type2) ->
+    Dec (fld1 = fld2)
+  decEqHet fld1@(Evidence name1 fld1') fld2@(Evidence name2 fld2') =
+    case decEqHet fld1.snd fld2.snd of
+      Yes Refl   => Yes Refl
+      No contra  => No $ \Refl => contra Refl
+
+  export
+  DecEq (FieldTyped schema type) where
+    decEq = decEqHet
+
+namespace FieldNamed
+  export
+  decEqHet :
+    (fld1 : FieldNamed schema name1) ->
+    (fld2 : FieldNamed schema name2) ->
+    Dec (fld1 = fld2)
+  decEqHet fld1@(Evidence type1 fld1') fld2@(Evidence type2 fld2') =
+    case decEqHet fld1.snd fld2.snd of
+      Yes Refl   => Yes Refl
+      No contra  => No $ \Refl => contra Refl
+
+  export
+  DecEq (FieldNamed schema name) where
+    decEq = decEqHet

@@ -60,14 +60,54 @@ weaken {schema1 = schema1 :< fld@(_ :! _)} =
   ) :< Evidence fld.Name (weakenField schema2 Here)
 
 -- local independent coproducts via complements
-
-(.without) : Subst schema1 schema2 -> Field schema1 name type -> Schema
+public export
+(.without) : {schema1 : Schema} ->
+  Subst schema1 schema2 -> Field schema2 name type -> Schema
 [<].without fld = [<]
-(rho :< fld').without fld = case decEq fld' fld of
-  foo => ?without_rhs_1
+(rho :< fld').without fld {schema1 = _ :< col} = case decEqHet fld'.snd fld of
+    Yes prf   => rho.without fld
+    No contra => rho.without fld :< col
+
+public export
+(.restrict) : {schema1 : Schema} ->
+  (rho : Subst schema1 schema2) -> (fld : Field schema2 name type) ->
+  Subst (rho.without fld) schema2
+[<].restrict fld = [<]
+(rho :< fld').restrict fld {schema1 = _ :< col} with (decEqHet fld'.snd fld)
+ _ | Yes prf   = rho.restrict fld
+ _ | No contra = rho.restrict fld :< fld'
 
 public export
 (.complementSchema) : {schema2 : Schema} -> Subst schema1 schema2 -> Schema
-[<].complementSchema = schema2
-(rho :< fld).complementSchema = ?complementSchema_rhs_1
+public export
+(.complement) : {schema2 : Schema} -> (rho : Subst schema1 schema2) ->
+  Subst rho.complementSchema schema2
 
+[<]         .complementSchema = schema2
+(rho :< fld).complementSchema = rho.complement.without  fld.snd
+
+[<]         .complement       = IdSubst
+(rho :< fld).complement       = rho.complement.restrict fld.snd
+
+
+{-
+  We say that the following commuting square is _independent_ and
+  write:
+
+              rho1
+  schema0   ------> schema1
+      |                  |
+  rho2|                  | theta1
+      |             _|_  |
+      v                  v
+  schema2  -------> schema
+           theta2
+
+  when every fld : Field schema name type
+  that's an element of theta1 and theta2 is
+  also an element of schema0
+
+  Hmm... probably too much of a distraction at the moment. Continue in
+  the future...
+
+-}
