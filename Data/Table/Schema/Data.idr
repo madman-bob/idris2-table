@@ -96,6 +96,24 @@ weakenField : (schema2 : Schema) ->
 weakenField [<]            fld = fld
 weakenField (schema :< fs) fld = There (weakenField schema fld)
 
+public export
+weakenFieldLeft :
+  Field schema2 name type ->
+  Field (schema1 ++ schema2) name type
+weakenFieldLeft Here = Here
+weakenFieldLeft (There fld) = There (weakenFieldLeft fld)
+
+
+public export
+weakenFieldTyped : {schema2 : Schema} ->
+  schema1 `FieldTyped` type -> (schema1 ++ schema2 `FieldTyped` type)
+weakenFieldTyped fld = Evidence fld.fst $ weakenField schema2 fld.snd
+
+public export
+weakenFieldTypedLeft :
+  schema2 `FieldTyped` type -> (schema1 ++ schema2 `FieldTyped` type)
+weakenFieldTypedLeft fld = Evidence fld.fst $ weakenFieldLeft fld.snd
+
 namespace Field
   export
   decEqHet :

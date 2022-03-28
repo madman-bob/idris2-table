@@ -4,6 +4,7 @@ import public Data.Table.Schema.Data
 import public Data.Table.Schema.Quantifiers
 import public Data.Table.Schema.Properties
 import public Data.Table.Row
+import        Data.Table.Schema.Subschema
 
 import Decidable.Equality
 
@@ -89,6 +90,24 @@ public export
 [<]         .complement       = IdSubst
 (rho :< fld).complement       = rho.complement.restrict fld.snd
 
+recallInitial : {schema2 : Schema} -> Initial schema2 schema1 -> Schema
+recallInitial WholeSchema          = schema2
+recallInitial (InitialSchema init) = recallInitial init
+
+recallInitialSpec : {schema1 : Schema} -> (init : Initial schema1 schema2) ->
+  recallInitial init = schema2
+recallInitialSpec WholeSchema = Refl
+recallInitialSpec (InitialSchema init) = recallInitialSpec init
+
+projectAux : {schema1 : Schema} -> (init : Initial schema1 schema2) ->
+  Subst (recallInitial init) schema1
+projectAux  init with (recallInitial init)
+ projectAux init | [<] = [<]
+ projectAux init | (schema :< fs) = let u = projectAux init in ?h1 
+
+cast : {schema1 : Schema} -> (init : Initial schema1 schema2) -> Subst schema2 schema1
+cast WholeSchema = IdSubst
+cast (InitialSchema init) = (weaken {schema2 = [< _]}) `ComposeSubst` (cast init)
 
 {-
   We say that the following commuting square is _independent_ and
@@ -109,5 +128,19 @@ public export
 
   Hmm... probably too much of a distraction at the moment. Continue in
   the future...
-
 -}
+
+public export
+(++) : {schema1', schema2' : Schema} -> Subst schema1 schema1' -> Subst schema2 schema2' -> 
+  Subst (schema1 ++ schema2) (schema1' ++ schema2')
+rho1 ++ [<] = weaken `ComposeSubst` rho1
+(rho1 ++ (rho2 :< fld)) {schema2 = schema2 :< _ :! _} = rho1 ++ rho2 :< fld
+
+0 blah : {schema2 : Schema} -> Subschema schema1 schema2 -> Subst schema1 schema2
+blah [<] = [<]
+blah (subsch :< i) =
+    let u = cast i
+        v = blah subsch
+    in ?h1980
+
+

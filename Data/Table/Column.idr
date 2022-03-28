@@ -79,6 +79,7 @@ name `isElem` (schema :< fs@(_ :! _)) = case decEq name fs.Name of
     pos <- name `isElem` schema
     Just (Evidence _ $ There pos.snd)
 
+public export
 dropColumns : (ss : Subschema subschema schema)
            -> Table schema
            -> Table (complement schema ss)
