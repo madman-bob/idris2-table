@@ -24,8 +24,12 @@ basicTest ExampleSchema.idr << EOF
     drop exampleSchema "age"
     drop exampleSchema "favorite color"
     drop exampleSchema "grade"
+    drop ambiguousSchema "x"
+    drop ambiguousSchema {type = Nat} "x"
+    drop ambiguousSchema {type = String} "x"
 
     drop exampleSchema 1
     drop exampleSchema 2
     drop exampleSchema 3
+    drop ambiguousSchema 1
 EOF

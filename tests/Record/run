@@ -6,6 +6,9 @@ basicTest ExampleRecord.idr << EOF
     value "name" exampleRecord
     value "age" exampleRecord
     value "grade" exampleRecord
+    value "x" ambiguousRecord
+    the Nat $ value "x" ambiguousRecord
+    the String $ value "x" ambiguousRecord
 
     value 0 exampleRecord
     value 1 exampleRecord
