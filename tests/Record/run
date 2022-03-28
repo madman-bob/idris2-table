@@ -11,6 +11,13 @@ basicTest ExampleRecord.idr << EOF
     value 1 exampleRecord
     value 3 exampleRecord
 
+    selectFields [<"name", "favorite color"] exampleRecord
+    selectFields [<0, 1] exampleRecord
+
+    :let exampleRenamed : Record [<"name" :! String, "years" :! Nat, "favourite color" :! String]
+    :let exampleRenamed = renameFields [<"age" ~> "years", "favorite color" ~> "favourite color"] exampleRecord
+    exampleRenamed
+
     :let exampleReplaceAge : Record [<"name" :! String, "isTeen" :! Bool, "favorite color" :! String]
     :let exampleReplaceAge = replaceField "age" "isTeen" False exampleRecord
     exampleReplaceAge
@@ -24,9 +31,16 @@ basicTest ExampleRecord.idr << EOF
     :let exampleCastAge = updateField "age" cast exampleRecord
     exampleCastAge
 
+    :let exampleUpdateFields : Record [<"name" :! String, "age" :! Int, "favorite color" :! Maybe String]
+    :let exampleUpdateFields = updateFields [<"age" ::= 13, "favorite color" ::= Nothing] exampleRecord
+    exampleUpdateFields
+
     dropField "age" exampleRecord
     dropField "favorite color" exampleRecord
     dropField "grade" exampleRecord
+
+    dropFields [<"age", "favorite color"] exampleRecord
+    dropFields [<1, 2] exampleRecord
 
     the (Record $ StudentSchema ++ ResultsSchema) $ exampleRecord ++ [<8, 9]
 

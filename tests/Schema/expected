@@ -6,11 +6,21 @@
 [<("name" :! String), ("age" :! Nat), ("favorite color" :! String), ("quiz1" :! Nat), ("quiz2" :! Nat)]
 
 [<("name" :! String), ("isTeen" :! Bool), ("favorite color" :! String)]
+
+[<("name" :! String), ("years" :! Nat), ("favourite color" :! String)]
+
 [<("name" :! String), ("age" :! Int), ("favorite color" :! String)]
+[<("name" :! String), ("age" :! Int), ("favorite color" :! Maybe String)]
+
+[<("name" :! String), ("favorite color" :! String)]
+[<("age" :! Nat)]
+[<("name" :! String), ("favorite color" :! String)]
+[<("age" :! Nat)]
+[<("name" :! String)]
 
 [<("name" :! String), ("favorite color" :! String)]
 [<("name" :! String), ("age" :! Nat)]
-Error: Can't find an implementation for Field exampleSchema "grade" ?sa.
+Error: Can't find an implementation for Field exampleSchema "grade" ?type.
 
 (Interactive):1:24--1:31
  1 |     drop exampleSchema "grade"

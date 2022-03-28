@@ -23,4 +23,5 @@ modules =
     Data.Table.Schema.Substitution,
     Data.Table.Schema.Substitution.Properties,
     Data.Table.Join,
+    Data.Table.Schema.Subschema,
     Data.Table.Show

@@ -17,6 +17,12 @@ column : Field schema name type
 column fld tbl = map (value fld) tbl
 
 public export
+selectColumns : Subschema subschema schema
+             -> Table schema
+             -> Table subschema
+selectColumns ss = map (selectFields ss)
+
+public export
 addColumn : (0 name : String)
          -> (col : SnocList type)
          -> (tbl : Table schema)
@@ -24,6 +30,12 @@ addColumn : (0 name : String)
          -> Table (schema :< name :! type)
 addColumn name [<] [<] {nRows = EmptyTable} = [<]
 addColumn name (col :< x) (tbl :< rec) {nRows = SnocTable _} = addColumn name col tbl :< (rec :< x)
+
+public export
+renameColumns : (rs : RenameSchema schema)
+             -> Table schema
+             -> Table (rename schema rs)
+renameColumns rs = map (renameFields rs)
 
 public export
 replaceColumn : (fld : Field schema name type)
@@ -49,7 +61,7 @@ buildColumn : (0 name : String)
            -> Table (schema :< name :! type)
 buildColumn name f tbl =
     let (_ ** _) = length tbl in
-    addColumn name (map f tbl) tbl {nRows = mapPreservesLength}
+    addColumn name (map f tbl) tbl {nRows = SnocList.mapPreservesLength}
 
 public export
 dropColumn : (fld : Field schema name type)
@@ -66,3 +78,9 @@ name `isElem` (schema :< fs@(_ :! _)) = case decEq name fs.Name of
   No  contra => do
     pos <- name `isElem` schema
     Just (Evidence _ $ There pos.snd)
+
+dropColumns : (ss : Subschema subschema schema)
+           -> Table schema
+           -> Table (complement schema ss)
+dropColumns ss = map (dropFields ss)
+
