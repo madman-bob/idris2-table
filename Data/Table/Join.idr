@@ -82,6 +82,37 @@ joinGen joinData rec1 rec2 =
           rec2.project joinData.projection2]
   else [<]
 
+-- Using Any might be better
+
+public export
+mapSchema : (Type -> Type) -> Schema -> Schema
+mapSchema f [<] = [<]
+mapSchema f (schema :< fs) = mapSchema f schema :< (fs.Name :! f fs.Sort)
+
+public export
+mapRecord : {0 f : Type -> Type} -> (c : forall a. a -> f a) -> Record schema ->
+  Record (mapSchema f schema)
+mapRecord c [<] = [<]
+mapRecord c (rec :< fld) = mapRecord c rec :< c fld
+
+public export
+replicateRecord : {schema : Schema} -> {0 f : Type -> Type} -> (tab : forall a. f a) ->
+  Record (mapSchema f schema)
+replicateRecord {schema = [<]         } tab = [<]
+replicateRecord {schema = schema :< fs} tab = replicateRecord tab :< tab
+
+public export
+joinGenMaybe : {tgt2 : Schema} ->
+  ProjectionJoin src1 src2 tgt1 tgt2 -> Record src1 -> Record src2 ->
+  Table (tgt1 ++ mapSchema Maybe tgt2)
+joinGenMaybe joinData rec1 rec2 =
+  [< rec1.project joinData.projection1 ++
+  if (rec1.project (joinData.filter1) == rec2.project (joinData.filter2)) @{joinData.eqSchema}
+  then mapRecord Just $ rec2.project joinData.projection2
+  else replicateRecord Nothing
+  ]
+
+
 public export
 0 jointSchemaType : (schema1, schema2 : Schema) -> String -> Type
 jointSchemaType schema1 schema2 fld =
@@ -119,7 +150,8 @@ equijoinData schema1 schema2 selection = All (jointSchemaType schema1 schema2) s
 -- Extract the joinGen parameter out-of an equijoinData
 public export
 generateJoinData : {schema1,schema2 : Schema} ->
-  equijoinData schema1 schema2 (jointNames schema1 schema2) ->
+  (jointNames : SnocList String) ->
+  equijoinData schema1 schema2 jointNames ->
   ProjectionJoin schema1 schema2 schema1 (schema2 |-| names schema1)
 
 -- To implement it, we'll first define some auxiliary lemmata
@@ -153,7 +185,7 @@ Filter2 ((joints :< Evidence type (_, fld, _)) {x = name})
 
 recordEq : All (\fld => Eq fld.Sort) schema -> Eq (Record schema)
 recordEq [<] = emptyRecEq
-recordEq {schema = schema :< (name :! type)} (eqs :< eq) = 
+recordEq {schema = schema :< (name :! type)} (eqs :< eq) =
    instance
    where
      recEq : ?
@@ -161,13 +193,13 @@ recordEq {schema = schema :< (name :! type)} (eqs :< eq) =
      [instance] Eq (Record (schema :< (name :! type))) where
        (xs :< x) == (ys :< y) = (x == y) && (xs == ys) @{recEq}
 
-mapSnocSchema : (prf : equijoinData schema1 schema2 ns) -> 
+mapSnocSchema : (prf : equijoinData schema1 schema2 ns) ->
   All (\fld => Eq fld.Sort) (fromAllSchema {schema1, schema2} prf)
 mapSnocSchema [<] = [<]
 mapSnocSchema (prfs :< prf) = mapSnocSchema prfs :< (snd $ snd $ prf.snd)
 
 -- We can now put these together:
-generateJoinData datum =
+generateJoinData jointNames datum =
  MkJoin
    { eqSchema = recordEq (mapSnocSchema datum)
    , filter1 = Filter1 datum
@@ -178,25 +210,47 @@ generateJoinData datum =
    }
 
 public export
-joinRecord : {schema1,schema2 : Schema} -> (rec1 : Record schema1) -> (rec2 : Record schema2)
+joinRecord : {schema1,schema2 : Schema}
+  -> (rec1 : Record schema1) -> (rec2 : Record schema2)
+  -> (jointNames : SnocList String)
   -> {auto 0 ford1 : u === (jointSchemaType schema1 schema2)}
-  -> {auto 0 ford2 : v === (jointNames schema1 schema2)}
-  -> {auto joint : All u v}
+  -> {auto joint : All u jointNames}
   -> Table (schema1 ++ (schema2 |-| names schema1))
-joinRecord rec1 rec2 {joint, ford1 = Refl, ford2 = Refl} 
-  = joinGen (generateJoinData joint) rec1 rec2
+joinRecord rec1 rec2 jointNames {joint, ford1 = Refl}
+  = joinGen (generateJoinData jointNames joint) rec1 rec2
+
+joinRecordMaybe : {schema1,schema2 : Schema}
+  -> (rec1 : Record schema1) -> (rec2 : Record schema2)
+  -> (jointNames : SnocList String)
+  -> {auto 0 ford1 : u === (jointSchemaType schema1 schema2)}
+  -> {auto joint : All u jointNames}
+  -> Table (schema1 ++ mapSchema Maybe (schema2 |-| names schema1))
+joinRecordMaybe rec1 rec2 jointNames {joint, ford1 = Refl}
+  = joinGenMaybe (generateJoinData jointNames joint) rec1 rec2
 
 public export
-join : {schema1,schema2 : Schema} -> (tbl1 : Table schema1) -> (tbl2 : Table schema2)
+leftJoin : {schema1,schema2 : Schema}
+  -> (tbl1 : Table schema1) -> (tbl2 : Table schema2)
+  -> (jointNames : SnocList String)
   -> {auto 0 ford1 : u === (jointSchemaType schema1 schema2)}
-  -> {auto 0 ford2 : v === (jointNames schema1 schema2)}
-  -> {auto joint : All u v}
+  -> {auto joint : All u jointNames}
   -> Table (schema1 ++ (schema2 |-| names schema1))
-join tbl1 tbl2 {joint, ford1 = Refl, ford2 = Refl} = do
+leftJoin tbl1 tbl2 jointNames = do
   row1 <- tbl1
   row2 <- tbl2
-  joinRecord row1 row2
+  joinRecord row1 row2 jointNames
 
+public export
+leftJoinMaybe : {schema1,schema2 : Schema}
+  -> (tbl1 : Table schema1) -> (tbl2 : Table schema2)
+  -> (jointNames : SnocList String)
+  -> {auto 0 ford1 : u === (jointSchemaType schema1 schema2)}
+  -> {auto joint : All u jointNames}
+  -> Table (schema1 ++ mapSchema Maybe (schema2 |-| names schema1))
+leftJoinMaybe tbl1 tbl2 jointNames = do
+  row1 <- tbl1
+  row2 <- tbl2
+  joinRecordMaybe row1 row2 jointNames
 
 ||| Hint so that `auto`-search can find appropriate `Exists`
 ||| instances. Don't export more generically as may cause unexpected
@@ -206,20 +260,3 @@ public export
 evidenceFieldNamed : (flds : (Field schema1 name type, Field schema2 name type, Eq type)) ->
   jointSchemaType schema1 schema2 name
 evidenceFieldNamed {type} flds = Evidence type flds
-
--- TODO: create actual tests
-S1, S2 : Schema
-S1 = [< "a" :! Nat, "b" :! Bool, "c" :! String]
-S2 = [< "a" :! Nat, "b" :! Bool, "d" :! Double]
-
-T1 : Table S1
-T1  =[< [<2, True , "hello"]
-     ,  [<2, False, "hello"]
-     ]
-T2 : Table S2
-T2 = [< [<2, True, 3.5]
-     ,  [<2, True, 6.5]
-     ]
-
-H : ?
-H = join T1 T2

@@ -6,5 +6,6 @@ import public Data.Table.Record
 import public Data.Table.Row
 import public Data.Table.Schema
 import public Data.Table.Show
+import public Data.Table.Join
 
 %default total
