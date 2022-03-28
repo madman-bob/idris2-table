@@ -69,20 +69,30 @@ basicTest ExampleTables.idr << EOF
     init employees 4
 EOF
 
-b2t2Test ExampleTables.idr << EOF
+b2t2Test ExampleTables.idr << 'EOF'
     SortedMap.toList $ map average $ groupBy (colorWarmth . value "favorite color") (length . value "name") students
 
     SortedMap.toList $ groupBy (mFloor 5 . value "age") (value "name") students
     SortedMap.toList $ groupBy (mFloor 5 . value "final") (value "name") gradebook
     SortedMap.toList $ group "favorite color" students
     SortedMap.toList $ group "age" gradebook
+    SortedMap.toList $ groupMany [<"red", "black"] jellyNamed
     SortedMap.toList $ groupKeepKey "favorite color" students
     SortedMap.toList $ groupKeepKey "age" gradebook
+    SortedMap.toList $ groupManyKeepKeys [<"red", "black"] jellyNamed
 
     SortedMap.toList $ countBy (mFloor 5 . value "age") students
     SortedMap.toList $ countBy (mFloor 5 . value "final") gradebook
     SortedMap.toList $ count "favorite color" students
     SortedMap.toList $ count "age" gradebook
+
+    :let studentsPivot : Table [<"favorite color" :! String, "age-average" :! Double]
+    :let studentsPivot = pivot [<"favorite color"] [<"age" ~> "age-average" $$= average] students
+    studentsPivot
+
+    :let jellyPivot : Table [<"get acne" :! Bool, "brown" :! Bool, "red proportion" :! Double, "pink proportion" :! Double]
+    :let jellyPivot = pivot [<"get acne", "brown"] [<"red" ~> "red proportion" $$= average . map cast, "pink" ~> "pink proportion"  $$= average . map cast] jellyNamed
+    jellyPivot
 
     the (Table [<"name" :! String, "age" :! Nat, "quizzes" :! Nat, "midterm" :! Nat, "final" :! Nat]) $ flatten [<"quizzes"] gradebookSeq
     the (Table [<"name" :! String, "age" :! Nat, "quizzes" :! Nat, "midterm" :! Nat, "final" :! Nat, "quiz-pass?" :! Bool]) $ flatten [<"quizzes", "quiz-pass?"] $ buildColumn "quiz-pass?" (map (>= 8) . value "quizzes") gradebookSeq

@@ -55,3 +55,7 @@ average xs = (cast $ sum xs) / (cast $ length xs)
 
 mFloor : Nat -> Nat -> Nat
 mFloor n k = minus k $ mod k n
+
+Cast Bool Nat where
+    cast False = 0
+    cast True = 1
