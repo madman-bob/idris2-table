@@ -1,7 +1,7 @@
 #!/bin/sh
 
 basicTest() {
-  idris2 --quiet --no-color -p contrib -p table "$@" | sed 's/Main> //' | sed 's/\(Main> \)\+/\n/'
+  idris2 --quiet --console-width 100 --no-color -p contrib -p table "$@" | sed 's/Main> //' | sed 's/\(Main> \)\+/\n/'
 
   rm -rf build
 }
