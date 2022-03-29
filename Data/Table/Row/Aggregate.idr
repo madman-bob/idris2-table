@@ -155,3 +155,33 @@ pivot ss aggs tbl =
     SortedMap.toList $
     map (aggregate aggs) $
     groupMany ss tbl
+
+public export
+meltRec : {subschema : Schema}
+       -> (ss : Subschema subschema schema)
+       -> AllTypes (=== type) subschema
+       => (0 varName : String)
+       -> (0 valName : String)
+       -> Record schema
+       -> Table (complement schema ss :< (varName :! String) :< (valName :! type))
+meltRec [<] varName valName rec = [<]
+meltRec {subschema = _ :< fs} (ss :< ConcatLin) @{_ :< hasType} varName valName rec =
+    let TheTypeHas Refl = hasType
+        name :! _ = fs
+        rec :< x = rec in
+    meltRec ss varName valName rec :< (dropFields ss rec :< name :< x)
+meltRec (ss :< ConcatSnoc c) varName valName (rec :< x) =
+    map (\(xs :< n :< v) => xs :< x :< n :< v) $
+    meltRec (ss :< c) varName valName rec
+
+public export
+melt : {subschema : Schema}
+    -> (ss : Subschema subschema schema)
+    -> AllTypes (=== type) subschema
+    => (0 varName : String)
+    -> (0 valName : String)
+    -> Table schema
+    -> Table (complement schema ss :< (varName :! String) :< (valName :! type))
+melt ss varName valName tbl = do
+    rec <- tbl
+    meltRec ss varName valName rec

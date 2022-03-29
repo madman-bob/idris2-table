@@ -103,6 +103,9 @@ Error: Can't find an implementation for So (with block in integerLessThanNat 4 F
 
 [<[<False, False, 0.0, 0.75], [<False, True, 1.0, 1.0], [<True, False, 0.0, 0.25], [<True, True, 0.0, 0.0]]
 
+[<[<"Bob", 12, 8, 9, 7, 9, "midterm", 77], [<"Bob", 12, 8, 9, 7, 9, "final", 87], [<"Alice", 17, 6, 8, 8, 7, "midterm", 88], [<"Alice", 17, 6, 8, 8, 7, "final", 85], [<"Eve", 13, 7, 9, 8, 8, "midterm", 84], [<"Eve", 13, 7, 9, 8, 8, "final", 77]]
+[<[<"Bob", 12, "quiz1", 8], [<"Bob", 12, "quiz2", 9], [<"Bob", 12, "midterm", 77], [<"Bob", 12, "quiz3", 7], [<"Bob", 12, "quiz4", 9], [<"Bob", 12, "final", 87], [<"Alice", 17, "quiz1", 6], [<"Alice", 17, "quiz2", 8], [<"Alice", 17, "midterm", 88], [<"Alice", 17, "quiz3", 8], [<"Alice", 17, "quiz4", 7], [<"Alice", 17, "final", 85], [<"Eve", 13, "quiz1", 7], [<"Eve", 13, "quiz2", 9], [<"Eve", 13, "midterm", 84], [<"Eve", 13, "quiz3", 8], [<"Eve", 13, "quiz4", 8], [<"Eve", 13, "final", 77]]
+
 [<[<"Bob", 12, 8, 77, 87], [<"Bob", 12, 9, 77, 87], [<"Bob", 12, 7, 77, 87], [<"Bob", 12, 9, 77, 87], [<"Alice", 17, 6, 88, 85], [<"Alice", 17, 8, 88, 85], [<"Alice", 17, 8, 88, 85], [<"Alice", 17, 7, 88, 85], [<"Eve", 13, 7, 84, 77], [<"Eve", 13, 9, 84, 77], [<"Eve", 13, 8, 84, 77], [<"Eve", 13, 8, 84, 77]]
 [<[<"Bob", 12, 8, 77, 87, True], [<"Bob", 12, 9, 77, 87, True], [<"Bob", 12, 7, 77, 87, False], [<"Bob", 12, 9, 77, 87, True], [<"Alice", 17, 6, 88, 85, False], [<"Alice", 17, 8, 88, 85, True], [<"Alice", 17, 8, 88, 85, True], [<"Alice", 17, 7, 88, 85, False], [<"Eve", 13, 7, 84, 77, False], [<"Eve", 13, 9, 84, 77, True], [<"Eve", 13, 8, 84, 77, True], [<"Eve", 13, 8, 84, 77, True]]
 

@@ -94,6 +94,9 @@ b2t2Test ExampleTables.idr << 'EOF'
     :let jellyPivot = pivot [<"get acne", "brown"] [<"red" ~> "red proportion" $$= average . map cast, "pink" ~> "pink proportion"  $$= average . map cast] jellyNamed
     jellyPivot
 
+    melt [<"midterm", "final"] "exam" "score" gradebook
+    melt [<"quiz1", "quiz2", "midterm", "quiz3", "quiz4", "final"] "test" "score" gradebook
+
     the (Table [<"name" :! String, "age" :! Nat, "quizzes" :! Nat, "midterm" :! Nat, "final" :! Nat]) $ flatten [<"quizzes"] gradebookSeq
     the (Table [<"name" :! String, "age" :! Nat, "quizzes" :! Nat, "midterm" :! Nat, "final" :! Nat, "quiz-pass?" :! Bool]) $ flatten [<"quizzes", "quiz-pass?"] $ buildColumn "quiz-pass?" (map (>= 8) . value "quizzes") gradebookSeq
 EOF
