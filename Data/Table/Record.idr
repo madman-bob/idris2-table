@@ -19,6 +19,14 @@ value Here (rec :< x) = x
 value (There fld) (rec :< x) = value fld rec
 
 public export
+setValue : (fld : Field schema name type)
+        -> type
+        -> Record schema
+        -> Record schema
+setValue Here x (rec :< _) = rec :< x
+setValue (There fld) x (rec :< y) = setValue fld x rec :< y
+
+public export
 selectFields : Subschema subschema schema
             -> Record schema
             -> Record subschema

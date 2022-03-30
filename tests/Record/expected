@@ -31,6 +31,14 @@ for HasIndex StudentSchema (There (There (There (There ?sa)))) 3.
                ^
 
 
+[<"Bob", 13, "blue"]
+Error: Can't find an implementation for Field StudentSchema "age" String.
+
+(Interactive):1:14--1:19
+ 1 |     setValue "age" (the String "teen") exampleRecord
+                  ^^^^^
+
+
 [<"Bob", "blue"]
 [<"Bob", 12]
 

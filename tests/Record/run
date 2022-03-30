@@ -14,6 +14,9 @@ basicTest ExampleRecord.idr << EOF
     value 1 exampleRecord
     value 3 exampleRecord
 
+    setValue "age" 13 exampleRecord
+    setValue "age" (the String "teen") exampleRecord
+
     selectFields [<"name", "favorite color"] exampleRecord
     selectFields [<0, 1] exampleRecord
 
