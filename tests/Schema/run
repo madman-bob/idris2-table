@@ -8,6 +8,9 @@ basicTest ExampleSchema.idr << EOF
 
     exampleSchema ++ additionalColumns
 
+    onTheLeft {schema1 = exampleSchema} {schema2 = exampleSchema} "name"
+    onTheRight {schema1 = exampleSchema} {schema2 = exampleSchema} "name"
+
     replace exampleSchema "age" ("isTeen" :! Bool)
 
     rename exampleSchema [<"age" ~> "years", "favorite color" ~> "favourite color"]

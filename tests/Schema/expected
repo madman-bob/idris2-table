@@ -9,6 +9,9 @@
   ("quiz1" :! Nat),
   ("quiz2" :! Nat)]
 
+There (There (There (There (There Here))))
+There (There Here)
+
 [<("name" :! String), ("isTeen" :! Bool), ("favorite color" :! String)]
 
 [<("name" :! String), ("years" :! Nat), ("favourite color" :! String)]

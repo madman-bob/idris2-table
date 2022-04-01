@@ -8,6 +8,19 @@ import public Data.Table.Schema.Quantifiers
 %default total
 
 public export
+onTheLeft : HasLength schema2 n
+         => Field schema1 name type
+         -> Field (schema1 ++ schema2) name type
+onTheLeft @{EmptySchema} fld = fld
+onTheLeft @{SnocSchema _} fld = There (onTheLeft fld)
+
+public export
+onTheRight : Field schema2 name type
+          -> Field (schema1 ++ schema2) name type
+onTheRight Here = Here
+onTheRight (There fld) = There (onTheRight fld)
+
+public export
 fromString : (name : String)
           -> {auto fld : Field schema name type}
           -> Field schema name type

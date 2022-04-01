@@ -35,6 +35,20 @@ selectFields (ss :< ConcatLin) (rec :< x) = selectFields ss rec :< x
 selectFields (ss :< ConcatSnoc c) (rec :< x) = selectFields (ss :< c) rec
 
 public export
+selectLeft : HasLength schema2 n
+          => Record (schema1 ++ schema2)
+          -> Record schema1
+selectLeft @{EmptySchema} rec = rec
+selectLeft @{SnocSchema _} (rec :< _) = selectLeft rec
+
+public export
+selectRight : HasLength schema2 n
+           => Record (schema1 ++ schema2)
+           -> Record schema2
+selectRight @{EmptySchema} rec = [<]
+selectRight @{SnocSchema _} (rec :< x) = selectRight rec :< x
+
+public export
 renameFields : (rs : RenameSchema schema)
             -> Record schema
             -> Record (rename schema rs)

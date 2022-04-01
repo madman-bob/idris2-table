@@ -20,6 +20,10 @@ basicTest ExampleRecord.idr << EOF
     selectFields [<"name", "favorite color"] exampleRecord
     selectFields [<0, 1] exampleRecord
 
+    :let concatRecord = exampleRecord ++ anotherRecord
+    selectLeft {schema1 = StudentSchema} {schema2 = StudentSchema} concatRecord
+    selectRight {schema1 = StudentSchema} {schema2 = StudentSchema} concatRecord
+
     :let exampleRenamed : Record [<"name" :! String, "years" :! Nat, "favourite color" :! String]
     :let exampleRenamed = renameFields [<"age" ~> "years", "favorite color" ~> "favourite color"] exampleRecord
     exampleRenamed
