@@ -206,6 +206,7 @@ Error: Can't find an implementation for So (with block in integerLessThanNat 4 F
   [<"Alice", 17, 6, 8, 8, 7, "final", 85],
   [<"Eve", 13, 7, 9, 8, 8, "midterm", 84],
   [<"Eve", 13, 7, 9, 8, 8, "final", 77]]
+
 [<[<"Bob", 12, "quiz1", 8],
   [<"Bob", 12, "quiz2", 9],
   [<"Bob", 12, "midterm", 77],
@@ -224,6 +225,13 @@ Error: Can't find an implementation for So (with block in integerLessThanNat 4 F
   [<"Eve", 13, "quiz3", 8],
   [<"Eve", 13, "quiz4", 8],
   [<"Eve", 13, "final", 77]]
+
+[<[<"blue", Just 12, Nothing, Nothing],
+  [<"green", Nothing, Just 17, Nothing],
+  [<"red", Nothing, Nothing, Just 13]]
+[<[<"Bob", 12, Just 8, Just 9, Just 77, Just 7, Just 9, Just 87],
+  [<"Alice", 17, Just 6, Just 8, Just 88, Just 8, Just 7, Just 85],
+  [<"Eve", 13, Just 7, Just 9, Just 84, Just 8, Just 8, Just 77]]
 
 [<[<"Bob", 12, 8, 77, 87],
   [<"Bob", 12, 9, 77, 87],

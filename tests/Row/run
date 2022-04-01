@@ -95,7 +95,13 @@ b2t2Test ExampleTables.idr << 'EOF'
     jellyPivot
 
     melt [<"midterm", "final"] "exam" "score" gradebook
-    melt [<"quiz1", "quiz2", "midterm", "quiz3", "quiz4", "final"] "test" "score" gradebook
+
+    :let longerGradebook : Table [<"name" :! String, "age" :! Nat, "test" :! String, "score" :! Nat]
+    :let longerGradebook = melt [<"quiz1", "quiz2", "midterm", "quiz3", "quiz4", "final"] "test" "score" gradebook
+    longerGradebook
+
+    unmelt students "name" "age"
+    unmelt longerGradebook "test" "score"
 
     the (Table [<"name" :! String, "age" :! Nat, "quizzes" :! Nat, "midterm" :! Nat, "final" :! Nat]) $ flatten [<"quizzes"] gradebookSeq
     the (Table [<"name" :! String, "age" :! Nat, "quizzes" :! Nat, "midterm" :! Nat, "final" :! Nat, "quiz-pass?" :! Bool]) $ flatten [<"quizzes", "quiz-pass?"] $ buildColumn "quiz-pass?" (map (>= 8) . value "quizzes") gradebookSeq

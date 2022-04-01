@@ -1,10 +1,13 @@
 module Data.Table.Row.Aggregate
 
+import public Data.List
+import public Data.SnocList
 import public Data.SortedMap
 
 import public Data.Table.Data
 import public Data.Table.Row.Constructor
 import public Data.Table.Row.Interface
+import public Data.Table.Row.Quantifiers
 
 %default total
 
@@ -127,7 +130,7 @@ export
 aggregationColumns : (aggs : Aggregation schema)
                   -> Table schema
                   -> AllTypes List (aggOldSchema aggs)
-aggregationColumns aggs tbl = foldr (::) (empties @{aggs}) (map (aggFields aggs) tbl)
+aggregationColumns aggs tbl = Interface.foldr (::) (empties @{aggs}) (map (aggFields aggs) tbl)
 
 export
 aggregateColumns : (aggs : Aggregation schema)
@@ -185,3 +188,52 @@ melt : {subschema : Schema}
 melt ss varName valName tbl = do
     rec <- tbl
     meltRec ss varName valName rec
+
+namespace Unmelt
+    public export
+    defaultUnmeltVarSchema : Table schema
+                          -> Field schema varName String
+                          -> Type
+                          -> Schema
+    defaultUnmeltVarSchema tbl fld type = toSchema $ cast $ nub {a = String} $ cast $ map (value fld) tbl
+      where
+        toSchema : SnocList String -> Schema
+        toSchema [<] = [<]
+        toSchema (names :< name) = toSchema names :< (name :! Maybe type)
+
+    public export
+    unmelt : (tbl : Table schema)
+          -> (varFld : Field schema varName String)
+          -> {0 type : Type}
+          -> {default (defaultUnmeltVarSchema tbl varFld type) 0 varSchema : Schema}
+          -> AllRows (\rec => Field varSchema (value varFld rec) (Maybe type)) tbl
+          => AllTypes (=== Maybe type) varSchema
+          => HasLength varSchema n
+          => (valFld : Field (drop schema varFld) valName type)
+          -> Eq (Record (drop (drop schema varFld) valFld))
+          => Table (drop (drop schema varFld) valFld ++ varSchema)
+    unmelt [<] varFld valFld = [<]
+    unmelt (tbl :< rec) varFld {varSchema} @{_ :< fld} valFld =
+        case unmelt tbl varFld {varSchema} valFld of
+            [<] => [<newRec]
+            unmeltTbl :< unmeltRec => if selectLeft unmeltRec == dropField valFld (dropField varFld rec)
+                then case value (onTheRight fld) unmeltRec of
+                    Nothing => unmeltTbl :< setVar unmeltRec
+                    Just _ => unmeltTbl :< unmeltRec :< newRec
+                else unmeltTbl :< unmeltRec :< newRec
+      where
+        0
+        ResultSchema : Schema
+        ResultSchema = drop (drop schema varFld) valFld ++ varSchema
+
+        setVar : Record ResultSchema -> Record ResultSchema
+        setVar result = setValue (onTheRight fld) (Just $ value valFld $ dropField varFld rec) result
+
+        nothings : (0 schema : Schema)
+                -> AllTypes (=== Maybe type) schema
+                => Record schema
+        nothings [<] @{[<]} = [<]
+        nothings (schema :< _) @{_ :< TheTypeHas Refl} = nothings schema :< Nothing
+
+        newRec : Record ResultSchema
+        newRec = setVar $ dropField valFld (dropField varFld rec) ++ nothings varSchema

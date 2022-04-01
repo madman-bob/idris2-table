@@ -9,6 +9,7 @@ import public Data.Table.Row.Constructor
 import public Data.Table.Row.Frame
 import public Data.Table.Row.HasRows
 import public Data.Table.Row.Interface
+import public Data.Table.Row.Quantifiers
 
 %default total
 
