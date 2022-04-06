@@ -8,6 +8,19 @@ import public Data.Table.Schema.Quantifiers
 %default total
 
 public export
+onTheLeft : HasLength schema2 n
+         => Field schema1 name type
+         -> Field (schema1 ++ schema2) name type
+onTheLeft @{EmptySchema} fld = fld
+onTheLeft @{SnocSchema _} fld = There (onTheLeft fld)
+
+public export
+onTheRight : Field schema2 name type
+          -> Field (schema1 ++ schema2) name type
+onTheRight Here = Here
+onTheRight (There fld) = There (onTheRight fld)
+
+public export
 fromString : (name : String)
           -> {auto fld : Field schema name type}
           -> Field schema name type
@@ -37,9 +50,9 @@ namespace RenameMany
           -> RenameSchema schema
           -> Schema
     rename schema [<] = schema
-    rename o@(schema :< fs) ((renames :< rs) @{i}) with ()
-      rename o@(schema :< (oldName :! type)) ((renames :< (oldName ~> newName)) @{WholeSchema}) | _ = rename schema renames :< (newName :! type)
-      rename o@(schema :< fs) ((renames :< rs) @{InitialSchema _}) | _ = rename schema (renames :< rs) :< fs
+    rename o@(schema :< fs) ((renames :< rs) @{c}) with ()
+      rename o@(schema :< (oldName :! type)) ((renames :< (oldName ~> newName)) @{ConcatLin}) | _ = rename schema renames :< (newName :! type)
+      rename o@(schema :< fs) ((renames :< rs) @{ConcatSnoc _}) | _ = rename schema (renames :< rs) :< fs
 
 public export
 update : (schema : Schema)
@@ -63,9 +76,9 @@ namespace UpdateMany
           -> UpdateSchema schema
           -> Schema
     update schema [<] = schema
-    update o@(schema :< fs) ((updates :< us) @{i}) with ()
-      update o@(schema :< (name :! oldType)) ((updates :< (name :! newType)) @{WholeSchema}) | _ = update schema updates :< (name :! newType)
-      update o@(schema :< fs) ((updates :< us) @{InitialSchema _}) | _ = update schema (updates :< us) :< fs
+    update o@(schema :< fs) ((updates :< us) @{c}) with ()
+      update o@(schema :< (name :! oldType)) ((updates :< (name :! newType)) @{ConcatLin}) | _ = update schema updates :< (name :! newType)
+      update o@(schema :< fs) ((updates :< us) @{ConcatSnoc _}) | _ = update schema (updates :< us) :< fs
 
 public export
 drop : (schema : Schema)

@@ -8,6 +8,9 @@ basicTest ExampleSchema.idr << EOF
 
     exampleSchema ++ additionalColumns
 
+    onTheLeft {schema1 = exampleSchema} {schema2 = exampleSchema} "name"
+    onTheRight {schema1 = exampleSchema} {schema2 = exampleSchema} "name"
+
     replace exampleSchema "age" ("isTeen" :! Bool)
 
     rename exampleSchema [<"age" ~> "years", "favorite color" ~> "favourite color"]
@@ -24,8 +27,12 @@ basicTest ExampleSchema.idr << EOF
     drop exampleSchema "age"
     drop exampleSchema "favorite color"
     drop exampleSchema "grade"
+    drop ambiguousSchema "x"
+    drop ambiguousSchema {type = Nat} "x"
+    drop ambiguousSchema {type = String} "x"
 
     drop exampleSchema 1
     drop exampleSchema 2
     drop exampleSchema 3
+    drop ambiguousSchema 1
 EOF

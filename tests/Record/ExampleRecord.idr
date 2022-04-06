@@ -11,3 +11,6 @@ exampleRecord = [<"Bob", 12, "blue"]
 
 anotherRecord : Record StudentSchema
 anotherRecord = [<"Alice", 17, "green"]
+
+ambiguousRecord : Record [<"x" :! Nat, "x" :! String]
+ambiguousRecord = [<0, "Hello, world"]

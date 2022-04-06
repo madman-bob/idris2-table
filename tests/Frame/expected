@@ -1,16 +1,31 @@
-Element [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33]] (SnocTable (SnocTable (SnocTable EmptyTable)))
-Element [<[<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]] (SnocTable (SnocTable (SnocTable EmptyTable)))
+Element [<[<"Rafferty", Just 31],
+          [<"Jones", Just 32],
+          [<"Heisenberg", Just 33]] (SnocTable (SnocTable (SnocTable EmptyTable)))
+Element [<[<"Robinson", Just 34],
+          [<"Smith", Just 34],
+          [<"Williams", Nothing]] (SnocTable (SnocTable (SnocTable EmptyTable)))
 
 Element [<] EmptyTable
-Element [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34]] (SnocTable (SnocTable (SnocTable (SnocTable EmptyTable))))
+Element [<[<"Rafferty", Just 31],
+          [<"Jones", Just 32],
+          [<"Heisenberg", Just 33],
+          [<"Robinson", Just 34]] (SnocTable (SnocTable (SnocTable (SnocTable EmptyTable))))
 
 Element [<[<"Rafferty", Just 31], [<"Jones", Just 32]] (SnocTable (SnocTable EmptyTable))
 [<"Heisenberg", Just 33]
 
-Element [<[<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]] (SnocTable (SnocTable (SnocTable EmptyTable)))
+Element [<[<"Robinson", Just 34],
+          [<"Smith", Just 34],
+          [<"Williams", Nothing]] (SnocTable (SnocTable (SnocTable EmptyTable)))
 [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33]]
 
-Element [<[<"Rafferty", Just 31, 31, "Sales", "Harriet"], [<"Jones", Just 32, 32, "Finance", "George"], [<"Heisenberg", Just 33, 33, "Production", "Charles"]] (SnocTable (SnocTable (SnocTable EmptyTable)))
+Element [<[<"Rafferty", Just 31, 31, "Sales", "Harriet"],
+          [<"Jones", Just 32, 32, "Finance", "George"],
+          [<"Heisenberg",
+            Just 33,
+            33,
+            "Production",
+            "Charles"]] (SnocTable (SnocTable (SnocTable EmptyTable)))
 Error: When unifying:
     Subset (Table DepartmentSchema) (\{arg:0} => HasRows arg 0)
 and:
@@ -22,7 +37,16 @@ Mismatch between: 0 and 1.
                                ^^
 
 
-Element [<[<"Rafferty", Just 31, 31, "Sales", "Harriet"], [<"Rafferty", Just 31, 32, "Finance", "George"], [<"Jones", Just 32, 31, "Sales", "Harriet"], [<"Jones", Just 32, 32, "Finance", "George"], [<"Heisenberg", Just 33, 31, "Sales", "Harriet"], [<"Heisenberg", Just 33, 32, "Finance", "George"]] (SnocTable (SnocTable (SnocTable (SnocTable (SnocTable (SnocTable EmptyTable))))))
+Element [<[<"Rafferty", Just 31, 31, "Sales", "Harriet"],
+          [<"Rafferty", Just 31, 32, "Finance", "George"],
+          [<"Jones", Just 32, 31, "Sales", "Harriet"],
+          [<"Jones", Just 32, 32, "Finance", "George"],
+          [<"Heisenberg", Just 33, 31, "Sales", "Harriet"],
+          [<"Heisenberg",
+            Just 33,
+            32,
+            "Finance",
+            "George"]] (SnocTable (SnocTable (SnocTable (SnocTable (SnocTable (SnocTable EmptyTable))))))
 
 [<"Heisenberg", Just 33]
 

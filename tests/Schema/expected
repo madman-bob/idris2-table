@@ -3,7 +3,14 @@
 [<"name", "age", "favorite color"]
 [<String, Nat, String]
 
-[<("name" :! String), ("age" :! Nat), ("favorite color" :! String), ("quiz1" :! Nat), ("quiz2" :! Nat)]
+[<("name" :! String),
+  ("age" :! Nat),
+  ("favorite color" :! String),
+  ("quiz1" :! Nat),
+  ("quiz2" :! Nat)]
+
+There (There (There (There (There Here))))
+There (There Here)
 
 [<("name" :! String), ("isTeen" :! Bool), ("favorite color" :! String)]
 
@@ -26,13 +33,27 @@ Error: Can't find an implementation for Field exampleSchema "grade" ?type.
  1 |     drop exampleSchema "grade"
                             ^^^^^^^
 
+Error: Multiple solutions found in search of:
+    Field [<("x" :! Nat), ("x" :! String)] "x" ?type
+
+(Interactive):1:26--1:29
+ 1 |     drop ambiguousSchema "x"
+                              ^^^
+
+Possible correct results:
+    Here
+    There Here
+[<("x" :! String)]
+[<("x" :! Nat)]
 
 [<("name" :! String), ("favorite color" :! String)]
 [<("name" :! String), ("age" :! Nat)]
-Error: Can't find an implementation for HasIndex exampleSchema (There (There (There (There ?sa)))) 3.
+Error: Can't find an implementation
+for HasIndex exampleSchema (There (There (There (There ?sa)))) 3.
 
 (Interactive):1:24--1:25
  1 |     drop exampleSchema 3
                             ^
 
+[<("x" :! Nat)]
 

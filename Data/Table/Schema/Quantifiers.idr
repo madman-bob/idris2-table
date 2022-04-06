@@ -60,38 +60,40 @@ namespace AllTypes
     AllTypes : (p : Type -> Type) -> Schema -> Type
     AllTypes p schema = All (TypeHas p) schema
 
-namespace Initial
+namespace Concat
     public export
-    data Initial : (xs : Schema)
-                -> (init : Schema)
-                -> Type where [uniqueSearch, search xs]
-        WholeSchema : Initial xs xs
-        InitialSchema : Initial xs init -> Initial (xs :< x) init
+    data Concat : (xs : Schema)
+               -> (init : Schema)
+               -> (rest : Schema)
+               -> Type where [uniqueSearch, search xs]
+        ConcatLin : Concat xs xs [<]
+        ConcatSnoc : Concat xs init rest -> Concat (xs :< x) init (rest :< x)
 
-    %name Initial i, j
+    %name Concat c, d
 
     public export
     fromString : (name : String)
-              -> Initial schema (init :< (name :! type))
-              => Initial schema (init :< (name :! type))
-    fromString name @{i} = i
+              -> Concat schema (init :< (name :! type)) rest
+              => Concat schema (init :< (name :! type)) rest
+    fromString name @{c} = c
 
     public export
     data Take : (xs : Schema)
              -> (init : Schema)
+             -> (rest : Schema)
              -> (n : Nat)
              -> Type where [uniqueSearch, search xs]
-        TakeAll : HasLength xs n -> Take xs xs n
-        SkipLast : Take xs init n -> Take (xs :< x) init n
+        TakeAll : HasLength xs n -> Take xs xs [<] n
+        SkipLast : Take xs init rest n -> Take (xs :< x) init (rest :< x) n
 
     %name Take tk
 
     public export
     fromInteger : (index : Integer)
-               -> Take schema init (S $ cast index)
-               => Initial schema init
-    fromInteger index @{TakeAll _} = WholeSchema
-    fromInteger index @{SkipLast tk} = InitialSchema $ fromInteger index @{tk}
+               -> Take schema init rest (S $ cast index)
+               => Concat schema init rest
+    fromInteger index @{TakeAll _} = ConcatLin
+    fromInteger index @{SkipLast tk} = ConcatSnoc $ fromInteger index @{tk}
 
 namespace Many
     public export
@@ -99,7 +101,7 @@ namespace Many
         Lin : Many p xs
         (:<) : Many p init
             -> p x
-            -> Initial xs (init :< x)
+            -> Concat xs (init :< x) rest
             => Many p xs
 
     %name Many pxs, pys, pzs

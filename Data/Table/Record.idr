@@ -19,20 +19,42 @@ value Here (rec :< x) = x
 value (There fld) (rec :< x) = value fld rec
 
 public export
+setValue : (fld : Field schema name type)
+        -> type
+        -> Record schema
+        -> Record schema
+setValue Here x (rec :< _) = rec :< x
+setValue (There fld) x (rec :< y) = setValue fld x rec :< y
+
+public export
 selectFields : Subschema subschema schema
             -> Record schema
             -> Record subschema
 selectFields [<] rec = [<]
-selectFields (ss :< WholeSchema) (rec :< x) = selectFields ss rec :< x
-selectFields (ss :< InitialSchema i) (rec :< x) = selectFields (ss :< i) rec
+selectFields (ss :< ConcatLin) (rec :< x) = selectFields ss rec :< x
+selectFields (ss :< ConcatSnoc c) (rec :< x) = selectFields (ss :< c) rec
+
+public export
+selectLeft : HasLength schema2 n
+          => Record (schema1 ++ schema2)
+          -> Record schema1
+selectLeft @{EmptySchema} rec = rec
+selectLeft @{SnocSchema _} (rec :< _) = selectLeft rec
+
+public export
+selectRight : HasLength schema2 n
+           => Record (schema1 ++ schema2)
+           -> Record schema2
+selectRight @{EmptySchema} rec = [<]
+selectRight @{SnocSchema _} (rec :< x) = selectRight rec :< x
 
 public export
 renameFields : (rs : RenameSchema schema)
             -> Record schema
             -> Record (rename schema rs)
 renameFields [<] rec = rec
-renameFields ((renames :< (_ ~> _)) @{WholeSchema}) (rec :< x) = renameFields renames rec :< x
-renameFields ((renames :< (oldName ~> newName)) @{InitialSchema _}) (rec :< x) = renameFields (renames :< (oldName ~> newName)) rec :< x
+renameFields ((renames :< (_ ~> _)) @{ConcatLin}) (rec :< x) = renameFields renames rec :< x
+renameFields ((renames :< (oldName ~> newName)) @{ConcatSnoc _}) (rec :< x) = renameFields (renames :< (oldName ~> newName)) rec :< x
 
 public export
 replaceField : (fld : Field schema name type)
@@ -70,7 +92,7 @@ namespace Update
         Lin : Update [<]
         (:<) : Update {schema = init} us
             -> UpdateField {fs} ufs
-            -> (initPrf : Initial schema (init :< fs))
+            -> (initPrf : Concat schema (init :< fs) rest)
             => Update ((us :< ufs) @{initPrf})
 
     public export
@@ -78,8 +100,8 @@ namespace Update
                 -> Record schema
                 -> Record (update schema us)
     updateFields [<] rec = rec
-    updateFields ((updates :< (_ ::= x)) @{WholeSchema}) (rec :< _) = updateFields updates rec :< x
-    updateFields ((updates :< uf@(_ ::= _)) @{InitialSchema _}) (rec :< y) = updateFields (updates :< uf) rec :< y
+    updateFields ((updates :< (_ ::= x)) @{ConcatLin}) (rec :< _) = updateFields updates rec :< x
+    updateFields ((updates :< uf@(_ ::= _)) @{ConcatSnoc _}) (rec :< y) = updateFields (updates :< uf) rec :< y
 
 public export
 dropField : (fld : Field schema name type)
@@ -93,8 +115,8 @@ dropFields : (ss : Subschema subschema schema)
           -> Record schema
           -> Record (complement schema ss)
 dropFields [<] rec = rec
-dropFields (ss :< WholeSchema) (rec :< x) = dropFields ss rec
-dropFields (ss :< InitialSchema i) (rec :< x) = dropFields (ss :< i) rec :< x
+dropFields (ss :< ConcatLin) (rec :< x) = dropFields ss rec
+dropFields (ss :< ConcatSnoc c) (rec :< x) = dropFields (ss :< c) rec :< x
 
 public export
 (++) : Record schema1 -> Record schema2 -> Record (schema1 ++ schema2)

@@ -1,17 +1,34 @@
 [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33]]
 [<[<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
 
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
+[<[<"Rafferty", Just 31],
+  [<"Jones", Just 32],
+  [<"Heisenberg", Just 33],
+  [<"Robinson", Just 34],
+  [<"Smith", Just 34],
+  [<"Williams", Nothing]]
 
 [<[<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
 [<[<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
 [<[<"Robinson", Just 34]]
 
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
+[<[<"Rafferty", Just 31],
+  [<"Jones", Just 32],
+  [<"Heisenberg", Just 33],
+  [<"Robinson", Just 34],
+  [<"Smith", Just 34],
+  [<"Williams", Nothing]]
+[<[<"Rafferty", Just 31],
+  [<"Jones", Just 32],
+  [<"Heisenberg", Just 33],
+  [<"Robinson", Just 34],
+  [<"Smith", Just 34],
+  [<"Williams", Nothing]]
 [<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34]]
 
-[<[<"Rafferty", Just 31, 31, "Sales", "Harriet"], [<"Jones", Just 32, 32, "Finance", "George"], [<"Heisenberg", Just 33, 33, "Production", "Charles"]]
+[<[<"Rafferty", Just 31, 31, "Sales", "Harriet"],
+  [<"Jones", Just 32, 32, "Finance", "George"],
+  [<"Heisenberg", Just 33, 33, "Production", "Charles"]]
 Error: Can't find an implementation for HasRows [<sales, finance] 3.
 
 (Interactive):1:5--1:36
@@ -19,25 +36,59 @@ Error: Can't find an implementation for HasRows [<sales, finance] 3.
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-[<[<"Rafferty", Just 31, 31, "Sales", "Harriet"], [<"Rafferty", Just 31, 32, "Finance", "George"], [<"Jones", Just 32, 31, "Sales", "Harriet"], [<"Jones", Just 32, 32, "Finance", "George"], [<"Heisenberg", Just 33, 31, "Sales", "Harriet"], [<"Heisenberg", Just 33, 32, "Finance", "George"]]
+[<[<"Rafferty", Just 31, 31, "Sales", "Harriet"],
+  [<"Rafferty", Just 31, 32, "Finance", "George"],
+  [<"Jones", Just 32, 31, "Sales", "Harriet"],
+  [<"Jones", Just 32, 32, "Finance", "George"],
+  [<"Heisenberg", Just 33, 31, "Sales", "Harriet"],
+  [<"Heisenberg", Just 33, 32, "Finance", "George"]]
 
 [<"Rafferty", "Jones", "Heisenberg", "Robinson", "Smith", "Williams"]
-[<[<"Rafferty", 31], [<"Jones", 32], [<"Heisenberg", 33], [<"Robinson", 34], [<"Smith", 34], [<"Williams", 30]]
+[<[<"Rafferty", 31],
+  [<"Jones", 32],
+  [<"Heisenberg", 33],
+  [<"Robinson", 34],
+  [<"Smith", 34],
+  [<"Williams", 30]]
 
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
+[<[<"Rafferty", Just 31],
+  [<"Jones", Just 32],
+  [<"Heisenberg", Just 33],
+  [<"Robinson", Just 34],
+  [<"Smith", Just 34],
+  [<"Williams", Nothing]]
 
 False
 True
 False
 True
 
-[<"Rafferty (Dep. 31)", "Jones (Dep. 32)", "Heisenberg (Dep. 33)", "Robinson (Dep. 34)", "Smith (Dep. 34)", "Williams"]
+[<"Rafferty (Dep. 31)",
+  "Jones (Dep. 32)",
+  "Heisenberg (Dep. 33)",
+  "Robinson (Dep. 34)",
+  "Smith (Dep. 34)",
+  "Williams"]
 "Rafferty (Dep. 31), Jones (Dep. 32), Heisenberg (Dep. 33), Robinson (Dep. 34), Smith (Dep. 34), Williams"
 
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Williams", Nothing]]
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
+[<[<"Rafferty", Just 31],
+  [<"Jones", Just 32],
+  [<"Heisenberg", Just 33],
+  [<"Robinson", Just 34],
+  [<"Williams", Nothing]]
+[<[<"Rafferty", Just 31],
+  [<"Jones", Just 32],
+  [<"Heisenberg", Just 33],
+  [<"Robinson", Just 34],
+  [<"Smith", Just 34],
+  [<"Williams", Nothing]]
 
-[<(0, [<"Rafferty", Just 31]), (1, [<"Jones", Just 32]), (2, [<"Heisenberg", Just 33]), (3, [<"Robinson", Just 34]), (4, [<"Smith", Just 34]), (5, [<"Williams", Nothing])]
+[<(0, [<"Rafferty", Just 31]),
+  (1, [<"Jones", Just 32]),
+  (2, [<"Heisenberg", Just 33]),
+  (3, [<"Robinson", Just 34]),
+  (4, [<"Smith", Just 34]),
+  (5, [<"Williams", Nothing])]
 
 Just 1
 Nothing
@@ -45,10 +96,24 @@ Nothing
 Just 3
 Nothing
 
-[<[<"Heisenberg", Just 33], [<"Jones", Just 32], [<"Rafferty", Just 31], [<"Robinson", Just 34], [<"Smith", Just 34], [<"Williams", Nothing]]
-[<[<"Williams", Nothing], [<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34]]
+[<[<"Heisenberg", Just 33],
+  [<"Jones", Just 32],
+  [<"Rafferty", Just 31],
+  [<"Robinson", Just 34],
+  [<"Smith", Just 34],
+  [<"Williams", Nothing]]
+[<[<"Williams", Nothing],
+  [<"Rafferty", Just 31],
+  [<"Jones", Just 32],
+  [<"Heisenberg", Just 33],
+  [<"Robinson", Just 34],
+  [<"Smith", Just 34]]
 
-[<[<"Rafferty", Just 31], [<"Jones", Just 32], [<"Heisenberg", Just 33], [<"Robinson", Just 34], [<"Smith", Just 34]]
+[<[<"Rafferty", Just 31],
+  [<"Jones", Just 32],
+  [<"Heisenberg", Just 33],
+  [<"Robinson", Just 34],
+  [<"Smith", Just 34]]
 [<[<"Rafferty", 31], [<"Jones", 32], [<"Heisenberg", 33], [<"Robinson", 34], [<"Smith", 34]]
 
 [<"Rafferty", Just 31]
@@ -88,12 +153,108 @@ Error: Can't find an implementation for So (with block in integerLessThanNat 4 F
 [(10, ["Bob", "Eve"]), (15, ["Alice"])]
 [(75, ["Eve"]), (85, ["Bob", "Alice"])]
 [("blue", [<[<"Bob", 12]]), ("green", [<[<"Alice", 17]]), ("red", [<[<"Eve", 13]])]
-[(12, [<[<"Bob", 8, 9, 77, 7, 9, 87]]), (13, [<[<"Eve", 7, 9, 84, 8, 8, 77]]), (17, [<[<"Alice", 6, 8, 88, 8, 7, 85]])]
-[("blue", [<[<"Bob", 12, "blue"]]), ("green", [<[<"Alice", 17, "green"]]), ("red", [<[<"Eve", 13, "red"]])]
-[(12, [<[<"Bob", 12, 8, 9, 77, 7, 9, 87]]), (13, [<[<"Eve", 13, 7, 9, 84, 8, 8, 77]]), (17, [<[<"Alice", 17, 6, 8, 88, 8, 7, 85]])]
+[(12, [<[<"Bob", 8, 9, 77, 7, 9, 87]]),
+ (13, [<[<"Eve", 7, 9, 84, 8, 8, 77]]),
+ (17, [<[<"Alice", 6, 8, 88, 8, 7, 85]])]
+[([<False, False],
+ [<[<"Emily", True, False, True, False, False, True, False, False],
+   [<"Emma", False, False, True, False, False, False, True, False],
+   [<"Aidan", False, False, False, True, False, False, False, False],
+   [<"Madison", False, False, False, True, False, False, True, False],
+   [<"Matthew", True, False, False, False, True, True, False, False],
+   [<"Hailey", True, False, False, False, False, True, False, False]]),
+ ([<False, True],
+ [<[<"Jacob", True, False, True, True, False, False, False, False],
+   [<"Ethan", True, False, False, False, False, True, True, False],
+   [<"Hannah", False, False, False, False, False, False, True, False]]),
+ ([<True, False], [<[<"Nicholas", False, False, False, True, True, False, True, False]])]
+[("blue", [<[<"Bob", 12, "blue"]]),
+ ("green", [<[<"Alice", 17, "green"]]),
+ ("red", [<[<"Eve", 13, "red"]])]
+[(12, [<[<"Bob", 12, 8, 9, 77, 7, 9, 87]]),
+ (13, [<[<"Eve", 13, 7, 9, 84, 8, 8, 77]]),
+ (17, [<[<"Alice", 17, 6, 8, 88, 8, 7, 85]])]
+[([<False, False],
+ [<[<"Emily", True, False, False, False, True, False, False, True, False, False],
+   [<"Emma", False, False, False, False, True, False, False, False, True, False],
+   [<"Aidan", False, False, False, False, False, True, False, False, False, False],
+   [<"Madison", False, False, False, False, False, True, False, False, True, False],
+   [<"Matthew", True, False, False, False, False, False, True, True, False, False],
+   [<"Hailey", True, False, False, False, False, False, False, True, False, False]]),
+ ([<False, True],
+ [<[<"Jacob", True, False, True, False, True, True, False, False, False, False],
+   [<"Ethan", True, False, True, False, False, False, False, True, True, False],
+   [<"Hannah", False, False, True, False, False, False, False, False, True, False]]),
+ ([<True, False],
+ [<[<"Nicholas", False, True, False, False, False, True, True, False, True, False]])]
 
 [(10, 2), (15, 1)]
 [(75, 1), (85, 2)]
 [("blue", 1), ("green", 1), ("red", 1)]
 [(12, 1), (13, 1), (17, 1)]
+
+[<[<"blue", 12.0], [<"green", 17.0], [<"red", 13.0]]
+
+[<[<False, False, 0.0, 0.75],
+  [<False, True, 1.0, 1.0],
+  [<True, False, 0.0, 0.25],
+  [<True, True, 0.0, 0.0]]
+
+[<[<"Bob", 12, 8, 9, 7, 9, "midterm", 77],
+  [<"Bob", 12, 8, 9, 7, 9, "final", 87],
+  [<"Alice", 17, 6, 8, 8, 7, "midterm", 88],
+  [<"Alice", 17, 6, 8, 8, 7, "final", 85],
+  [<"Eve", 13, 7, 9, 8, 8, "midterm", 84],
+  [<"Eve", 13, 7, 9, 8, 8, "final", 77]]
+
+[<[<"Bob", 12, "quiz1", 8],
+  [<"Bob", 12, "quiz2", 9],
+  [<"Bob", 12, "midterm", 77],
+  [<"Bob", 12, "quiz3", 7],
+  [<"Bob", 12, "quiz4", 9],
+  [<"Bob", 12, "final", 87],
+  [<"Alice", 17, "quiz1", 6],
+  [<"Alice", 17, "quiz2", 8],
+  [<"Alice", 17, "midterm", 88],
+  [<"Alice", 17, "quiz3", 8],
+  [<"Alice", 17, "quiz4", 7],
+  [<"Alice", 17, "final", 85],
+  [<"Eve", 13, "quiz1", 7],
+  [<"Eve", 13, "quiz2", 9],
+  [<"Eve", 13, "midterm", 84],
+  [<"Eve", 13, "quiz3", 8],
+  [<"Eve", 13, "quiz4", 8],
+  [<"Eve", 13, "final", 77]]
+
+[<[<"blue", Just 12, Nothing, Nothing],
+  [<"green", Nothing, Just 17, Nothing],
+  [<"red", Nothing, Nothing, Just 13]]
+[<[<"Bob", 12, Just 8, Just 9, Just 77, Just 7, Just 9, Just 87],
+  [<"Alice", 17, Just 6, Just 8, Just 88, Just 8, Just 7, Just 85],
+  [<"Eve", 13, Just 7, Just 9, Just 84, Just 8, Just 8, Just 77]]
+
+[<[<"Bob", 12, 8, 77, 87],
+  [<"Bob", 12, 9, 77, 87],
+  [<"Bob", 12, 7, 77, 87],
+  [<"Bob", 12, 9, 77, 87],
+  [<"Alice", 17, 6, 88, 85],
+  [<"Alice", 17, 8, 88, 85],
+  [<"Alice", 17, 8, 88, 85],
+  [<"Alice", 17, 7, 88, 85],
+  [<"Eve", 13, 7, 84, 77],
+  [<"Eve", 13, 9, 84, 77],
+  [<"Eve", 13, 8, 84, 77],
+  [<"Eve", 13, 8, 84, 77]]
+[<[<"Bob", 12, 8, 77, 87, True],
+  [<"Bob", 12, 9, 77, 87, True],
+  [<"Bob", 12, 7, 77, 87, False],
+  [<"Bob", 12, 9, 77, 87, True],
+  [<"Alice", 17, 6, 88, 85, False],
+  [<"Alice", 17, 8, 88, 85, True],
+  [<"Alice", 17, 8, 88, 85, True],
+  [<"Alice", 17, 7, 88, 85, False],
+  [<"Eve", 13, 7, 84, 77, False],
+  [<"Eve", 13, 9, 84, 77, True],
+  [<"Eve", 13, 8, 84, 77, True],
+  [<"Eve", 13, 8, 84, 77, True]]
 

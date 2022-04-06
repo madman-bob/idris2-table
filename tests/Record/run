@@ -6,13 +6,23 @@ basicTest ExampleRecord.idr << EOF
     value "name" exampleRecord
     value "age" exampleRecord
     value "grade" exampleRecord
+    value "x" ambiguousRecord
+    the Nat $ value "x" ambiguousRecord
+    the String $ value "x" ambiguousRecord
 
     value 0 exampleRecord
     value 1 exampleRecord
     value 3 exampleRecord
 
+    setValue "age" 13 exampleRecord
+    setValue "age" (the String "teen") exampleRecord
+
     selectFields [<"name", "favorite color"] exampleRecord
     selectFields [<0, 1] exampleRecord
+
+    :let concatRecord = exampleRecord ++ anotherRecord
+    selectLeft {schema1 = StudentSchema} {schema2 = StudentSchema} concatRecord
+    selectRight {schema1 = StudentSchema} {schema2 = StudentSchema} concatRecord
 
     :let exampleRenamed : Record [<"name" :! String, "years" :! Nat, "favourite color" :! String]
     :let exampleRenamed = renameFields [<"age" ~> "years", "favorite color" ~> "favourite color"] exampleRecord

@@ -8,18 +8,42 @@ Error: Can't find an implementation for Field StudentSchema "grade" ?type.
  1 |     value "grade" exampleRecord
                ^^^^^^^
 
+Error: Multiple solutions found in search of:
+    Field [<("x" :! Nat), ("x" :! String)] "x" ?type
+
+(Interactive):1:11--1:14
+ 1 |     value "x" ambiguousRecord
+               ^^^
+
+Possible correct results:
+    Here
+    There Here
+0
+"Hello, world"
 
 "Bob"
 12
-Error: Can't find an implementation for HasIndex StudentSchema (There (There (There (There ?sa)))) 3.
+Error: Can't find an implementation
+for HasIndex StudentSchema (There (There (There (There ?sa)))) 3.
 
 (Interactive):1:11--1:12
  1 |     value 3 exampleRecord
                ^
 
 
+[<"Bob", 13, "blue"]
+Error: Can't find an implementation for Field StudentSchema "age" String.
+
+(Interactive):1:14--1:19
+ 1 |     setValue "age" (the String "teen") exampleRecord
+                  ^^^^^
+
+
 [<"Bob", "blue"]
 [<"Bob", 12]
+
+[<"Bob", 12, "blue"]
+[<"Alice", 17, "green"]
 
 [<"Bob", 12, "blue"]
 
