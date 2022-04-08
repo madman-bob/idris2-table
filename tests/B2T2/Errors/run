@@ -1,0 +1,19 @@
+. ../../testutils.sh
+
+b2t2Test << EOF
+    :module B2T2.Errors.MalformedTables.MissingSchema
+    :module B2T2.Errors.MalformedTables.MissingRow
+    :module B2T2.Errors.MalformedTables.MissingCell
+    :module B2T2.Errors.MalformedTables.SwappedColumns
+    :module B2T2.Errors.MalformedTables.SchemaTooShort
+    :module B2T2.Errors.MalformedTables.SchemaTooLong
+
+    :module B2T2.Errors.UsingTables.MidFinal
+    :module B2T2.Errors.UsingTables.BlackAndWhite
+    :module B2T2.Errors.UsingTables.PieCount
+    :module B2T2.Errors.UsingTables.BrownGetAcne
+    :module B2T2.Errors.UsingTables.GetOnlyRow
+    :module B2T2.Errors.UsingTables.FavoriteColor
+    :module B2T2.Errors.UsingTables.BrownJellyBeans
+    :module B2T2.Errors.UsingTables.EmployeeToDepartment
+EOF
