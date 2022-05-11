@@ -36,7 +36,7 @@ rec.project [<] = [<]
 rec.project (ren :< pos) = (rec.project ren) :<. (rec.project pos)
 
 
--- The category of renamings
+-- The category of substitutions
 public export
 IdSubst : {schema : Schema} -> Subst schema schema
 IdSubst {schema = [<]         } = [<]
