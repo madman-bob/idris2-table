@@ -223,16 +223,23 @@ joinWhen t1 t2 keep combine = do
     [< ]
 
 public export
+groupJoinWhen : (t1 : Table schema1) -> (t2 : Table schema2) ->
+  (keep : Record schema1 -> Record schema2 -> Bool) ->
+  (aggregate : Record schema1 -> Table schema2  -> Table schema3) -> Table schema3
+groupJoinWhen t1 t2 keep aggregate = do
+  x1 <- t1
+  aggregate x1 (filter (keep x1) t2)
+
+
+public export
 joinWhenMissing : (t1 : Table schema1) -> (t2 : Table schema2) ->
   (keep : Record schema1 -> Record schema2 -> Bool) ->
   (combine : Record schema1 -> Maybe (Record schema2) -> Record schema3) -> Table schema3
-joinWhenMissing t1 t2 keep combine = do
-  x1 <- t1
-  case filter (keep x1) t2 of
-    [<] => [< combine x1 Nothing]
-    xs => do
-      x2 <- xs
-      [< combine x1 (Just x2)]
+joinWhenMissing t1 t2 keep combine = 
+    groupJoinWhen t1 t2 keep $
+    \r1 => \case
+      [<] => [< combine r1 Nothing]
+      rs2 => map (combine r1 . Just) rs2
 
 public export
 join : Eq key => (t1 : Table schema1) -> (t2 : Table schema2) ->
@@ -240,6 +247,16 @@ join : Eq key => (t1 : Table schema1) -> (t2 : Table schema2) ->
   (combine : Record schema1 -> Record schema2 -> Record schema3) -> Table schema3
 join t1 t2 getKey1 getKey2 combine =
   joinWhen t1 t2 (\r1, r2 => getKey1 r1 == getKey2 r2) combine
+
+public export
+groupJoin : Eq key => (t1 : Table schema1) -> (t2 : Table schema2) ->
+  (getKey1 : Record schema1 -> key) ->
+  (getKey2 : Record schema2 -> key) ->
+  (aggregate : Record schema1 -> Table schema2 -> Record schema3) ->
+  Table schema3
+groupJoin t1 t2 getKey1 getKey2 aggregate =
+  groupJoinWhen t1 t2 (\r1, r2 => getKey1 r1 == getKey2 r2)
+  $ \r1,rs2 => [< aggregate r1 rs2]
 
 public export
 joinRecord : {schema1,schema2 : Schema}
@@ -275,19 +292,24 @@ leftJoin tbl1 tbl2 jointNames {ford1 = Refl} =
        (\r1, r2 => r1.project jointData.projection1 ++ r2.project jointData.projection2)
 
 public export
-leftJoinMaybe : {schema1,schema2 : Schema}
+leftJoinMissing : {schema1,schema2 : Schema}
   -> (tbl1 : Table schema1) -> (tbl2 : Table schema2)
   -> (jointNames : SnocList String)
   -> {auto 0 ford1 : u === (jointSchemaType schema1 schema2)}
   -> {auto joint : All u jointNames}
   -> Table (schema1 ++ mapSchema Maybe (schema2 |-| names schema1))
-leftJoinMaybe tbl1 tbl2 jointNames =
-  let jointData = (generateJoinData jointNames ?h00)
-  in join @{jointData.eqSchema} tbl1 tbl2
-       (\r1 => r1.project jointData.filter1)
-       (\r2 => r2.project jointData.filter2)
-       ?h01 --(\r1, r2 => r1.project jointData.projection1 ++ r2.project jointData.projection2)
-
+leftJoinMissing tbl1 tbl2 jointNames =
+  let jointData = (generateJoinData jointNames ?h0190)
+      _ = jointData.eqSchema
+  in joinWhenMissing tbl1 tbl2
+       (\r1, r2 =>
+         r1.project jointData.filter1 ==
+         r2.project jointData.filter2)
+       (\r1, mr2 => (r1.project jointData.projection1) ++
+           (maybe
+             (replicateRecord Nothing)
+             (\r2 => mapRecord Just $ r2.project jointData.projection2)
+             mr2))
 
 ||| Hint so that `auto`-search can find appropriate `Exists`
 ||| instances. Don't export more generically as may cause unexpected
