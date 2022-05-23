@@ -209,6 +209,25 @@ generateJoinData jointNames datum =
    , projection2 = embedSubtraction
    }
 
+
+public export
+joinWhen : (t1 : Table schema1) -> (t2 : Table schema2) ->
+  (keep : Record schema1 -> Record schema2 -> Bool) ->
+  (combine : Record schema1 -> Record schema2 -> Record schema3) -> Table schema3
+joinWhen t1 t2 keep combine = do
+  x1 <- t1
+  x2 <- t2
+  pure $ ifThenElse (keep x1 x2) 
+    ?h1 ?h2 --[< combine x1 x2] [< ]
+
+
+public export
+join : Eq key => (t1 : Table schema1) -> (t2 : Table schema2) ->
+  (getKey1 : Record schema1 -> key) -> (getKey2 : Record schema2 -> key) ->
+  (combine : Record schema1 -> Record schema2 -> Record schema3) -> Table schema3
+join t1 t2 getKey1 getKey2 combine =
+  joinWhen t1 t2 (\r1, r2 => getKey1 r1 == getKey2 r2) combine
+
 public export
 joinRecord : {schema1,schema2 : Schema}
   -> (rec1 : Record schema1) -> (rec2 : Record schema2)

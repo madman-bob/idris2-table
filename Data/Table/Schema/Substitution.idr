@@ -90,6 +90,7 @@ public export
 [<]         .complement       = IdSubst
 (rho :< fld).complement       = rho.complement.restrict fld.snd
 
+{-
 recallInitial : {schema2 : Schema} -> Initial schema2 schema1 -> Schema
 recallInitial WholeSchema          = schema2
 recallInitial (InitialSchema init) = recallInitial init
@@ -144,3 +145,4 @@ blah (subsch :< i) =
     in ?h1980
 
 
+-}
