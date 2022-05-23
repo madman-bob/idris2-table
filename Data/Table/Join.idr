@@ -5,6 +5,7 @@ import public Data.Table.Data
 import public Data.Table.Record
 import public Data.Table.Row
 import public Data.Table.Row.Constructor
+import Data.Table.Row.Interface
 import public Data.Table.Schema
 import public Data.Table.Schema.Quantifiers
 import public Data.Table.Schema.Properties
@@ -217,9 +218,21 @@ joinWhen : (t1 : Table schema1) -> (t2 : Table schema2) ->
 joinWhen t1 t2 keep combine = do
   x1 <- t1
   x2 <- t2
-  pure $ ifThenElse (keep x1 x2) 
-    ?h1 ?h2 --[< combine x1 x2] [< ]
+  ifThenElse (keep x1 x2)
+    [< combine x1 x2]
+    [< ]
 
+public export
+joinWhenMissing : (t1 : Table schema1) -> (t2 : Table schema2) ->
+  (keep : Record schema1 -> Record schema2 -> Bool) ->
+  (combine : Record schema1 -> Maybe (Record schema2) -> Record schema3) -> Table schema3
+joinWhenMissing t1 t2 keep combine = do
+  x1 <- t1
+  case filter (keep x1) t2 of
+    [<] => [< combine x1 Nothing]
+    xs => do
+      x2 <- xs
+      [< combine x1 (Just x2)]
 
 public export
 join : Eq key => (t1 : Table schema1) -> (t2 : Table schema2) ->
@@ -254,10 +267,12 @@ leftJoin : {schema1,schema2 : Schema}
   -> {auto 0 ford1 : u === (jointSchemaType schema1 schema2)}
   -> {auto joint : All u jointNames}
   -> Table (schema1 ++ (schema2 |-| names schema1))
-leftJoin tbl1 tbl2 jointNames = do
-  row1 <- tbl1
-  row2 <- tbl2
-  joinRecord row1 row2 jointNames
+leftJoin tbl1 tbl2 jointNames {ford1 = Refl} =
+  let jointData = (generateJoinData jointNames joint)
+  in join @{jointData.eqSchema} tbl1 tbl2
+       (\r1 => r1.project jointData.filter1)
+       (\r2 => r2.project jointData.filter2)
+       (\r1, r2 => r1.project jointData.projection1 ++ r2.project jointData.projection2)
 
 public export
 leftJoinMaybe : {schema1,schema2 : Schema}
@@ -266,10 +281,13 @@ leftJoinMaybe : {schema1,schema2 : Schema}
   -> {auto 0 ford1 : u === (jointSchemaType schema1 schema2)}
   -> {auto joint : All u jointNames}
   -> Table (schema1 ++ mapSchema Maybe (schema2 |-| names schema1))
-leftJoinMaybe tbl1 tbl2 jointNames = do
-  row1 <- tbl1
-  row2 <- tbl2
-  joinRecordMaybe row1 row2 jointNames
+leftJoinMaybe tbl1 tbl2 jointNames =
+  let jointData = (generateJoinData jointNames ?h00)
+  in join @{jointData.eqSchema} tbl1 tbl2
+       (\r1 => r1.project jointData.filter1)
+       (\r2 => r2.project jointData.filter2)
+       ?h01 --(\r1, r2 => r1.project jointData.projection1 ++ r2.project jointData.projection2)
+
 
 ||| Hint so that `auto`-search can find appropriate `Exists`
 ||| instances. Don't export more generically as may cause unexpected
