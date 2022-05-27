@@ -96,6 +96,43 @@ mapRecord : {0 f : Type -> Type} -> (c : forall a. a -> f a) -> Record schema ->
 mapRecord c [<] = [<]
 mapRecord c (rec :< fld) = mapRecord c rec :< c fld
 
+data SchemaLength : Nat -> Schema -> Type where
+  Z : SchemaLength 0 [<]
+  S : SchemaLength n schema -> SchemaLength (S n) (schema :< foo)
+
+recallSchemaLength : (r : Record schema) -> Exists $ \n => SchemaLength n schema
+recallSchemaLength [<] = Evidence 0 Z
+recallSchemaLength (rec :< x) = let Evidence foo bar = recallSchemaLength rec in
+  Evidence (S foo) (S bar)
+
+public export
+mapSchemaLength : {0 f : Type -> Type} ->
+  (schema : Schema) ->
+  ( Exists $ \n =>
+  ( SchemaLength n schema
+  , SchemaLength n (mapSchema f schema)
+  ))
+mapSchemaLength [<] = Evidence 0 (Z, Z)
+mapSchemaLength (schema :< fs) with (mapSchemaLength {f} schema)
+ mapSchemaLength (schema :< fs) | (Evidence n (f1, f2)) = Evidence (S n) (S f1, S f2)
+{-
+public export
+zipWithRecord : {0 f,g,h : Type -> Type} -> 
+  (c1 : forall a. a -> f a) ->
+  (c2 : forall a. a -> g a) ->
+  (d  : forall a. a -> h a) ->
+  (zipper : forall a. f a -> g a -> h a) ->
+  Record (mapSchema f schema) ->
+  Record (mapSchema g schema) ->
+  Record (mapSchema h schema)
+zipWithRecord c1 c2 d zipper rec rec1 with 0 (mapSchemaLength {f} schema) | (recallSchemaLength rec1)
+ zipWithRecord c1 c2 d zipper rec rec1 | (Evidence n foo) | (Evidence 0 Z) = ?zipWithRecord_rhs_0
+ zipWithRecord c1 c2 d zipper rec rec1 | (Evidence n foo) | (Evidence m (S n)) = ?zipWithRecord_rhs_0
+-}
+--mapRecord c [<] = [<]
+--mapRecord c (rec :< fld) = mapRecord c rec :< c fld
+
+
 public export
 replicateRecord : {schema : Schema} -> {0 f : Type -> Type} -> (tab : forall a. f a) ->
   Record (mapSchema f schema)
@@ -235,7 +272,7 @@ public export
 joinWhenMissing : (t1 : Table schema1) -> (t2 : Table schema2) ->
   (keep : Record schema1 -> Record schema2 -> Bool) ->
   (combine : Record schema1 -> Maybe (Record schema2) -> Record schema3) -> Table schema3
-joinWhenMissing t1 t2 keep combine = 
+joinWhenMissing t1 t2 keep combine =
     groupJoinWhen t1 t2 keep $
     \r1 => \case
       [<] => [< combine r1 Nothing]
@@ -292,23 +329,28 @@ leftJoin tbl1 tbl2 jointNames {ford1 = Refl} =
        (\r1, r2 => r1.project jointData.projection1 ++ r2.project jointData.projection2)
 
 public export
-leftJoinMissing : {schema1,schema2 : Schema}
+leftJoinMissing : {schema1,schema2,schema2' : Schema}
   -> (tbl1 : Table schema1) -> (tbl2 : Table schema2)
   -> (jointNames : SnocList String)
   -> {auto 0 ford1 : u === (jointSchemaType schema1 schema2)}
+  -> {auto 0 ford2 : schema2 = mapSchema Maybe schema2'}
   -> {auto joint : All u jointNames}
-  -> Table (schema1 ++ mapSchema Maybe (schema2 |-| names schema1))
-leftJoinMissing tbl1 tbl2 jointNames =
-  let jointData = (generateJoinData jointNames ?h0190)
+  -> Table (schema1 ++ (mapSchema Maybe $ schema2' |-| names schema1))
+leftJoinMissing tbl1 tbl2 jointNames {ford1 = Refl} {ford2 = Refl} =
+  let jointData = (generateJoinData jointNames joint)
       _ = jointData.eqSchema
   in joinWhenMissing tbl1 tbl2
-       (\r1, r2 =>
-         r1.project jointData.filter1 ==
-         r2.project jointData.filter2)
+       (\r1, mr2 =>
+           ?h10
+           {- all zipWith
+           maybe True (\r2 =>
+           r1.project jointData.filter1 ==
+           r2.project jointData.filter2)
+           mr2-})
        (\r1, mr2 => (r1.project jointData.projection1) ++
            (maybe
              (replicateRecord Nothing)
-             (\r2 => mapRecord Just $ r2.project jointData.projection2)
+             (\r2 => mapRecord Just $ ?h190) --r2.project jointData.projection2)
              mr2))
 
 ||| Hint so that `auto`-search can find appropriate `Exists`
