@@ -27,9 +27,9 @@ Element [<[<"Rafferty", Just 31, 31, "Sales", "Harriet"],
             "Production",
             "Charles"]] (SnocTable (SnocTable (SnocTable EmptyTable)))
 Error: When unifying:
-    Subset (Table DepartmentSchema) (\{arg:0} => HasRows arg 0)
+    Subset (Table DepartmentSchema) (\arg => HasRows arg 0)
 and:
-    Subset (Table DepartmentSchema) (\{arg:0} => HasRows arg 1)
+    Subset (Table DepartmentSchema) (\arg => HasRows arg 1)
 Mismatch between: 0 and 1.
 
 (Interactive):1:27--1:29

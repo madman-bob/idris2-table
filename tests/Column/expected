@@ -39,8 +39,9 @@ Error: Can't find an implementation for Field StudentSchema "grade" ?type.
 [<[<"Bob"], [<"Alice"], [<"Eve"]]
 
 [<MkDPair "name" (There Here), MkDPair "favorite color" Here]
-Error: Can't find an implementation for All (TypeHas (\{arg:0} =>
-arg = String)) [<("name" :! String), ("age" :! Nat), ("favorite color" :! String)].
+Error: Can't find an implementation for All (TypeHas (\arg => arg = String)) [<("name" :! String),
+                                                                               ("age" :! Nat),
+                                                                               ("favorite color" :! String)].
 
 (Interactive):1:5--1:29
  1 |     allColumns StudentSchema
