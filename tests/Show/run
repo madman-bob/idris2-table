@@ -1,18 +1,18 @@
 . ../testutils.sh
 
 basicTest ExampleTables.idr << EOF
-    show exampleTable
-    show exampleFrame
+    :exec putStrLn $ show exampleTable
+    :exec putStrLn $ show exampleFrame
 
-    showTable exampleTable
-    showFrame exampleFrame
+    :exec putStrLn $ showTable exampleTable
+    :exec putStrLn $ showFrame exampleFrame
 
-    showTable {halignment = [L, R, L, C, R]} {valignment = [C, T, T, C, B]} exampleTable
-    showFrame {halignment = [L, R, L, C, R]} {valignment = [C, T, T, C, B]} exampleFrame
+    :exec putStrLn $ showTable {halignment = [L, R, L, C, R]} {valignment = [C, T, T, C, B]} exampleTable
+    :exec putStrLn $ showFrame {halignment = [L, R, L, C, R]} {valignment = [C, T, T, C, B]} exampleFrame
 
-    showTableBody exampleTable
-    showFrameBody exampleFrame
+    :exec putStrLn $ showTableBody exampleTable
+    :exec putStrLn $ showFrameBody exampleFrame
 
-    showTableBody {halignment = [L, R, L, C, R]} {valignment = [C, T, T, C, B]} exampleTable
-    showFrameBody {halignment = [L, R, L, C, R]} {valignment = [C, T, T, C, B]} exampleFrame
+    :exec putStrLn $ showTableBody {halignment = [L, R, L, C, R]} {valignment = [C, T, T, C, B]} exampleTable
+    :exec putStrLn $ showFrameBody {halignment = [L, R, L, C, R]} {valignment = [C, T, T, C, B]} exampleFrame
 EOF
