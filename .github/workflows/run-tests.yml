@@ -1,0 +1,22 @@
+name: Run Tests
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  run_tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    container: snazzybucket/idris2
+    steps:
+      - name: Check out Idris2-Table
+        uses: actions/checkout@v2
+      - name: Build Idris2-Table
+        run: make table
+      - name: Build B2T2
+        run: make b2t2
+      - name: Run Tests
+        run: make test
