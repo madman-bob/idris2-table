@@ -98,7 +98,7 @@ mapRecord c (rec :< fld) = mapRecord c rec :< c fld
 
 data SchemaLength : Nat -> Schema -> Type where
   Z : SchemaLength 0 [<]
-  S : SchemaLength n schema -> SchemaLength (S n) (schema :< foo)
+  S : SchemaLength n schema -> SchemaLength (S n) (schema :< (h :! fld))
 
 recallSchemaLength : (r : Record schema) -> Exists $ \n => SchemaLength n schema
 recallSchemaLength [<] = Evidence 0 Z
@@ -114,10 +114,143 @@ mapSchemaLength : {0 f : Type -> Type} ->
   ))
 mapSchemaLength [<] = Evidence 0 (Z, Z)
 mapSchemaLength (schema :< fs) with (mapSchemaLength {f} schema)
- mapSchemaLength (schema :< fs) | (Evidence n (f1, f2)) = Evidence (S n) (S f1, S f2)
+ mapSchemaLength (schema :< (h :! fs)) | (Evidence n (f1, f2)) = Evidence (S n) (S f1, S f2)
+
+tabulateSchema : (n : Nat) -> (f : Fin n -> FieldSchema) -> Schema
+tabulateSchema 0 f = [<]
+tabulateSchema (S k) f = tabulateSchema k (f . FS) :< (f FZ)
+
+data SchemaView : (schema1, schema2 : Schema) -> Type where
+  BothLin  : SchemaView [<] [<]
+  BothSnoc : SchemaView (rec1 :< (n1 :! fld1)) (rec2 :< (n2 :! fld2))
+
+data SchemaView'
+  : (rec1, rec2, rec3 : Schema) -> Type where
+  AllLin  : SchemaView' [<] [<] [<]
+  AllSnoc : SchemaView' (schema1 :< (n1 :! fld1))
+                        (schema2 :< (n2 :! fld2))
+                        (schema3 :< (n3 :! fld3))
+
+
+
+0 viewBoth :
+  (schema1, schema2 : Schema) ->
+  {auto length1 : SchemaLength n schema1} ->
+  {auto length2 : SchemaLength n schema2} ->
+  SchemaView schema1 schema2
+viewBoth [<] rec2 =
+  let (Z) = length1
+      (Z) = length2
+  in BothLin
+viewBoth (rec :< (_ :! _)) rec2 =
+  let (S k1) = length1
+      (S k2) = length2
+  in BothSnoc
 {-
+0 viewAll :
+  (schema1, schema2, schema3 : Schema) ->
+  {auto 0 length1 : SchemaLength n schema1} ->
+  {auto 0 length2 : SchemaLength n schema2} ->
+  {auto 0 length3 : SchemaLength n schema3} ->
+  SchemaView' schema1 schema2 schema3
+viewAll [<] rec2 rec3 =
+  let (Z) = length1
+      (Z) = length2
+      (Z) = length3
+  in AllLin
+viewAll (rec :< x) rec2 rec3 =
+  let (   S _) = length1
+      (   S _) = length2
+      (   S _) = length3
+  in AllSnoc
+
+zipperSchemaGen :
+  (schema1, schema2, schema3 : Schema) ->
+  {auto 0 length1 : SchemaLength n schema1} ->
+  {auto 0 length2 : SchemaLength n schema2} ->
+  {auto 0 length3 : SchemaLength n schema3} ->
+  (combiner : (a,b,c : FieldSchema) -> FieldSchema) ->
+  Schema
+zipperSchemaGen  [<] schema2 schema3 combiner = [<]
+zipperSchemaGen  (schema :< fs) schema2 schema3 combiner =
+  case viewAll [<] schema2 schema3 {length1,length2,length3} of
+    (AllSnoc {schema1, schema2, schema3, n1, n2, n3, fld1, fld2, fld3}) =>
+        ?zipperSchemaGen_rhs_2
+
+zipperSchemaGen [<] [<] [<] _
+  { length1 = Z
+  , length2 = Z
+  , length3 = Z
+  }
+  = [<]
+zipperSchemaGen [<] (_ :< _)  _ _
+  { length1 = Z
+  , length2 = _
+  , length3 = _
+  } impossible
+
+zipperSchemaGen [<] _ (_ :< _) _
+  { length1 = Z
+  , length2 = _
+  , length3 = _
+  } impossible
+
+zipperSchemaGen (schema1 :< fs1) (schema2 :< fs2) (schema3 :< fs3) combiner
+  { length1 = S length1
+  , length2 = S length2
+  , length3 = S length3
+  }
+  = zipperSchemaGen schema1 schema2 schema3 {length1, length2, length3} combiner
+  :< (combiner fs1 fs2 fs3)
+-- Boilerplate, deal with missing cases
+zipperSchemaGen (schema :< fs) [<] _ _
+  { length1 = S n
+  , length2 = _
+  , length3 = _
+  } impossible
+zipperSchemaGen (schema :< fs) _ [<] _
+  { length1 = S n
+  , length2 = _
+  , length3 = _
+  } impossible
+
+-- Disgusting. Generalise so that you only do this once
+zipperSchema :
+  (schema1, schema2, schema3 : Schema) ->
+  {auto 0 length1 : SchemaLength n schema1} ->
+  {auto 0 length2 : SchemaLength n schema2} ->
+  {auto 0 length3 : SchemaLength n schema3} ->
+  Schema
+zipperSchema schema1 schema2 schema3 =
+  zipperSchemaGen schema1 schema2 schema3 {length1,length2,length3}
+  $ \fld1,fld2,fld3 =>
+    "\{fld1.Name} -> \{fld2.Name} -> \{fld3.Name}"
+    :! (fld1.Sort -> fld2.Sort -> fld3.Sort)
+
+zippedSchema :
+  (schema1, schema2, schema3 : Schema) ->
+  {auto 0 length1 : SchemaLength n schema1} ->
+  {auto 0 length2 : SchemaLength n schema2} ->
+  {auto 0 length3 : SchemaLength n schema3} ->
+  Schema
+zippedSchema schema1 schema2 schema3
+  = zipperSchemaGen schema1 schema2 schema3 {length1,length2,length3}
+  $ \_,_,fld3 => fld3
+
 public export
-zipWithRecord : {0 f,g,h : Type -> Type} -> 
+zipWithRec :
+  {auto 0 length1 : SchemaLength n schema1} ->
+  {auto 0 length2 : SchemaLength n schema2} ->
+  {auto 0 length3 : SchemaLength n schema3} ->
+  (rec1 : Record schema1) ->
+  (rec2 : Record schema2) ->
+  (zipper : Record (zipperSchema schema1 schema2 schema3
+                    {length1,length2,length3})) ->
+  Record (zippedSchema schema1 schema2 schema3 {length1,length2,length3})
+
+
+public export
+zipWithRecord : {0 f,g,h : Type -> Type} ->
   (c1 : forall a. a -> f a) ->
   (c2 : forall a. a -> g a) ->
   (d  : forall a. a -> h a) ->
@@ -126,12 +259,11 @@ zipWithRecord : {0 f,g,h : Type -> Type} ->
   Record (mapSchema g schema) ->
   Record (mapSchema h schema)
 zipWithRecord c1 c2 d zipper rec rec1 with 0 (mapSchemaLength {f} schema) | (recallSchemaLength rec1)
- zipWithRecord c1 c2 d zipper rec rec1 | (Evidence n foo) | (Evidence 0 Z) = ?zipWithRecord_rhs_0
- zipWithRecord c1 c2 d zipper rec rec1 | (Evidence n foo) | (Evidence m (S n)) = ?zipWithRecord_rhs_0
--}
+ zipWithRecord c1 c2 d zipper rec rec1 | (Evidence n foo) | (Evidence m bar) = ?zipWithRecord_rhs_00
+ zipWithRecord c1 c2 d zipper rec rec1 | (Evidence n foo) | (Evidence m bar) = ?zipWithRecord_rhs_0
 --mapRecord c [<] = [<]
 --mapRecord c (rec :< fld) = mapRecord c rec :< c fld
-
+-}
 
 public export
 replicateRecord : {schema : Schema} -> {0 f : Type -> Type} -> (tab : forall a. f a) ->
