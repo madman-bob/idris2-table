@@ -120,49 +120,26 @@ tabulateSchema : (n : Nat) -> (f : Fin n -> FieldSchema) -> Schema
 tabulateSchema 0 f = [<]
 tabulateSchema (S k) f = tabulateSchema k (f . FS) :< (f FZ)
 
-data SchemaView : (schema1, schema2 : Schema) -> Type where
-  BothLin  : SchemaView [<] [<]
-  BothSnoc : SchemaView (rec1 :< (n1 :! fld1)) (rec2 :< (n2 :! fld2))
-
-data SchemaView'
+data SchemaViewLin
   : (rec1, rec2, rec3 : Schema) -> Type where
-  AllLin  : SchemaView' [<] [<] [<]
-  AllSnoc : SchemaView' (schema1 :< (n1 :! fld1))
-                        (schema2 :< (n2 :! fld2))
-                        (schema3 :< (n3 :! fld3))
+  AllLin'  : SchemaViewLin [<] [<] [<]
 
+data SchemaViewSnoc
+  : (rec1, rec2, rec3 : Schema) -> Type where
+  AllSnoc' : SchemaViewSnoc
+    (schema1 :< (n1 :! fld1))
+    (schema2 :< (n2 :! fld2))
+    (schema3 :< (n3 :! fld3))
 
-
-0 viewBoth :
-  (schema1, schema2 : Schema) ->
-  {auto length1 : SchemaLength n schema1} ->
-  {auto length2 : SchemaLength n schema2} ->
-  SchemaView schema1 schema2
-viewBoth [<] rec2 =
-  let (Z) = length1
-      (Z) = length2
-  in BothLin
-viewBoth (rec :< (_ :! _)) rec2 =
-  let (S k1) = length1
-      (S k2) = length2
-  in BothSnoc
-{-
-0 viewAll :
+0 viewAllSnoc :
   (schema1, schema2, schema3 : Schema) ->
-  {auto 0 length1 : SchemaLength n schema1} ->
+  {auto 0 length1 : SchemaLength n (schema1 :< (n1 :! fld1))} ->
   {auto 0 length2 : SchemaLength n schema2} ->
   {auto 0 length3 : SchemaLength n schema3} ->
-  SchemaView' schema1 schema2 schema3
-viewAll [<] rec2 rec3 =
-  let (Z) = length1
-      (Z) = length2
-      (Z) = length3
-  in AllLin
-viewAll (rec :< x) rec2 rec3 =
-  let (   S _) = length1
-      (   S _) = length2
-      (   S _) = length3
-  in AllSnoc
+  SchemaViewSnoc (schema1 :< (n1 :! fld1)) schema2 schema3
+viewAllSnoc schema1
+  (schema2 :< (h2 :! fld2)) (schema3 :< (h3 :! fld3))
+  {length1 = S _} {length2 = S _} {length3 = S _} = AllSnoc'
 
 zipperSchemaGen :
   (schema1, schema2, schema3 : Schema) ->
@@ -172,48 +149,23 @@ zipperSchemaGen :
   (combiner : (a,b,c : FieldSchema) -> FieldSchema) ->
   Schema
 zipperSchemaGen  [<] schema2 schema3 combiner = [<]
-zipperSchemaGen  (schema :< fs) schema2 schema3 combiner =
-  case viewAll [<] schema2 schema3 {length1,length2,length3} of
-    (AllSnoc {schema1, schema2, schema3, n1, n2, n3, fld1, fld2, fld3}) =>
-        ?zipperSchemaGen_rhs_2
-
-zipperSchemaGen [<] [<] [<] _
-  { length1 = Z
-  , length2 = Z
-  , length3 = Z
-  }
-  = [<]
-zipperSchemaGen [<] (_ :< _)  _ _
-  { length1 = Z
-  , length2 = _
-  , length3 = _
-  } impossible
-
-zipperSchemaGen [<] _ (_ :< _) _
-  { length1 = Z
-  , length2 = _
-  , length3 = _
-  } impossible
-
-zipperSchemaGen (schema1 :< fs1) (schema2 :< fs2) (schema3 :< fs3) combiner
-  { length1 = S length1
-  , length2 = S length2
-  , length3 = S length3
-  }
-  = zipperSchemaGen schema1 schema2 schema3 {length1, length2, length3} combiner
-  :< (combiner fs1 fs2 fs3)
--- Boilerplate, deal with missing cases
-zipperSchemaGen (schema :< fs) [<] _ _
-  { length1 = S n
-  , length2 = _
-  , length3 = _
-  } impossible
-zipperSchemaGen (schema :< fs) _ [<] _
-  { length1 = S n
-  , length2 = _
-  , length3 = _
-  } impossible
-
+zipperSchemaGen  (schema1 :< c1@(n1 :! fld1)) schema2 schema3 {length1, length2, length3} combiner with 0 (viewAllSnoc {n, fld1, n1} schema1 schema2 schema3 {length1, length2, length3})
+ zipperSchemaGen
+                     (schema1 :< c1@(n1 :! fld1))
+                     (schema2 :< c2@(n2 :! fld2))
+                     (schema3 :< c3@(n3 :! fld3))
+   combiner | AllSnoc' {n1, fld1} with 0 (length1)
+   _ | (S x) = ?h1_0
+     
+  
+{-
+zipperSchemaGen  {n} (schema1 :< c1@(n1 :! fld1)) schema2 schema3 combiner
+  with 0 (viewAllSnoc schema1 schema2 schema3 {n1, fld1, length1, length2, length3})
+ zipperSchemaGen (schema1 :< c1@(n1 :! fld1))
+                 (schema2 :< c2@(n2 :! fld2))
+                 (schema3 :< c3@(n3 :! fld3)) combiner | AllSnoc'
+   = zipperSchemaGen {length1 = ?h1, length2 = ?h2, length3 = ?h3} schema1 schema2 schema3 combiner :< combiner c1 c2 c3
+-}
 -- Disgusting. Generalise so that you only do this once
 zipperSchema :
   (schema1, schema2, schema3 : Schema) ->
@@ -260,10 +212,9 @@ zipWithRecord : {0 f,g,h : Type -> Type} ->
   Record (mapSchema h schema)
 zipWithRecord c1 c2 d zipper rec rec1 with 0 (mapSchemaLength {f} schema) | (recallSchemaLength rec1)
  zipWithRecord c1 c2 d zipper rec rec1 | (Evidence n foo) | (Evidence m bar) = ?zipWithRecord_rhs_00
- zipWithRecord c1 c2 d zipper rec rec1 | (Evidence n foo) | (Evidence m bar) = ?zipWithRecord_rhs_0
+ --zipWithRecord c1 c2 d zipper rec rec1 | (Evidence n foo) | (Evidence m bar) = ?zipWithRecord_rhs_0
 --mapRecord c [<] = [<]
 --mapRecord c (rec :< fld) = mapRecord c rec :< c fld
--}
 
 public export
 replicateRecord : {schema : Schema} -> {0 f : Type -> Type} -> (tab : forall a. f a) ->
