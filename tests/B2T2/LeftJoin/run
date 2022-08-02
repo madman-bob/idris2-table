@@ -1,0 +1,9 @@
+. ../../testutils.sh
+
+b2t2Test << EOF
+    show $ leftJoin students gradebook [< "name", "age"]
+
+EOF
+    #TODO: show $ leftJoinMaybe employees departments [<"Department ID"]
+
+    #TODO: show $ leftJoin      employees departments [<"Department ID"]
