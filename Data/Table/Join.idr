@@ -12,6 +12,7 @@ import public Data.Table.Schema.Properties
 import public Data.Table.Schema.Substitution
 
 import public Data.List
+import        Data.List.Elem
 import public Data.SnocList.Operations
 import public Data.SnocList.Quantifiers
 import public Data.List.Quantifiers
@@ -116,6 +117,11 @@ mapSchemaLength [<] = Evidence 0 (Z, Z)
 mapSchemaLength (schema :< fs) with (mapSchemaLength {f} schema)
  mapSchemaLength (schema :< (h :! fs)) | (Evidence n (f1, f2)) = Evidence (S n) (S f1, S f2)
 
+injectiveSchemaLength :
+  (length1 : SchemaLength n1 schema) ->
+  (length2 : SchemaLength n2 schema) ->
+  n1 = n2
+
 tabulateSchema : (n : Nat) -> (f : Fin n -> FieldSchema) -> Schema
 tabulateSchema 0 f = [<]
 tabulateSchema (S k) f = tabulateSchema k (f . FS) :< (f FZ)
@@ -130,6 +136,23 @@ data SchemaViewSnoc
     (schema1 :< (n1 :! fld1))
     (schema2 :< (n2 :! fld2))
     (schema3 :< (n3 :! fld3))
+
+-- data SchemaLength : Nat -> Schema -> Type where
+--  Z : SchemaLength 0 [<]
+--  S : SchemaLength n schema -> SchemaLength (S n) (schema :< (h :! fld))
+
+data SchemaLengthS : (SchemaLength n rec) -> Type where
+  IsS : SchemaLengthS (S n)
+
+data SchemaSnoc : Schema -> Type where
+  IsSnoc : SchemaSnoc (schema :< (col :! type))
+
+viewLen : (len : SchemaLength n (schema :< a)) -> SchemaLengthS len
+viewLen (S _) = IsS
+
+viewLenN : (len : SchemaLength (S n) schema) -> SchemaLengthS len
+viewLenN (S _) = IsS
+
 
 0 viewAllSnoc :
   (schema1, schema2, schema3 : Schema) ->
@@ -149,24 +172,20 @@ zipperSchemaGen :
   (combiner : (a,b,c : FieldSchema) -> FieldSchema) ->
   Schema
 zipperSchemaGen  [<] schema2 schema3 combiner = [<]
-zipperSchemaGen  (schema1 :< c1@(n1 :! fld1)) schema2 schema3 {length1, length2, length3} combiner with 0 (viewAllSnoc {n, fld1, n1} schema1 schema2 schema3 {length1, length2, length3})
- zipperSchemaGen
-                     (schema1 :< c1@(n1 :! fld1))
-                     (schema2 :< c2@(n2 :! fld2))
-                     (schema3 :< c3@(n3 :! fld3))
-   combiner | AllSnoc' {n1, fld1} with 0 (length1)
-   _ | (S x) = ?h1_0
-     
-  
-{-
-zipperSchemaGen  {n} (schema1 :< c1@(n1 :! fld1)) schema2 schema3 combiner
-  with 0 (viewAllSnoc schema1 schema2 schema3 {n1, fld1, length1, length2, length3})
- zipperSchemaGen (schema1 :< c1@(n1 :! fld1))
-                 (schema2 :< c2@(n2 :! fld2))
-                 (schema3 :< c3@(n3 :! fld3)) combiner | AllSnoc'
-   = zipperSchemaGen {length1 = ?h1, length2 = ?h2, length3 = ?h3} schema1 schema2 schema3 combiner :< combiner c1 c2 c3
--}
--- Disgusting. Generalise so that you only do this once
+zipperSchemaGen  (schema1 :< c1@(n1 :! fld1)) schema2 schema3
+  {length1, length2, length3} combiner with 0 (viewLen length1)
+  zipperSchemaGen
+    (schema1 :< c1@(n1 :! fld1))
+    (schema2 :< c2@(n2 :! fld2))
+    (schema3 :< c3@(n3 :! fld3))
+    {length1 = S length1, length2, length3} combiner | IsS with 0 (viewLen length2) | 0 (viewLen length3)
+   zipperSchemaGen
+    (schema1 :< c1@(n1 :! fld1))
+    (schema2 :< c2@(n2 :! fld2))
+    (schema3 :< c3@(n3 :! fld3))
+    {length1 = S length1, length2 = S length2, length3 = S length3} combiner | IsS | IsS | IsS
+    = zipperSchemaGen {length1, length2, length3} schema1 schema2 schema3 combiner :< combiner c1 c2 c3
+
 zipperSchema :
   (schema1, schema2, schema3 : Schema) ->
   {auto 0 length1 : SchemaLength n schema1} ->
@@ -199,7 +218,41 @@ zipWithRec :
   (zipper : Record (zipperSchema schema1 schema2 schema3
                     {length1,length2,length3})) ->
   Record (zippedSchema schema1 schema2 schema3 {length1,length2,length3})
+zipWithRec [<] rec2 zipper = [<]
+zipWithRec (rec1 :< fld1) rec2 zipper
+  {length1, length2, length3, schema3}
+  with 0 (viewLen length1)
+ zipWithRec (rec1 :< fld1) (rec2 :< fld2) zipper
+  { length1 = S length1
+  , length2
+  , length3
+  , schema3} | IsS with 0 (viewLenN length2) | 0 (viewLenN length3)
+  zipWithRec (rec1 :< fld1) (rec2 :< fld2) zipper
+    { length1 = S length1
+    , length2 = S length2
+    , length3 = S length3
+    , schema3 = schema3 :< (n3 :! type3)} | IsS | IsS | IsS
+    = let (zipper' :< zip) = zipper
+      in zipWithRec rec1 rec2 zipper' :< zip fld1 fld2
 
+reflexiveSchemaLength : (schema : Schema) -> SchemaLength (length schema) schema
+reflexiveSchemaLength [<] = Z
+reflexiveSchemaLength (schema :< (_ :! _)) = S (reflexiveSchemaLength schema)
+
+mapSchemaLengthsAux : {schema : Schema} -> (schemaLength : SchemaLength n schema) -> (fs : List (Type -> Type)) ->
+  All (\f => SchemaLength n (mapSchema f schema)) fs
+mapSchemaLengthsAux _ [] = []
+mapSchemaLengthsAux sL (f :: fs) =
+  let sLength = mapSchemaLength {f} schema
+      0 n = sLength.fst
+      schemaLen = fst $ sLength.snd
+      mapLen    = snd $ sLength.snd
+      0 (Refl) = injectiveSchemaLength schemaLen sL
+  in mapLen :: mapSchemaLengthsAux sL fs
+
+mapSchemaLengths : {schema : Schema} -> (fs : List (Type -> Type)) ->
+  All (\f => SchemaLength (length schema) (mapSchema f schema)) fs
+mapSchemaLengths = mapSchemaLengthsAux (reflexiveSchemaLength schema)
 
 public export
 zipWithRecord : {0 f,g,h : Type -> Type} ->
@@ -210,9 +263,15 @@ zipWithRecord : {0 f,g,h : Type -> Type} ->
   Record (mapSchema f schema) ->
   Record (mapSchema g schema) ->
   Record (mapSchema h schema)
-zipWithRecord c1 c2 d zipper rec rec1 with 0 (mapSchemaLength {f} schema) | (recallSchemaLength rec1)
- zipWithRecord c1 c2 d zipper rec rec1 | (Evidence n foo) | (Evidence m bar) = ?zipWithRecord_rhs_00
- --zipWithRecord c1 c2 d zipper rec rec1 | (Evidence n foo) | (Evidence m bar) = ?zipWithRecord_rhs_0
+zipWithRecord c1 c2 d zipper rec1 rec2 with 0 (mapSchemaLengths {schema} [f,g,h])
+ zipWithRecord c1 c2 d zipper rec1 rec2 | xyz =
+   let 0 length1 = indexAll                Here  xyz
+       0 length2 = indexAll (There         Here) xyz
+       0 length3 = indexAll (There $ There Here) xyz
+   in let result = zipWithRec rec1 rec2 ?h190
+            {length1,length2,length3}
+      in ?nearlythere
+
 --mapRecord c [<] = [<]
 --mapRecord c (rec :< fld) = mapRecord c rec :< c fld
 
@@ -433,7 +492,7 @@ leftJoinMissing tbl1 tbl2 jointNames {ford1 = Refl} {ford2 = Refl} =
        (\r1, mr2 => (r1.project jointData.projection1) ++
            (maybe
              (replicateRecord Nothing)
-             (\r2 => mapRecord Just $ ?h190) --r2.project jointData.projection2)
+             (\r2 => mapRecord Just $ ?h1909) --r2.project jointData.projection2)
              mr2))
 
 ||| Hint so that `auto`-search can find appropriate `Exists`
