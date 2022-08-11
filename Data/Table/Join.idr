@@ -21,6 +21,8 @@ import Data.Table.Show
 
 import Syntax.WithProof
 
+import Decidable.Decidable
+
 %default total
 
 public export
@@ -97,6 +99,7 @@ mapRecord : {0 f : Type -> Type} -> (c : forall a. a -> f a) -> Record schema ->
 mapRecord c [<] = [<]
 mapRecord c (rec :< fld) = mapRecord c rec :< c fld
 
+
 data SchemaLength : Nat -> Schema -> Type where
   Z : SchemaLength 0 [<]
   S : SchemaLength n schema -> SchemaLength (S n) (schema :< (h :! fld))
@@ -121,6 +124,8 @@ injectiveSchemaLength :
   (length1 : SchemaLength n1 schema) ->
   (length2 : SchemaLength n2 schema) ->
   n1 = n2
+injectiveSchemaLength Z Z = Refl
+injectiveSchemaLength (S x) (S y) = cong S (injectiveSchemaLength x y)
 
 tabulateSchema : (n : Nat) -> (f : Fin n -> FieldSchema) -> Schema
 tabulateSchema 0 f = [<]
@@ -153,16 +158,34 @@ viewLen (S _) = IsS
 viewLenN : (len : SchemaLength (S n) schema) -> SchemaLengthS len
 viewLenN (S _) = IsS
 
+data SchemaBy : (xs, ys : Schema) -> Type where
+  SZ : SchemaBy [<] [<]
+  SS : SchemaBy schema schema' -> SchemaBy (schema :< fs) (schema' :< fs')
 
-0 viewAllSnoc :
-  (schema1, schema2, schema3 : Schema) ->
-  {auto 0 length1 : SchemaLength n (schema1 :< (n1 :! fld1))} ->
-  {auto 0 length2 : SchemaLength n schema2} ->
-  {auto 0 length3 : SchemaLength n schema3} ->
-  SchemaViewSnoc (schema1 :< (n1 :! fld1)) schema2 schema3
-viewAllSnoc schema1
-  (schema2 :< (h2 :! fld2)) (schema3 :< (h3 :! fld3))
-  {length1 = S _} {length2 = S _} {length3 = S _} = AllSnoc'
+mapSchemaBy : (schema : Schema) -> (f : Type -> Type) -> SchemaBy schema (mapSchema f schema)
+mapSchemaBy [<] f = SZ
+mapSchemaBy (schema :< fs) f = SS (mapSchemaBy schema f)
+
+recallSchemaLengthS : (0 isS : SchemaLengthS len) -> SchemaLengthS len
+recallSchemaLengthS IsS = IsS
+
+
+foo1 : {schema : Schema} -> Field (mapSchema f schema) x y -> Type
+foo1 {schema = [<]} fld impossible
+foo1 {schema = schema :< fs} Here = fs.Sort
+foo1 {schema = schema :< fs} (There fld) = foo1 fld
+
+foo2 : (fld : Field (mapSchema f schema) x y) ->
+  Field schema x (foo1 {f,schema} fld)
+
+
+mapValue :
+  {0 f : Type -> Type} -> {c : forall a. a -> f a} ->
+  (fld : Field (mapSchema f schema) x y) ->
+  (rec : Record $ mapSchema f schema) -> y
+mapValue fld rec = ?mapValue_rhs
+
+
 
 zipperSchemaGen :
   (schema1, schema2, schema3 : Schema) ->
@@ -268,9 +291,46 @@ zipWithRecord c1 c2 d zipper rec1 rec2 with 0 (mapSchemaLengths {schema} [f,g,h]
    let 0 length1 = indexAll                Here  xyz
        0 length2 = indexAll (There         Here) xyz
        0 length3 = indexAll (There $ There Here) xyz
-   in let result = zipWithRec rec1 rec2 ?h190
+   in let result = zipWithRec rec1 rec2 ?h190910
             {length1,length2,length3}
       in ?nearlythere
+
+-- One more go
+foo : Record schema -> All (\fld => fld.Sort) schema
+foo [<] = [<]
+foo (rec :< x) = foo rec :< x
+
+myAll : {0 schema : Schema} -> (h : forall fld . f fld -> g fld) -> All f schema -> All g schema
+myAll h [<] = [<]
+myAll h (x :< y) = myAll h x :< h y
+
+blah : {schema : Schema} -> Not (schema = [<]) -> IsSnoc schema
+blah {schema = [<]} f = absurd $ f Refl
+blah {schema = (schema :< fs)} f = ItIsSnoc
+
+blahblah : {schema : Schema} -> mapSchema f schema = [<] -> schema = [<]
+blahblah {schema = [<]} Refl = Refl
+blahblah {schema = _ :< _} Refl impossible
+
+blah' : (schema = [<]) -> mapSchema f schema = [<]
+blah' Refl = Refl
+
+contraChain : (a -> b) -> Not b -> Not a
+contraChain f g = g . f
+
+blah'' : Not (mapSchema f schema = [<]) -> Not (schema = [<])
+blah'' = contraChain blah'
+
+-- I think this might be the way to go
+-- Another complicated identity function :)
+gnu : Record a -> {auto 0 ford : a = mapSchema f schema} -> All (\fld => f fld.Sort) schema
+gnu [<] with 0 (blahblah $ sym ford) 
+ gnu [<] | Refl = [<]
+gnu (rec :< x) with 0 (blah $ blah'' $ \prf => case (trans ford prf) of _ impossible)
+ gnu (rec :< x) | ItIsSnoc with 0 (ford)
+  gnu (rec :< x) | ItIsSnoc | Refl = gnu rec {ford = Refl} :< x
+
+
 
 --mapRecord c [<] = [<]
 --mapRecord c (rec :< fld) = mapRecord c rec :< c fld
@@ -470,6 +530,11 @@ leftJoin tbl1 tbl2 jointNames {ford1 = Refl} =
        (\r2 => r2.project jointData.filter2)
        (\r1, r2 => r1.project jointData.projection1 ++ r2.project jointData.projection2)
 
+
+allSatisfy : {0 xs : SnocList a} -> (forall x. p x -> Bool) -> All p xs -> Bool
+allSatisfy f [<] = True
+allSatisfy f (ws :< w) = f w && allSatisfy f ws
+
 public export
 leftJoinMissing : {schema1,schema2,schema2' : Schema}
   -> (tbl1 : Table schema1) -> (tbl2 : Table schema2)
@@ -482,8 +547,9 @@ leftJoinMissing tbl1 tbl2 jointNames {ford1 = Refl} {ford2 = Refl} =
   let jointData = (generateJoinData jointNames joint)
       _ = jointData.eqSchema
   in joinWhenMissing tbl1 tbl2
-       (\r1, mr2 =>
-           ?h10
+       (\r1,rm2 =>
+            let rm2' = gnu rm2 {ford = Refl}
+            in ?h1980
            {- all zipWith
            maybe True (\r2 =>
            r1.project jointData.filter1 ==
