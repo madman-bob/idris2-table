@@ -64,6 +64,182 @@ public export
  _ | False = (rec |-| names) :< fld
 
 
+-- The idea: a record is a special kind of All
+schemaMap : (p : FieldSchema -> FieldSchema) -> Schema -> Schema
+schemaMap p [<] = [<]
+schemaMap p (schema :< fs) = schemaMap p schema :< p fs
+
+public export
+mapSchema : (Type -> Type) -> Schema -> Schema
+mapSchema f = schemaMap $ \fld => fld.Name :! f fld.Sort
+
+public export
+mapRecord : {0 f : Type -> Type} -> (c : forall a. a -> f a) -> Record schema ->
+  Record (mapSchema f schema)
+mapRecord c [<] = [<]
+mapRecord c (rec :< fld) = mapRecord c rec :< c fld
+
+allFwd : All (q . p) schema -> All q $ schemaMap p schema
+allFwd [<] = [<]
+allFwd (xs :< x) = allFwd xs :< x
+
+schemaMapNilNil : {schema : Schema} -> (f : _) -> schemaMap f schema = [<] -> schema = [<]
+schemaMapNilNil {schema = [<]         } f _ = Refl
+schemaMapNilNil {schema = schema :< fs} f _ impossible
+
+lemma : {schema : Schema} -> (p : _) -> Not (schemaMap p schema === [<]) -> IsSnoc schema
+lemma {schema = [<]} p f = absurd $ f Refl
+lemma {schema = schema :< fs@(_ :! _)} p f = ItIsSnoc
+
+{schema : Schema} -> Uninhabited ((schema :< fld) === [<]) where
+  uninhabited Refl impossible
+
+
+snocFieldInjective : {0 schema1,schema2 : Schema} -> (schema1 :< fld1) = (schema2 :< fld2) -> (schema1 = schema2, fld1 = fld2)
+snocFieldInjective Refl = (Refl, Refl)
+
+recallEq : (0 prf : a = b) -> a = b
+recallEq Refl = Refl
+
+-- Ridiculous
+allBwd : (x : All q schema') ->
+  {auto 0 fordSchema : schema' = schemaMap p schema} ->
+  All (q . p) schema
+allBwd [<] with 0 (schemaMapNilNil p $ sym fordSchema)
+ _ | Refl = [<]
+allBwd  {schema} ((xs :< x) {col})
+  with 0 (lemma p $ \prf => absurd $ trans fordSchema prf)
+ allBwd {schema = (schema :< (name :! type))} ((xs :< x) {col = name :! type0})
+   | ItIsSnoc =
+     allBwd xs {fordSchema = fst $ snocFieldInjective fordSchema}
+     :<
+     replace {p = q} (recallEq $ snd $ snocFieldInjective fordSchema) x
+
+allBwd' : (x : All q $ schemaMap p schema) ->
+  All (q . p) schema
+allBwd' x = allBwd x
+-- the point: a Record is an All
+recordAll : Record schema -> All (.Sort) schema
+recordAll [<] = [<]
+recordAll (rec :< x) = recordAll rec :< x
+
+-- Now we can easily write record filters and mergers (I hope)
+
+mapAnyAll : {0 schema : Schema} ->
+  ((pos : Any p schema) -> q pos.field) -> All p schema -> All q schema
+mapAnyAll f [<] = [<]
+mapAnyAll f (xs :< x) = mapAnyAll (\ pos => f $ There pos) xs :< (f $ Here x)
+
+mapAnyAny : {0 schema : Schema} ->
+  ((pos : Any p schema) -> q pos.field) -> Any p schema -> Any q schema
+mapAnyAny f v@(Here _) = Here $ f v
+mapAnyAny f (There x) = There $ mapAnyAny (\y => f $ There y) x
+
+mapAnyDep : {0 schema : Schema} ->
+  (pos : Any p schema) -> (p pos.field -> q pos.field) -> Any q schema
+mapAnyDep (Here  v) f = Here $ f v
+mapAnyDep (There x) f = There $ mapAnyDep x f
+
+makeAny : {0 schema : Schema} -> {0 p, q : FieldSchema -> Type} ->
+  (pos : Any p schema) -> q pos.field -> Any q schema
+makeAny (Here y) x = Here x
+makeAny (There y) x = There $ makeAny y x
+
+anyFwd : Any (q . p) schema -> Any q $ schemaMap p schema
+
+replaceAll : {0 schema : Schema} -> All p schema -> All (\fld => p fld = q fld) schema ->
+  All q schema
+replaceAll rec prf = mapAnyAll
+  (\z => Builtin.replace {p = id} (prf !! z) z.val)
+  rec
+
+replaceAny : {0 schema : Schema} -> {0 p,q : FieldSchema -> Type}-> (pos : Any p schema) ->
+  (p pos.field === q pos.field) -> Any q schema
+replaceAny pos prf = mapAnyDep pos (\v => replace {p = id} prf v)
+
+recordMapAll : Record (schemaMap p schema) -> All ((.Sort) . p) schema
+recordMapAll rec = allBwd' $ recordAll rec
+
+Filter : (schema1, schema2 : Schema) -> Type
+Filter schema1 schema2 = Any (\fld1 => Any (\fld2 => fld1.Sort -> fld2.Sort -> Bool) schema2) schema1
+
+basicFilter : Record schema1 -> Record schema2 ->
+  Filter schema1 schema2
+  -> Bool
+basicFilter rec1 rec2 filter =
+  filter.val.val
+    (recordAll rec1 !! filter)
+    (recordAll rec2 !! filter.val)
+
+filterRecord : Record schema1 -> Record schema2 ->
+  List (Filter schema1 schema2)
+  -> Bool
+filterRecord rec1 rec2 filters = Prelude.all (basicFilter rec1 rec2) filters
+
+(.missing) : Schema -> Schema
+(.missing) = mapSchema Maybe
+
+-- This is promising!
+-- TODO: generalise to more general operations on Maybe
+(.keepMissing) : Filter schema1 schema2 -> Filter (schema1.missing) (schema2.missing)
+filter.keepMissing =
+  let filterm : Maybe filter.field.Sort -> Maybe filter.val.field.Sort -> Bool
+      filterm Nothing my = True
+      filterm (Just x) Nothing = True
+      filterm (Just x) (Just y) = filter.val.val x y
+  in anyFwd $ makeAny filter $ anyFwd $ makeAny filter.val filterm
+
+RecordFilter : (schema1, schema2 : Schema) -> Type
+RecordFilter schema1 schema2 = Record schema1 -> Record schema2 -> Type
+
+-- Subtle! We **have** to use a more intentional notion of equality,
+-- since we don't want to succeed if the record has a missing value,
+-- only if the value we're inspecting is missing.
+(.missingRecord) : RecordFilter schema1 schema2 ->
+  RecordFilter schema1.missing schema2.missing
+recFilter.missingRecord rec1 rec2
+  = let a1 = recordMapAll rec1
+        a2 = recordMapAll rec2
+    in  ?h1
+
+
+{-
+
+-- One more go
+mapAll : {0 schema : Schema} -> (h : forall fld . f fld -> g fld) -> All f schema -> All g schema
+mapAll h [<] = [<]
+mapAll h (x :< y) = mapAll h x :< h y
+
+blah : {schema : Schema} -> Not (schema = [<]) -> IsSnoc schema
+blah {schema = [<]} f = absurd $ f Refl
+blah {schema = (schema :< fs)} f = ItIsSnoc
+
+blahblah : {schema : Schema} -> mapSchema f schema = [<] -> schema = [<]
+blahblah {schema = [<]} Refl = Refl
+blahblah {schema = _ :< _} Refl impossible
+
+blah' : (schema = [<]) -> mapSchema f schema = [<]
+blah' Refl = Refl
+
+contraChain : (a -> b) -> Not b -> Not a
+contraChain f g = g . f
+
+blah'' : Not (mapSchema f schema = [<]) -> Not (schema = [<])
+blah'' = contraChain blah'
+{-
+-- I think this might be the way to go
+-- Another complicated identity function :)
+gnu : Record a -> {auto 0 ford : a = mapSchema f schema} -> All (\fld => f fld.Sort) schema
+gnu [<] with 0 (blahblah $ sym ford)
+ gnu [<] | Refl = [<]
+gnu (rec :< x) with 0 (blah $ blah'' $ \prf => case (trans ford prf) of _ impossible)
+ gnu (rec :< x) | ItIsSnoc with 0 (ford)
+  gnu (rec :< x) | ItIsSnoc | Refl = gnu rec {ford = Refl} :< x
+
+convert : (f : Type -> Type) -> Record (mapSchema f schema) -> All (\fld => f fld.Sort) schema
+convert f rec = gnu rec {ford = Refl}
+
+
 -- Lets reinvent relational algebra
 
 -- Am I going to regret publicly exporting these?
@@ -87,18 +263,6 @@ joinGen joinData rec1 rec2 =
   else [<]
 
 -- Using Any might be better
-
-public export
-mapSchema : (Type -> Type) -> Schema -> Schema
-mapSchema f [<] = [<]
-mapSchema f (schema :< fs) = mapSchema f schema :< (fs.Name :! f fs.Sort)
-
-public export
-mapRecord : {0 f : Type -> Type} -> (c : forall a. a -> f a) -> Record schema ->
-  Record (mapSchema f schema)
-mapRecord c [<] = [<]
-mapRecord c (rec :< fld) = mapRecord c rec :< c fld
-
 
 data SchemaLength : Nat -> Schema -> Type where
   Z : SchemaLength 0 [<]
@@ -294,43 +458,6 @@ zipWithRecord c1 c2 d zipper rec1 rec2 with 0 (mapSchemaLengths {schema} [f,g,h]
    in let result = zipWithRec rec1 rec2 ?h190910
             {length1,length2,length3}
       in ?nearlythere
-
--- One more go
-foo : Record schema -> All (\fld => fld.Sort) schema
-foo [<] = [<]
-foo (rec :< x) = foo rec :< x
-
-myAll : {0 schema : Schema} -> (h : forall fld . f fld -> g fld) -> All f schema -> All g schema
-myAll h [<] = [<]
-myAll h (x :< y) = myAll h x :< h y
-
-blah : {schema : Schema} -> Not (schema = [<]) -> IsSnoc schema
-blah {schema = [<]} f = absurd $ f Refl
-blah {schema = (schema :< fs)} f = ItIsSnoc
-
-blahblah : {schema : Schema} -> mapSchema f schema = [<] -> schema = [<]
-blahblah {schema = [<]} Refl = Refl
-blahblah {schema = _ :< _} Refl impossible
-
-blah' : (schema = [<]) -> mapSchema f schema = [<]
-blah' Refl = Refl
-
-contraChain : (a -> b) -> Not b -> Not a
-contraChain f g = g . f
-
-blah'' : Not (mapSchema f schema = [<]) -> Not (schema = [<])
-blah'' = contraChain blah'
-
--- I think this might be the way to go
--- Another complicated identity function :)
-gnu : Record a -> {auto 0 ford : a = mapSchema f schema} -> All (\fld => f fld.Sort) schema
-gnu [<] with 0 (blahblah $ sym ford) 
- gnu [<] | Refl = [<]
-gnu (rec :< x) with 0 (blah $ blah'' $ \prf => case (trans ford prf) of _ impossible)
- gnu (rec :< x) | ItIsSnoc with 0 (ford)
-  gnu (rec :< x) | ItIsSnoc | Refl = gnu rec {ford = Refl} :< x
-
-
 
 --mapRecord c [<] = [<]
 --mapRecord c (rec :< fld) = mapRecord c rec :< c fld
@@ -569,3 +696,4 @@ public export
 evidenceFieldNamed : (flds : (Field schema1 name type, Field schema2 name type, Eq type)) ->
   jointSchemaType schema1 schema2 name
 evidenceFieldNamed {type} flds = Evidence type flds
+-}

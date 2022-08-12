@@ -36,6 +36,21 @@ modusPonens (all :< pWitness) (Here  qWitness) = Here (pWitness, qWitness)
 modusPonens (all :< _       ) (There pos) = There (modusPonens all pos)
 
 public export
+(.field) : {p : _} -> {schema : _} -> Any p schema -> FieldSchema
+(.field) {schema = _ :< fld} (Here x) = fld
+(.field) (There x) = x.field
+
+public export
+(.val) : (val : Any p schema) -> p ((.field) {p} val)
+(Here x).val = x
+(There pos).val = pos.val
+
+public export
+(!!) : (All p schema) -> (pos : Any q schema) -> p pos.field
+(xs :< x) !! (Here val) = x
+(xs :< x) !! (There pos) = xs !! pos
+
+public export
 map : (f : forall x. p x -> q x) -> All p schema -> All q schema
 map f [<] = [<]
 map f (all :< w) = map f all :< f w
@@ -105,4 +120,3 @@ namespace Many
             => Many p xs
 
     %name Many pxs, pys, pzs
-

@@ -105,8 +105,8 @@ public export
 
 public export
 data IsSnoc : Schema -> Type where
-  ItIsSnoc : IsSnoc (schedma :< col)
+  ItIsSnoc : IsSnoc (schedma :< (name :! type))
 
 public export
 (.tail) : (schema : Schema) -> {auto 0 isSnoc : IsSnoc schema} -> FieldSchema
-(_ :< col).tail {isSnoc = ItIsSnoc} = col
+(_ :< col@_).tail {isSnoc = ItIsSnoc} = col
