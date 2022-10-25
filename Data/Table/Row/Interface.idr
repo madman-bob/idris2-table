@@ -97,8 +97,13 @@ public export
 bindHasRows : (tbl : Table schema1)
            -> (fHasRows : (rec : Record schema1) -> (Exists (HasRows (f rec))))
            -> HasRows (tbl >>= f) (sum $ map (\rec => (fHasRows rec).fst) tbl)
-bindHasRows [<] fHasRows = EmptyTable
-bindHasRows (tbl :< rec) fHasRows = concatHasRows (tbl >>= f) @{bindHasRows _ _} (f rec) @{(fHasRows _).snd}
+bindHasRows tbl fHasRows = partialSumHasRows tbl
+  where
+    partialSumHasRows : (tbl : Table schema1)
+                     -> HasRows acc accRows
+                     => HasRows (foldr (++) acc (map f tbl)) (foldr (+) accRows (map (\rec => (fHasRows rec).fst) tbl))
+    partialSumHasRows [<] @{accHasRows} = accHasRows
+    partialSumHasRows (tbl :< rec) = partialSumHasRows tbl @{concatHasRows _ @{(fHasRows rec).snd} _}
 
 namespace HasRows
     public export
@@ -112,10 +117,18 @@ bindConstHasRows : (0 tbl : Table schema1)
                 -> HasRows tbl m
                 => (fHasRows : (0 rec : Record schema1) -> HasRows (f rec) n)
                 -> HasRows (tbl >>= f) (m * n)
-bindConstHasRows [<] @{EmptyTable} fHasRows = EmptyTable
-bindConstHasRows {m = S m} (tbl :< rec) @{SnocTable _} fHasRows =
-    replace {p = HasRows _} (plusCommutative _ _) $
-    concatHasRows (tbl >>= f) @{bindConstHasRows _ fHasRows} (f rec) @{fHasRows rec}
+bindConstHasRows tbl fHasRows =
+    replace {p = HasRows _} (plusZeroRightNeutral _) $
+    partialSumHasRows tbl
+  where
+    partialSumHasRows : (0 tbl : Table schema1)
+                     -> HasRows tbl p
+                     => HasRows acc accRows
+                     => HasRows (foldr (++) acc (map f tbl)) (p * n + accRows)
+    partialSumHasRows [<] @{EmptyTable} @{accHasRows} = accHasRows
+    partialSumHasRows (tbl :< rec) @{SnocTable hasRows} =
+        replace {p = HasRows _} (trans (plusAssociative _ _ _) $ cong (+ accRows) $ plusCommutative _ _) $
+        partialSumHasRows tbl @{hasRows} @{concatHasRows _ _}
 
 namespace HasRowsConst
     public export
